@@ -603,7 +603,6 @@ void do_render_object(int objnum)
 	int save_3d_outline=0;
 	#endif
 	object *obj = &Objects[objnum];
-	obj->objNum = objnum;
 	int count = 0;
 	int n;
 

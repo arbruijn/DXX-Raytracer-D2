@@ -249,7 +249,6 @@ typedef struct object {
 	int     signature;      // Every object ever has a unique signature...
 	ubyte   type;           // what type of object this is... robot, weapon, hostage, powerup, fireball
 	ubyte   id;             // which form of object...which powerup, robot, etc.
-	int		objNum;			// RT Extension: Holds the array index of which object this is in.
 #ifdef WORDS_NEED_ALIGNMENT
 	short   pad;
 #endif
