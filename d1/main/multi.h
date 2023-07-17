@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 // Need these for non network builds too -Chris
 #define MAX_MESSAGE_LEN 35
 
+#ifdef USE_UDP
 #ifdef _WIN32
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
@@ -54,6 +55,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _sockaddr sockaddr_in
 #define _af AF_INET
 #define _pf PF_INET
+#endif
 #endif
 
 
@@ -373,14 +375,18 @@ extern int multi_received_objects;
  */
 typedef struct netplayer_info
 {
+#if defined(USE_UDP)
 	union
 	{
+#ifdef USE_UDP
 		struct
 		{
 			struct _sockaddr	addr; // IP address of this peer
 			ubyte				isyou; // This flag is set true while sending info to tell player his designated (re)join position
 		} udp;
+#endif
 	} protocol;	
+#endif
 	char						callsign[CALLSIGN_LEN+1];
 	sbyte						connected;
 	ubyte						rank;
@@ -400,8 +406,10 @@ typedef struct netplayer_info
  */
 typedef struct netgame_info
 {
+#if defined(USE_UDP)
 	union
 	{
+#ifdef USE_UDP
 		struct
 		{
 			struct _sockaddr		addr; // IP address of this netgame's host
@@ -409,7 +417,9 @@ typedef struct netgame_info
 			sbyte				valid; // Status of Netgame info: -1 = Failed, Wrong version; 0 = No info, yet; 1 = Success
 			fix				GameID;
 		} udp;
+#endif
 	} protocol;	
+#endif
 	struct netplayer_info 				players[MAX_PLAYERS+4];
 	struct netplayer_info               observers[MAX_OBSERVERS]; 
 	char    					game_name[NETGAME_NAME_LEN+1];
