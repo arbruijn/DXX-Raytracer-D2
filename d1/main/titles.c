@@ -1181,9 +1181,7 @@ static int briefing_handler(window *wind, d_event *event, briefing *br)
 			if (br->bitmap_name[0] != 0)
 				show_animated_bitmap(br);
 			if (br->robot_num != -1)
-			{
 				show_spinning_robot_frame(br, br->robot_num);
-			}
 
 			gr_set_curfont( GAME_FONT );
 

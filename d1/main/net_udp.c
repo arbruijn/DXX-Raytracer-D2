@@ -450,7 +450,7 @@ int udp_open_socket(int socknum, int port)
 	if( UDP_Socket[socknum] != -1 )
 		udp_close_socket(socknum);
 
-	{      
+	{
 #ifdef _WIN32
 	struct _sockaddr sAddr;   // my address information
 

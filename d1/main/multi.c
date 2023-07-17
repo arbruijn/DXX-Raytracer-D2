@@ -2677,8 +2677,7 @@ multi_send_player_explode(char type)
 	for (i = 0; i < Net_create_loc; i++)
 	{
 		if (Net_create_objnums[i] <= 0) {
-#if 0 
-// Now legal, happens if there are too much powerups in mine
+#if 0 // Now legal, happens if there are too much powerups in mine
 			Int3(); // Illegal value in created egg object numbers
 #endif
 			continue;

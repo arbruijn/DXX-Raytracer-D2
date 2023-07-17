@@ -114,8 +114,7 @@ int ReadConfigFile()
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
-	if (infile == NULL) 
-	{
+	if (infile == NULL) {
 		if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
 			Game_screen_mode = SM(GameCfg.ResolutionX, GameCfg.ResolutionY);
 		return 1;

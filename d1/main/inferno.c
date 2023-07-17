@@ -447,8 +447,8 @@ int main(int argc, char *argv[])
 #endif //QUICK_START
 
 	setjmp(LeaveEvents);
-		// Send events to windows and the default handler
 	while (window_get_front())
+		// Send events to windows and the default handler
 		event_process();
 	
 	// Tidy up - avoids a crash on exit

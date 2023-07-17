@@ -1929,12 +1929,12 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 	if (weapon_num != old_weapon[weapon_type] && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !PlayerCfg.HudMode)
 	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
-		weapon_box_fade_values[weapon_type] = i2f(GR_FADE_LEVELS - 1);
+		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
 	}
 
 	if (old_weapon[weapon_type] == -1)
 	{
-		draw_weapon_info(weapon_type, weapon_num);
+		draw_weapon_info(weapon_type,weapon_num);
 		old_weapon[weapon_type] = weapon_num;
 		weapon_box_states[weapon_type] = WS_SET;
 	}
@@ -1960,7 +1960,7 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 		{
 			draw_weapon_info(weapon_type,weapon_num);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
-			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS - 1)) {
+			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
 				old_weapon[weapon_type] = -1;
 			}
@@ -2859,7 +2859,7 @@ void render_gauges()
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		draw_weapon_boxes();
 
-		if (Newdemo_state==ND_STATE_RECORDING)
+		if (Newdemo_state == ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
 		draw_energy_bar(energy);
 		draw_numerical_display(shields, energy);
@@ -2882,8 +2882,7 @@ void render_gauges()
 		show_homing_warning();
 		draw_wbu_overlay();
 
-	}
-	else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
+	} else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR) {
 		draw_weapon_boxes();
 
 		if (Newdemo_state == ND_STATE_RECORDING)
@@ -2900,7 +2899,7 @@ void render_gauges()
 			sb_draw_shield_bar(shields);
 		sb_draw_shield_num(shields);
 
-		if (Newdemo_state == ND_STATE_RECORDING)
+		if (Newdemo_state==ND_STATE_RECORDING)
 		{
 			newdemo_record_player_shields(shields);
 			newdemo_record_player_flags(Players[Player_num].flags);
