@@ -91,7 +91,6 @@ extern polymodel Polygon_models[];
 // how many polygon objects there are
 extern int N_polygon_models;
 
-
 // array of names of currently-loaded models
 extern char Pof_names[MAX_POLYGON_MODELS][13];
 

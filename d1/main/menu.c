@@ -448,7 +448,6 @@ int main_menu_handler(newmenu *menu, d_event *event, int *menu_choice )
 
 		case EVENT_NEWMENU_DRAW:
 			draw_copyright();
-
 			break;
 
 		case EVENT_NEWMENU_SELECTED:
@@ -529,7 +528,6 @@ int DoMenu()
 	memset(m, 0, sizeof(newmenu_item)*25);
 
 	create_main_menu(m, menu_choice, &num_options); // may have to change, eg, maybe selected pilot and no save games.
-
 
 	newmenu_do3( "", NULL, num_options, m, (int (*)(newmenu *, d_event *, void *))main_menu_handler, menu_choice, 0, Menu_pcx_name);
 
@@ -777,7 +775,7 @@ int do_new_game_menu()
 {
 	int new_level_num,player_highest_level;
 
-	new_level_num = 1; 
+	new_level_num = 1;
 #ifdef SHIPPING_BUILD
 	player_highest_level = get_highest_level();
 
@@ -1323,6 +1321,7 @@ int raytrace_config_menuset(newmenu *menu, d_event *event, void *userdata)
 		default:
 			break;
 	}
+
 
 	return 0;
 }

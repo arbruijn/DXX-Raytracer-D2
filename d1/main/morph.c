@@ -323,9 +323,9 @@ void morph_start(object *obj)
 
 void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 {
-	int i, mn;
+	int i,mn;
 	int facing;
-	int sort_list[MAX_SUBMODELS], sort_n;
+	int sort_list[MAX_SUBMODELS],sort_n;
 	polymodel* pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 
 #ifdef RT_DX12
@@ -338,11 +338,11 @@ void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 	sort_list[0] = submodel_num;
 	sort_n = 1;
 
-	for (i = 0; i < pm->n_models; i++)
+	for (i=0;i<pm->n_models;i++)
 
-		if (md->submodel_active[i] && pm->submodel_parents[i] == submodel_num) {
+		if (md->submodel_active[i] && pm->submodel_parents[i]==submodel_num) {
 
-			facing = g3_check_normal_facing(&pm->submodel_pnts[i], &pm->submodel_norms[i]);
+			facing = g3_check_normal_facing(&pm->submodel_pnts[i],&pm->submodel_norms[i]);
 
 			if (!facing)
 
@@ -351,8 +351,8 @@ void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 			else {		//put at start
 				int t;
 
-				for (t = sort_n; t > 0; t--)
-					sort_list[t] = sort_list[t - 1];
+				for (t=sort_n;t>0;t--)
+					sort_list[t] = sort_list[t-1];
 
 				sort_list[0] = i;
 
@@ -362,36 +362,36 @@ void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 			}
 
 		}
-
+	
 
 	//now draw everything
 
-	for (i = 0; i < sort_n; i++) {
+	for (i=0;i<sort_n;i++) {
 
 		mn = sort_list[i];
 
 		// note(lily): the first item in the submodel is the one that will be drawn, the rest is all submodels of that first model...
 		if (mn == submodel_num) {
-			int i;
+ 			int i;
 
-			for (i = 0; i < pm->n_textures; i++) {
-				texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[pm->first_texture + i]];
-				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture + i]].index];
+			for (i=0;i<pm->n_textures;i++)		{
+				texture_list_index[i] = ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]];
+				texture_list[i] = &GameBitmaps[ObjBitmaps[ObjBitmapPtrs[pm->first_texture+i]].index];
 			}
 
 			// Make sure the textures for this object are paged in...
 			piggy_page_flushed = 0;
-			for (i = 0; i < pm->n_textures; i++)
-				PIGGY_PAGE_IN(texture_list_index[i]);
+			for (i=0;i<pm->n_textures;i++)	
+				PIGGY_PAGE_IN( texture_list_index[i] );
 			// Hmmm... cache got flushed in the middle of paging all these in,
 			// so we need to reread them all in.
-			if (piggy_page_flushed) {
+			if (piggy_page_flushed)	{
 				piggy_page_flushed = 0;
-				for (i = 0; i < pm->n_textures; i++)
-					PIGGY_PAGE_IN(texture_list_index[i]);
+				for (i=0;i<pm->n_textures;i++)	
+					PIGGY_PAGE_IN( texture_list_index[i] );
 			}
 			// Make sure that they can all fit in memory.
-			Assert(piggy_page_flushed == 0);
+			Assert( piggy_page_flushed == 0 );
 
 			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]], texture_list, obj->rtype.pobj_info.anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]]);
 
@@ -403,7 +403,7 @@ void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 
 			vm_angles_2_matrix(&orient, &obj->rtype.pobj_info.anim_angles[mn]);
 
-			g3_start_instance_matrix(&pm->submodel_offsets[mn], &orient);
+			g3_start_instance_matrix(&pm->submodel_offsets[mn],&orient);
 
 			draw_model(obj, mn, light, md);
 

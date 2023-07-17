@@ -161,7 +161,7 @@ void check_segment(segment *seg)
 		}
 
 		if (gr_ugpixel(&grd_curcanv->cv_bitmap,Search_x,Search_y) == 1)
-		{
+                 {
 			if (N_found_segs < MAX_FOUND_SEGS)
 				Found_segs[N_found_segs++] = SEG_PTR_2_NUM(seg);
 			else

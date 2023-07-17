@@ -418,12 +418,12 @@ void key_handler(SDL_KeyboardEvent *kevent)
 		event.keycode = keycode;
 		#ifdef RT_KEY_LOG
 		RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event %s: %s %s %s %s %s %s\n",
-			   (key_state) ? "EVENT_KEY_COMMAND" : "EVENT_KEY_RELEASE",
-			   (keycode & KEY_METAED) ? "META" : "",
-			   (keycode & KEY_DEBUGGED) ? "DEBUG" : "",
-			   (keycode & KEY_CTRLED) ? "CTRL" : "",
-			   (keycode & KEY_ALTED) ? "ALT" : "",
-			   (keycode & KEY_SHIFTED) ? "SHIFT" : "",
+				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
+				(keycode & KEY_METAED)	? "META" : "",
+				(keycode & KEY_DEBUGGED)	? "DEBUG" : "",
+				(keycode & KEY_CTRLED)	? "CTRL" : "",
+				(keycode & KEY_ALTED)	? "ALT" : "",
+				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
 			   key_properties[keycode & 0xff].key_text);
 		#endif // RT_KEY_LOG
 		event_send((d_event *)&event);

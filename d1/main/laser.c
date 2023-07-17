@@ -789,9 +789,9 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 	// Find the initial position of the laser
 	pnt = &Player_ship->gun_points[gun_num];
 
-	// double gx = (double)(pnt->x) / (double)(F1_0);
-	// double gy = (double)(pnt->y) / (double)(F1_0);
-	// double gz = (double)(pnt->z) / (double)(F1_0);
+//double gx = (double)(pnt->x) / (double)(F1_0); 
+//double gy = (double)(pnt->y) / (double)(F1_0); 
+//double gz = (double)(pnt->z) / (double)(F1_0); 
 	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Creating weapon at offset %f, %f, %f\n", gx, gy, gz);
 
 	vm_copy_transpose_matrix(&m,&obj->orient);

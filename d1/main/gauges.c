@@ -1610,9 +1610,9 @@ void draw_player_ship(int cloak_state,int x, int y)
 		bm = &GameBitmaps[Gauges[GAUGE_SHIPS+color].index];
 	}
 
-	// for(int i = 0; i < 8; i++) {
+	//for(int i = 0; i < 8; i++) {
 	//	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Player ship %d %d\n", i, Gauges[GAUGE_SHIPS+i].index);
-	// }
+	//}
 
 	if (cloak_state)
 	{
@@ -1735,8 +1735,8 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	//clear the window
 	if (PlayerCfg.CockpitMode[1] != CM_MODEL_3D) {
-		gr_setcolor(BM_XRGB(0, 0, 0));
-		gr_rect(HUD_SCALE_X(box->left), HUD_SCALE_Y(box->top), HUD_SCALE_X(box->right), HUD_SCALE_Y(box->bot + 1));
+	gr_setcolor(BM_XRGB(0,0,0));
+	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1));
 	}
 
 	bm=&GameBitmaps[Weapon_info[info_index].picture.index];
@@ -1749,7 +1749,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 #endif
 	}
 	else
-        hud_bitblt(HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm);
+	hud_bitblt(HUD_SCALE_X(pic_x), HUD_SCALE_Y(pic_y), bm);
 
 	if (PlayerCfg.HudMode == 0)
 	{
@@ -1876,7 +1876,7 @@ void draw_weapon_box_hud_3d_cockpit(int weapon_type, int weapon_num)
 	if (weapon_num != old_weapon[weapon_type] && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !PlayerCfg.HudMode)
 	{
 		weapon_box_states[weapon_type] = WS_FADING_OUT;
-		weapon_box_fade_values[weapon_type] = i2f(GR_FADE_LEVELS - 1);
+		weapon_box_fade_values[weapon_type]=i2f(GR_FADE_LEVELS-1);
 	}
 
 	if (old_weapon[weapon_type] == -1)
@@ -1907,7 +1907,7 @@ void draw_weapon_box_hud_3d_cockpit(int weapon_type, int weapon_num)
 		{
 			//draw_weapon_info(weapon_type, weapon_num);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
-			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS - 1)) {
+			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS-1)) {
 				weapon_box_states[weapon_type] = WS_SET;
 				old_weapon[weapon_type] = -1;
 			}
@@ -1915,7 +1915,7 @@ void draw_weapon_box_hud_3d_cockpit(int weapon_type, int weapon_num)
 	}
 	else
 	{
-		draw_weapon_info(weapon_type, weapon_num);
+		draw_weapon_info(weapon_type,weapon_num);
 		old_weapon[weapon_type] = weapon_num;
 	}
 }
@@ -1923,8 +1923,8 @@ void draw_weapon_box_hud_3d_cockpit(int weapon_type, int weapon_num)
 void draw_weapon_box(int weapon_type,int weapon_num)
 {
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(GAME_FONT);
 
+	gr_set_curfont( GAME_FONT );
 
 	if (weapon_num != old_weapon[weapon_type] && weapon_box_states[weapon_type] == WS_SET && (old_weapon[weapon_type] != -1) && !PlayerCfg.HudMode)
 	{
@@ -1940,7 +1940,7 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 	}
 
 	if (weapon_box_states[weapon_type] == WS_FADING_OUT) {
-		draw_weapon_info(weapon_type, old_weapon[weapon_type]);
+		draw_weapon_info(weapon_type,old_weapon[weapon_type]);
 		weapon_box_fade_values[weapon_type] -= FrameTime * FADE_SCALE;
 		if (weapon_box_fade_values[weapon_type] <= 0)
 		{
@@ -1958,7 +1958,7 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 		}
 		else
 		{
-			draw_weapon_info(weapon_type, weapon_num);
+			draw_weapon_info(weapon_type,weapon_num);
 			weapon_box_fade_values[weapon_type] += FrameTime * FADE_SCALE;
 			if (weapon_box_fade_values[weapon_type] >= i2f(GR_FADE_LEVELS - 1)) {
 				weapon_box_states[weapon_type] = WS_SET;
@@ -1980,7 +1980,7 @@ void draw_weapon_box(int weapon_type,int weapon_num)
 
 		gr_settransblend(fade_value, GR_BLEND_NORMAL);
 		if (PlayerCfg.CockpitMode[1] != CM_MODEL_3D)
-		    gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot));
+		gr_rect(HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].left),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].top),HUD_SCALE_X(gauge_boxes[boxofs+weapon_type].right),HUD_SCALE_Y(gauge_boxes[boxofs+weapon_type].bot));
 
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
@@ -2838,18 +2838,18 @@ void render_gauges()
 {
 	int energy = f2ir(Players[Player_num].energy);
 	int shields = f2ir(Players[Player_num].shields);
-	int cloak = ((Players[Player_num].flags & PLAYER_FLAGS_CLOAKED) != 0);
+	int cloak = ((Players[Player_num].flags&PLAYER_FLAGS_CLOAKED) != 0);
 
 #ifdef RT_DX12
 	Assert(PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1] == CM_STATUS_BAR || PlayerCfg.CockpitMode[1] == CM_MODEL_3D);
 #else
-	Assert(PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1] == CM_STATUS_BAR);
+	Assert(PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR);
 #endif
 
-	if (shields < 0) shields = 0;
+	if (shields < 0 ) shields = 0;
 
 	gr_set_current_canvas(NULL);
-	gr_set_curfont(GAME_FONT);
+	gr_set_curfont( GAME_FONT );
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		if (Players[Player_num].homing_object_dist >= 0)
@@ -2859,7 +2859,7 @@ void render_gauges()
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT) {
 		draw_weapon_boxes();
 
-		if (Newdemo_state == ND_STATE_RECORDING)
+		if (Newdemo_state==ND_STATE_RECORDING)
 			newdemo_record_player_energy(energy);
 		draw_energy_bar(energy);
 		draw_numerical_display(shields, energy);
@@ -2909,7 +2909,7 @@ void render_gauges()
 
 		sb_show_lives();
 
-		if ((Game_mode & GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)))
+		if ((Game_mode&GM_MULTI) && !((Game_mode & GM_MULTI_COOP) || (Game_mode & GM_MULTI_ROBOTS)))
 		{
 			sb_show_score();
 		}

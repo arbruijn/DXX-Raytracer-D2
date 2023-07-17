@@ -764,7 +764,6 @@ static void show_animated_bitmap(briefing *br)
 	}
 
 	br->door_div_count = DOOR_DIV_INIT;
-
 	if (br->bitmap_name[0] != 0) {
 		char		*pound_signp;
 		int		num, dig1, dig2;
@@ -860,10 +859,10 @@ static void show_briefing_bitmap(grs_bitmap *bmp)
 	gr_set_current_canvas(bitmap_canv);
 
 #if defined(OGL) || defined(RT_DX12)
-	if (((float)SWIDTH / (HIRESMODE ? 640 : 320)) < ((float)SHEIGHT / (HIRESMODE ? 480 : 200)))
-		scale = ((float)SWIDTH / (HIRESMODE ? 640 : 320));
+	if (((float)SWIDTH/(HIRESMODE ? 640 : 320)) < ((float)SHEIGHT/(HIRESMODE ? 480 : 200)))
+		scale = ((float)SWIDTH/(HIRESMODE ? 640 : 320));
 	else
-		scale = ((float)SHEIGHT / (HIRESMODE ? 480 : 200));
+		scale = ((float)SHEIGHT/(HIRESMODE ? 480 : 200));
 #endif
 
 #ifdef RT_DX12

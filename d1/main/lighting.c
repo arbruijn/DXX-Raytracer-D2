@@ -102,8 +102,6 @@ int	Do_dynamic_light=1;
 int use_fcd_lighting = 0;
 g3s_lrgb Dynamic_light[MAX_VERTICES];
 
-
-
 #define	HEADLIGHT_CONE_DOT	(F1_0*9/10)
 #define	HEADLIGHT_SCALE		(F1_0*10)
 
@@ -315,9 +313,9 @@ g3s_lrgb compute_light_emission(int objnum)
 		case OBJ_WEAPON:
 		{
 			fix tval = Weapon_info[obj->id].light;
-			
+
 			if (obj->id == FLARE_ID )
-				light_intensity = 2 * (min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum & 0x0f]) & 0x3fff));
+				light_intensity = 2* (min(tval, obj->lifeleft) + ((((fix)GameTime64) ^ Obj_light_xlate[objnum&0x0f]) & 0x3fff));
 			else
 				light_intensity = tval;
 			break;
@@ -378,7 +376,7 @@ g3s_lrgb compute_light_emission(int objnum)
 			break;
 		}
 	}
-	
+
 	if (compute_color)
 	{
 		int i, t_idx_s = -1, t_idx_e = -1;
@@ -457,7 +455,7 @@ g3s_lrgb compute_light_emission(int objnum)
 			obj_color.r = obj_color.g = obj_color.b = 255;
 
 		// scale color to light intensity
-		cscale = ((float)(light_intensity * 3) / (obj_color.r + obj_color.g + obj_color.b));
+		cscale = ((float)(light_intensity*3)/(obj_color.r+obj_color.g+obj_color.b));
 		lemission.r = obj_color.r * cscale;
 		lemission.g = obj_color.g * cscale;
 		lemission.b = obj_color.b * cscale;
@@ -623,7 +621,7 @@ fix compute_headlight_light_on_object(object *objp)
 	fix	light;
 
 	//	Let's just illuminate players and robots for speed reasons, ok?
-	if ((objp->type != OBJ_ROBOT) && (objp->type != OBJ_PLAYER))
+	if ((objp->type != OBJ_ROBOT) && (objp->type	!= OBJ_PLAYER))
 		return 0;
 
 	light = 0;

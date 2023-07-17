@@ -480,7 +480,6 @@ void do_physics_sim(object *obj)
 
 #ifdef EXTRA_DEBUG
 	//check for correct object segment
-
 	if (!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0 
 #ifdef RT_DX12
 		&& !g_rt_free_cam_info.g_free_cam_enabled && !g_rt_free_cam_info.g_free_cam_clipping_enabled
@@ -490,11 +489,10 @@ void do_physics_sim(object *obj)
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
 				Int3();
-			compute_segment_center(&obj->pos, &Segments[obj->segnum]);
+			compute_segment_center(&obj->pos,&Segments[obj->segnum]);
 			obj->pos.x += objnum;
 		}
 	}
-
 #endif
 
 	start_pos = obj->pos;
@@ -556,7 +554,6 @@ void do_physics_sim(object *obj)
 				total_drag = fixmul(total_drag,f1_0-fixmul(k,drag));
 
 				vm_vec_scale(&obj->mtype.phys_info.velocity,total_drag);
-
 			}
 		} else if (STRATEGY == GEOMETRIC_DRAG) {
 			if (obj->mtype.phys_info.flags & PF_USES_THRUST) {
@@ -613,9 +610,10 @@ void do_physics_sim(object *obj)
 
 		// The rest of this function is collision stuff
 		// Observers just fly free
+		
 		if(Game_mode & GM_OBSERVER && 
 			((obj->id == Player_num) ||
-			((Game_mode & GM_MULTI_COOP) && (obj - Objects == 7)))) {
+			((Game_mode & GM_MULTI_COOP) && (obj - Objects == 7))) ) {
 			obj->pos = new_pos;
 			return;
 		}
@@ -644,18 +642,18 @@ void do_physics_sim(object *obj)
 		if (obj->type == OBJ_PLAYER)
 			fq.flags |= FQ_GET_SEGLIST;
 
-
 		fate = find_vector_intersection(&fq,&hit_info);
-		// if(fate != HIT_NONE) {
-		//	double radius = (double)(fq.rad) / (double)(F1_0);
+		//if(fate != HIT_NONE) {
+		//	double radius = (double)(fq.rad) / (double)(F1_0); 
 		//	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Collision from object with radius %0.2f\n", radius);
-		// }
+		//}
+
 
 		//	Matt: Mike's hack.
 		if (fate == HIT_OBJECT) {
 			object	*objp = &Objects[hit_info.hit_object];
 
-			// double radius = (double)(objp->size) / (double)(F1_0);
+			//double radius = (double)(objp->size) / (double)(F1_0); 
 			// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "   Collided with object of radius %0.2f\n", radius);
 
 			if (((objp->type == OBJ_WEAPON) && is_proximity_bomb_or_smart_mine(objp->id)) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
@@ -760,6 +758,7 @@ void do_physics_sim(object *obj)
 				}
 			}
 		}
+
 
 		switch( fate )		{
 

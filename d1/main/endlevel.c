@@ -871,7 +871,7 @@ void render_external_scene(fix eye_offset)
 
 	//g3_draw_horizon(BM_XRGB(0,0,0),BM_XRGB(16,16,16));		//,-1);
 #ifndef RT_DX12
-    gr_clear_canvas(BM_XRGB(0,0,0));
+	gr_clear_canvas(BM_XRGB(0,0,0));
 #endif
 
 	g3_start_instance_matrix(&vmd_zero_vector,&surface_orient);
@@ -1445,10 +1445,10 @@ try_again:
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
 				RT_LOGF(RT_LOGSERVERITY_INFO, "Can't load exit terrain from file %s: IFF error: %s\n",
-					   p, iff_errormsg(iff_error));
-				endlevel_data_loaded = 0; // won't be able to play endlevel sequence
-				PHYSFS_close(ifile);
-				return;
+                                                p, iff_errormsg(iff_error));
+					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
+					PHYSFS_close(ifile);
+					return;
 				}
 
 				terrain_bitmap = &terrain_bm_instance;
@@ -1502,7 +1502,7 @@ try_again:
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
 					RT_LOGF(RT_LOGSERVERITY_INFO, "Can't load exit satellite from file %s: IFF error: %s\n",
-						p, iff_errormsg(iff_error));
+                                                p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 					PHYSFS_close(ifile);
 					return;

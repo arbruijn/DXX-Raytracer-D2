@@ -450,7 +450,7 @@ int udp_open_socket(int socknum, int port)
 	if( UDP_Socket[socknum] != -1 )
 		udp_close_socket(socknum);
 
-	{
+	{      
 #ifdef _WIN32
 	struct _sockaddr sAddr;   // my address information
 
@@ -458,7 +458,7 @@ int udp_open_socket(int socknum, int port)
 
 	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
 		RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket: socket creation failed (port %i)\n", port);
-		nm_messagebox(TXT_ERROR, 1, TXT_OK, "Port: %i\nCould not create socket.", port);
+		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
 	}
 
@@ -4263,7 +4263,7 @@ void net_udp_reset_connection_statuses() {
 		}
 	}
 
-	netgame_token = my_player_token = generate_token();
+	netgame_token = my_player_token = generate_token(); 
 	RT_LOGF(RT_LOGSERVERITY_INFO, "Generated token %d\n", netgame_token);
 }
 
@@ -5280,7 +5280,7 @@ void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ush
 			multi_reset_stuff();
 		}
 	}
-
+	
 	RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Adding MData pkt_num %i, type %i from P#%i to MData store list\n", Player_num, pkt_num, data[0], pnum);
 	UDP_mdata_queue[found].used = 1;
 	UDP_mdata_queue[found].pkt_initial_timestamp = time;

@@ -289,8 +289,8 @@ void init_cockpit()
 	switch( PlayerCfg.CockpitMode[1] ) {
 		case CM_FULL_COCKPIT:
         {
-            game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT * 2) / 3);
-            break;
+			game_init_render_sub_buffers(0, 0, SWIDTH, (SHEIGHT*2)/3);
+			break;
         }
 
 		case CM_REAR_VIEW:
@@ -305,13 +305,13 @@ void init_cockpit()
 			break;
 		}
 		case CM_FULL_SCREEN:
-            game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
+			game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
 			break;
 
 		case CM_STATUS_BAR:
         {
-            game_init_render_sub_buffers(0, 0, SWIDTH, (HIRESMODE ? (SHEIGHT * 2) / 2.6 : (SHEIGHT * 2) / 2.72));
-            break;
+			game_init_render_sub_buffers( 0, 0, SWIDTH, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72) );
+			break;
         }
 
 		case CM_LETTERBOX:
@@ -326,7 +326,7 @@ void init_cockpit()
 			gr_rect(x,SM_H(Game_screen_mode)-h,w,SM_H(Game_screen_mode));
 
 			game_init_render_sub_buffers( x, y, w, h );
-            break;
+			break;
 		}
         case CM_MODEL_3D:
             game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
@@ -995,7 +995,6 @@ void game_disable_cheats()
 int game_handler(window *wind, d_event *event, void *data);
 
 extern int netplayerinfo_on;
-
 window *game_setup(void)
 {
 	window *game_wind;
@@ -1077,7 +1076,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_restore();
-			
+
 			reset_cockpit();
 			break;
 
@@ -1090,7 +1089,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_save();
-			
+
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
 			break;
@@ -1107,7 +1106,6 @@ int game_handler(window *wind, d_event *event, void *data)
 			return ReadControls(event);
 
 		case EVENT_WINDOW_DRAW:
-
 			if (!time_paused)
 			{
 				calc_frame_time();

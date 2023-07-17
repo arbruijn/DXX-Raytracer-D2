@@ -1568,7 +1568,7 @@ int create_gated_robot( int segnum, int object_id)
 
 	RT_LOGF(RT_LOGSERVERITY_INFO, "Gating in object %hu in segment %hu\n", (unsigned short)objnum, (unsigned short)(segp - Segments));
 
-#ifdef NETWORK
+	#ifdef NETWORK
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer
 	#endif
 

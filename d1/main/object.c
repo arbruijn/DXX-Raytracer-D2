@@ -64,7 +64,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "robot.h"
 #include "gameseq.h"
-#include "playsave.h"
+#include "playsave.h" 
 #include "timer.h"
 #include "logger.h"
 
@@ -357,7 +357,7 @@ static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   new_light,
 				   &new_glow,
-				   alt_textures);
+				   alt_textures );
 	}
 	else {
 		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
@@ -369,7 +369,7 @@ static void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
 				   light,
 				   glow,
-				   alt_textures);
+				   alt_textures );
 		g3_set_special_render(NULL,NULL,NULL);
 		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	}
@@ -432,7 +432,6 @@ void draw_polygon_object(object *obj)
 				   bm_ptrs);
 	}
 	else {
-
 		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
 			draw_cloaked_object(obj,light,engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
@@ -465,7 +464,7 @@ void draw_polygon_object(object *obj)
 							   light,
 							   engine_glow_value,
 							   alt_textures);
-				}
+			}
 			}
 
 			uint32_t old_flags;
@@ -1240,7 +1239,7 @@ int obj_create(enum object_type_t type, ubyte id,int segnum,vms_vector *pos,
 
 	obj->signature				= obj_get_signature();
 	obj->type 					= type;
-	obj->id 					= id;
+	obj->id 						= id;
 	obj->last_pos				= *pos;
 	obj->pos 					= *pos;
 	obj->size 					= size;

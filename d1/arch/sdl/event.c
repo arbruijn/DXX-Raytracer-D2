@@ -157,7 +157,7 @@ static void RT_SDL_UpdateKeyModifier(ImGuiIO* io, SDLMod keyMods)
 	ImGuiIO_AddKeyEvent(io, ImGuiMod_Alt, (keyMods & KMOD_ALT) != 0);
 	ImGuiIO_AddKeyEvent(io, ImGuiMod_Super, (keyMods & KMOD_META) != 0);
 }
-
+	
 void RT_Event_Poll(ImGuiIO* io, SDL_Event* ev, int* clean_uniframe, int* idle)
 {
 	SDL_Event event = *ev;
@@ -169,7 +169,6 @@ void RT_Event_Poll(ImGuiIO* io, SDL_Event* ev, int* clean_uniframe, int* idle)
 				memset(unicode_frame_buffer,'\0',sizeof(unsigned char)*KEY_BUFFER_SIZE);
 			*clean_uniframe = 0;
 			*idle = 0;
-
 			//Only do input on true
 			{
 #if 0
@@ -185,7 +184,6 @@ void RT_Event_Poll(ImGuiIO* io, SDL_Event* ev, int* clean_uniframe, int* idle)
 				{
 					ImGuiIO_AddKeyEvent(io, mod, (event.key.type == SDL_KEYDOWN));
 				}
-
 				ImGuiIO_AddKeyEvent(io, key, (event.key.type == SDL_KEYDOWN));
 
 				if (event.key.type == SDL_KEYDOWN) {
@@ -396,7 +394,7 @@ void event_send(d_event *event)
 void event_process(void)
 {
 	d_event event;
-	window* wind = window_get_front();
+	window *wind = window_get_front();
 
 	timer_update();
 
@@ -411,7 +409,7 @@ void event_process(void)
 	wind = window_get_first();
 	while (wind != NULL)
 	{
-		window* prev = window_get_prev(wind);
+		window *prev = window_get_prev(wind);
 		if (window_is_visible(wind))
 			window_send_event(wind, &event);
 

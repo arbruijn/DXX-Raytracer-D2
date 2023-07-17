@@ -186,9 +186,9 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 												killer_name = "something";
 												weapon_name = "unknown";
 										}
-
+										
 										RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from %s's %s blast!\n", (double)(damage) / (double)(F1_0), killer_name, weapon_name);
-
+										
 										multi_send_damage(damage, obj0p->shields, killer->type, killer->id, DAMAGE_BLAST, objp);
 									}
 
@@ -416,7 +416,7 @@ int pick_connected_segment(object *objp, int max_depth)
 	tail = 0;
 
 	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Spawning from %d at depth %d\n", start_seg, max_depth);
-
+	
 	seg_queue[head++] = start_seg;
 	cur_depth = 0;
 

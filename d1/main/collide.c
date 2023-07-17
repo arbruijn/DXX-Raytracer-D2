@@ -1489,9 +1489,9 @@ void collide_player_and_weapon( object * player, object * weapon, vms_vector *co
 				if (Game_mode & GM_MULTI)
 				{
 						RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from %s's %s!\n",
-							   (double)(damage) / (double)(F1_0), killer_name, weapon_name);
+						(double)(damage)/(double)(F1_0), killer_name, weapon_name); 
 
-						multi_send_damage(damage, Players[Player_num].shields, killer->type, killer->id, DAMAGE_WEAPON, NULL);
+					multi_send_damage(damage, Players[Player_num].shields, killer->type, killer->id, DAMAGE_WEAPON, NULL);
 				}
 				#endif
 			}

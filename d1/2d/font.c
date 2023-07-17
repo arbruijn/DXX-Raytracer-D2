@@ -995,6 +995,7 @@ grs_font * gr_init_font( const char * fontname )
 		first_time=0;
 	}
 
+
 	//find free font slot
 	for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=NULL;fontnum++);
 	Assert(fontnum<MAX_OPEN_FONTS);	//did we find one?

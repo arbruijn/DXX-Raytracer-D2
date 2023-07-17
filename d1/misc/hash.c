@@ -26,7 +26,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "strutil.h"
 #include "logger.h"
-
+	
 int hashtable_init( hashtable *ht, int size )	{
 	int i;
 
@@ -84,16 +84,16 @@ int hashtable_getkey( char *key )	{
 int hashtable_search( hashtable *ht, char *key )	{
 	int i,j,k;
 
-	d_strlwr(key);
+	d_strlwr( key );
 
-	k = hashtable_getkey(key);
+	k = hashtable_getkey( key );
 	i = 0;
 	
 	while(i < ht->size )	{
 		j = (k+(i++)) & ht->and_mask;
 		if ( ht->key[j] == NULL )
 			return -1;
-		if (!d_stricmp(ht->key[j], key))
+		if (!d_stricmp(ht->key[j], key ))
 			return ht->value[j];
 	}
 	return -1;

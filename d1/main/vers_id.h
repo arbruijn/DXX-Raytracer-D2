@@ -3,8 +3,8 @@
 #ifndef _VERS_ID
 #define _VERS_ID
 
-#define __stringize2(X) #X
-#define __stringize(X) __stringize2(X)
+#define __stringize2(X)	#X
+#define __stringize(X)	__stringize2(X)
 
 #define D1X_RAYTRACER_VERSION_MAJOR __stringize(D1X_RAYTRACER_VERSION_MAJORi)
 #define D1X_RAYTRACER_VERSION_MINOR __stringize(D1X_RAYTRACER_VERSION_MINORi)

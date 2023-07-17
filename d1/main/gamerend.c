@@ -509,7 +509,7 @@ void game_render_frame_mono(int flip)
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = Newdemo_game_mode;
 
-	if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
+	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
 		render_gauges();
 #ifdef RT_DX12
 	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D)
@@ -616,7 +616,7 @@ void update_cockpits()
 
 void game_render_frame()
 {
-	set_screen_mode(SCREEN_GAME);
+	set_screen_mode( SCREEN_GAME );
 	play_homing_warning();
 	game_render_frame_mono(GameArg.DbgUseDoubleBuffer);
 }

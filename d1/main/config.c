@@ -111,6 +111,7 @@ int ReadConfigFile()
 	GameCfg.Multisample = 0;
 	GameCfg.FPSIndicator = BASE_FPS_INDICATOR;
 	GameCfg.Grabinput = 1;
+
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
 	if (infile == NULL) 

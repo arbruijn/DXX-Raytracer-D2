@@ -223,7 +223,7 @@ void properties_read_cmp(PHYSFS_file * fp)
 
 	exit_modelnum = PHYSFSX_readInt(fp);	
 	destroyed_exit_modelnum = PHYSFSX_readInt(fp);
-    
+
         #ifdef EDITOR
         //Hardcoded flags
         TextureMetals = 156;

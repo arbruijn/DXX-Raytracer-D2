@@ -457,7 +457,7 @@ int properties_init()
 		memcpy( temp_name_read, sndh.name, 8 );
 		temp_name_read[8] = 0;
 		piggy_register_sound( &temp_sound, temp_name_read, 1 );
-        sbytes += sndh.length;
+                sbytes += sndh.length;
 		sbytescompressed += sndh.data_length;
 	}
 

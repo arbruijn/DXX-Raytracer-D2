@@ -74,7 +74,7 @@ int window_close(window *wind)
 
 	#ifdef RT_WINDOW_LOG
 	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
-		(wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
+			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
 	#endif // RT_WINDOW_LOG
 
 	if (window_send_event(wind, &event))

@@ -293,7 +293,7 @@ jmp_buf LeaveEvents;
 //	DESCENT by Parallax Software
 //		Descent Main
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	mem_init();
 #if defined(__LINUX__) || defined(__APPLE__)
@@ -308,9 +308,9 @@ int main(int argc, char* argv[])
 
 	setbuf(stdout, NULL); // unbuffered output via printf
 #ifndef SHIPPING_BUILD
-#ifdef _WIN32 
-	freopen("CON", "w", stdout);
-	freopen("CON", "w", stderr);
+#ifdef _WIN32
+	freopen( "CON", "w", stdout );
+	freopen( "CON", "w", stderr );
 #endif
 #endif //SHIPPING_BUILD
 	if (GameArg.SysShowCmdHelp) {
@@ -322,11 +322,11 @@ int main(int argc, char* argv[])
 	printf("\nType %s -help' for a list of command-line options.\n\n", PROGNAME);
 
 	PHYSFSX_listSearchPathContent();
-
+	
 	if (!PHYSFSX_checkSupportedArchiveTypes())
 		return(0);
 
-	if (!PHYSFSX_contfile_init("descent.hog", 1))
+	if (! PHYSFSX_contfile_init("descent.hog", 1))
 #define DXX_NAME_NUMBER	"1"
 #define DXX_HOGFILE_NAMES	"descent.hog"
 #if defined(__unix__) && !defined(__APPLE__)
@@ -353,10 +353,10 @@ int main(int argc, char* argv[])
 
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
-	case D1_MAC_SHARE_MISSION_HOGSIZE:
-	case D1_MAC_MISSION_HOGSIZE:
-		MacHog = 1;	// used for fonts and the Automap
-		break;
+		case D1_MAC_SHARE_MISSION_HOGSIZE:
+		case D1_MAC_MISSION_HOGSIZE:
+			MacHog = 1;	// used for fonts and the Automap
+			break;
 	}
 
 	load_text();
@@ -384,7 +384,7 @@ int main(int argc, char* argv[])
 
 	// Load the palette stuff. Returns non-zero if error.
 	RT_LOG(RT_LOGSERVERITY_INFO, "Initializing palette system...\n");
-	gr_use_palette_table("PALETTE.256");
+	gr_use_palette_table( "PALETTE.256" );
 
 	RT_LOG(RT_LOGSERVERITY_INFO, "Initializing font system...\n");
 	gamefont_init();	// must load after palette data loaded.
@@ -403,7 +403,7 @@ int main(int argc, char* argv[])
 		return(0);
 
 	RT_LOG(RT_LOGSERVERITY_INFO, "\nInitializing texture caching system...");
-	texmerge_init(10);		// 10 cache bitmaps
+	texmerge_init( 10 );		// 10 cache bitmaps
 
 	RT_LOG(RT_LOGSERVERITY_INFO, "\nRunning game...\n");
 	init_game();
@@ -412,48 +412,48 @@ int main(int argc, char* argv[])
 
 	key_flush();
 
-	if (GameArg.SysPilot)
-	{
-		char filename[32] = "";
-		int j;
-
-		if (GameArg.SysUsePlayersDir)
-			strcpy(filename, "Players/");
-		strncat(filename, GameArg.SysPilot, 12);
-		filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n'
-		for (j = GameArg.SysUsePlayersDir ? 8 : 0; filename[j] != '\0'; j++) {
-			switch (filename[j]) {
-			case ' ':
-				filename[j] = '\0';
-			}
-		}
-		if (!strstr(filename, ".plr")) // if player hasn't specified .plr extension in argument, add it
-			strcat(filename, ".plr");
-		if (PHYSFSX_exists(filename, 0))
+		if(GameArg.SysPilot)
 		{
-			strcpy(strstr(filename, ".plr"), "\0");
-			strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir ? &filename[8] : filename);
-			read_player_file();
-			WriteConfigFile();
-		}
+			char filename[32] = "";
+			int j;
+
+			if (GameArg.SysUsePlayersDir)
+				strcpy(filename, "Players/");
+			strncat(filename, GameArg.SysPilot, 12);
+			filename[8 + 12] = '\0';	// unfortunately strncat doesn't put the terminating 0 on the end if it reaches 'n'
+			for (j = GameArg.SysUsePlayersDir? 8 : 0; filename[j] != '\0'; j++) {
+				switch (filename[j]) {
+					case ' ':
+						filename[j] = '\0';
+				}
+			}
+			if(!strstr(filename,".plr")) // if player hasn't specified .plr extension in argument, add it
+				strcat(filename,".plr");
+			if(PHYSFSX_exists(filename,0))
+			{
+				strcpy(strstr(filename,".plr"),"\0");
+				strcpy(Players[Player_num].callsign, GameArg.SysUsePlayersDir? &filename[8] : filename);
+				read_player_file();
+				WriteConfigFile();
+			}
 	}
 
 
-	Game_mode = GM_GAME_OVER;
-	DoMenu();
+		Game_mode = GM_GAME_OVER;
+		DoMenu();
 
 #ifdef QUICK_START
 	select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
 #endif //QUICK_START
 
 	setjmp(LeaveEvents);
-	// Send events to windows and the default handler
+		// Send events to windows and the default handler
 	while (window_get_front())
 		event_process();
-
+	
 	// Tidy up - avoids a crash on exit
 	{
-		window* wind;
+		window *wind;
 
 		show_menus();
 		while ((wind = window_get_front()))

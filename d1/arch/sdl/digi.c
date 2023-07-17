@@ -53,24 +53,24 @@ void digi_select_system(int n) {
 #ifdef USE_SDLMIXER
 	case SDLMIXER_SYSTEM:
 		RT_LOG(RT_LOGSERVERITY_MEDIUM, "Using SDL_mixer library\n");
-		fptr_init = digi_mixer_init;
-		fptr_close = digi_mixer_close;
-		fptr_reset = digi_mixer_reset;
-		fptr_set_channel_volume = digi_mixer_set_channel_volume;
-		fptr_set_channel_pan = digi_mixer_set_channel_pan;
-		fptr_start_sound = digi_mixer_start_sound;
-		fptr_stop_sound = digi_mixer_stop_sound;
-		fptr_end_sound = digi_mixer_end_sound;
-		fptr_is_sound_playing = digi_mixer_is_sound_playing;
-		fptr_is_channel_playing = digi_mixer_is_channel_playing;
-		fptr_stop_all_channels = digi_mixer_stop_all_channels;
-		fptr_set_digi_volume = digi_mixer_set_digi_volume;
-		break;
+	fptr_init = digi_mixer_init;
+	fptr_close = digi_mixer_close;
+	fptr_reset = digi_mixer_reset;
+	fptr_set_channel_volume = digi_mixer_set_channel_volume;
+	fptr_set_channel_pan = digi_mixer_set_channel_pan;
+	fptr_start_sound = digi_mixer_start_sound;
+	fptr_stop_sound = digi_mixer_stop_sound;
+	fptr_end_sound = digi_mixer_end_sound;
+	fptr_is_sound_playing = digi_mixer_is_sound_playing;
+	fptr_is_channel_playing = digi_mixer_is_channel_playing;
+	fptr_stop_all_channels = digi_mixer_stop_all_channels;
+	fptr_set_digi_volume = digi_mixer_set_digi_volume;
+	break;
 #endif
 	case SDLAUDIO_SYSTEM:
 	default:
 		RT_LOG(RT_LOGSERVERITY_MEDIUM, "Using plain old SDL audio\n");
-		fptr_init = digi_audio_init;
+        fptr_init = digi_audio_init;
         fptr_close = digi_audio_close;
         fptr_reset = digi_audio_reset;
         fptr_set_channel_volume = digi_audio_set_channel_volume;
@@ -170,7 +170,6 @@ int digi_win32_play_midi_song( char * filename, int loop )
 		 * if (***filesize check*** && ***CRC32 or MD5 check***)
 		 *	(((*cur_hmp).trks)[1]).data[6] = 0x6C;
 		 */
-
 		if (hmp_play(cur_hmp,loop) != 0)
 			return 0;	// error
 		digi_win32_midi_song_playing = 1;

@@ -2487,7 +2487,7 @@ void multi_reset_object_texture (object *objp)
 
 	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Custom color for player %d is %d,%d\n", objp->id, wid, mid);
 
-	int id; 
+    int id; 
 	if (Game_mode & GM_TEAM)
 		id = get_team(objp->id);
 	else

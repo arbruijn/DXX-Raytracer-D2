@@ -138,7 +138,6 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 
 		switch (w(p)) {
 
-
 			case OP_DEFPOINTS: {
 				int n = w(p+2);
 
@@ -149,7 +148,6 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 			}
 
 			case OP_DEFP_START: {
-
 				int n = w(p+2);
 				int s = w(p+4);
 
@@ -159,16 +157,18 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				break;
 			}
 
-
 			case OP_FLATPOLY: {
 				int nv = w(p+2);
 
 				Assert( nv < MAX_POINTS_PER_POLY );
 				if (g3_check_normal_facing(vp(p+4),vp(p+16)) > 0) {
 					int i;
+
 					gr_setcolor(w(p+28));
+
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
+
 					g3_draw_poly(nv,point_list);
 				}
 
@@ -217,6 +217,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 
 					for (i=0;i<nv;i++)
 						point_list[i] = Interp_point_list + wp(p+30)[i];
+
 					g3_draw_tmap(nv,point_list,uvl_list,lrgb_list,model_bitmaps[w(p+28)]);
 					d_free(lrgb_list);
 				}
@@ -255,6 +256,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				g3_rotate_point(&rod_top_p,vp(p+4));
 
 				g3_draw_rod_tmap(model_bitmaps[w(p+2)],&rod_bot_p,w(p+16),&rod_top_p,w(p+32),rodbm_light);
+
 				p+=36;
 				break;
 			}
@@ -272,6 +274,7 @@ bool g3_draw_polygon_model(void *model_ptr,grs_bitmap **model_bitmaps,vms_angvec
 				g3_draw_polygon_model(p+w(p+16),model_bitmaps,anim_angles,model_light,glow_values);
 
 				g3_done_instance();
+
 				p += 20;
 
 				break;

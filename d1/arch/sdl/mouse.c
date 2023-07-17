@@ -106,10 +106,10 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	
 	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
 	event.button = button;
-
+	
 	#ifdef RT_MOUSE_LOG
 	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event %s, button %d, coords %d,%d,%d\n",
-		   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
+			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 	#endif // RT_MOUSE_LOG
 
 	event_send((d_event *)&event);
@@ -123,7 +123,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			//event.button = button; // already set the button
 			#ifdef RT_MOUSE_LOG
 			RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
-				   event.button, Mouse.x, Mouse.y);
+					   event.button, Mouse.x, Mouse.y);
 			#endif // RT_MOUSE_LOG
 
 			event_send((d_event *)&event);
@@ -264,9 +264,9 @@ void mouse_cursor_autohide()
 
 	if (Mouse.cursor_enabled)
 	{
-		if ((Mouse.cursor_time + (F1_0 * 2)) >= timer_query() && hidden_time + (F1_0 / 2) < timer_query() && !show)
+		if ( (Mouse.cursor_time + (F1_0*2)) >= timer_query() && hidden_time + (F1_0/2) < timer_query() && !show)
 			SDL_ShowCursor(SDL_ENABLE);
-		else if ((Mouse.cursor_time + (F1_0 * 2)) < timer_query() && show)
+		else if ( (Mouse.cursor_time + (F1_0*2)) < timer_query() && show)
 		{
 			SDL_ShowCursor(SDL_DISABLE);
 			hidden_time = timer_query();

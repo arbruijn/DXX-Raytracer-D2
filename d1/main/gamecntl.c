@@ -1368,7 +1368,7 @@ int ReadControls(d_event *event)
 	}
 	if (Player_is_dead && !((Game_mode & GM_MULTI) && (multi_sending_message[Player_num] || multi_defining_message))) {
 		if (HandleDeathInput(event)) {
-			if ((Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW)) {
+			if( (Game_mode & GM_MULTI) && (Netgame.SpawnStyle == SPAWN_STYLE_PREVIEW) ) {
 				// fall through to normal key handler
 
 				// Make sure flares/shots go in direction of preview

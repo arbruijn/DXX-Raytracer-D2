@@ -167,12 +167,12 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 
 	if ((uint32_t)x > display_width) {
 		RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: Requested width %d exceeds display width %u, scaling down!\n",
-			   x, display_width);
+			x,display_width);
 		x=(int)display_width;
 	}
 	if ((uint32_t)y > display_height) {
 		RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: Requested height %d exceeds display height %u, scaling down!\n",
-				y, display_height);
+			y,display_height);
 		y=(int)display_height;
 	}
 
@@ -330,12 +330,12 @@ int ogl_init_window(int x, int y)
 			RT_LOG(RT_LOGSERVERITY_HIGH, "Could not query video info\n");
 		}
 	}
-	
+
 	if (!SDL_SetVideoMode(use_x, use_y, use_bpp, use_flags))
 	{
 #ifdef RPI
 		RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not set %dx%dx%d opengl video mode: %s\n (Ignored for RPI)",
-			   x, y, GameArg.DbgBpp, SDL_GetError());
+			    x, y, GameArg.DbgBpp, SDL_GetError());
 #else
 		RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
 #endif
@@ -622,8 +622,8 @@ int gr_set_mode(u_int32_t mode)
 	if (mode<=0)
 		return 0;
 
-	w = SM_W(mode);
-	h = SM_H(mode);
+	w=SM_W(mode);
+	h=SM_H(mode);
 
 	if (!gr_check_mode(mode))
 	{
