@@ -1027,7 +1027,7 @@ static int fvi_sub(vms_vector *intp,int *ints,const vms_vector *p0,int startseg,
 
 //      Assert(centermask==0 || hit_seg!=startseg);
 
-//      Assert(sidemask==0);            //RT_LOGF(RT_LOGSERVERITY_HIGH, "Didn't find side we went though");
+//      Assert(sidemask==0);            //Error("Didn't find side we went though");
 
 quit_looking:
 	;

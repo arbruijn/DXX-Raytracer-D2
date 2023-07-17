@@ -80,7 +80,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physfsx.h"
 #include "console.h"
 #include "playsave.h"
-#include "logger.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -3047,7 +3046,7 @@ void newdemo_playback_one_frame()
 					num_objs = Highest_object_index;
 					cur_objs = (object *)d_malloc(sizeof(object) * (num_objs + 1));
 					if (cur_objs == NULL) {
-						RT_LOGF(RT_LOGSERVERITY_MEDIUM , "Couldn't get %lu bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
+						Warning ("Couldn't get %lu bytes for objects in interpolate playback\n", sizeof(object) * num_objs);
 						break;
 					}
 					for (i = 0; i <= num_objs; i++)
@@ -3253,7 +3252,7 @@ void newdemo_stop_recording()
 			sprintf(testpath, "%s%s_%d%s", DEMO_DIR, basename, attemptnum++, DEMO_EXT); 
 		}
 
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "%s does not exist!", testpath);
+		con_printf(CON_NORMAL, "%s does not exist!", testpath); 
 
 		if(attemptnum > 2) {
 			sprintf(filename, "%s_%d", basename, attemptnum - 1); 

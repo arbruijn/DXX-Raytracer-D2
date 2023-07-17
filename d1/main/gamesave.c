@@ -57,7 +57,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "textures.h"
 #include "multi.h"
 #include "makesig.h"
-#include "logger.h"
 
 #ifndef NDEBUG
 void dump_mine_info(void);
@@ -800,7 +799,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 
 	if (object_offset > -1) {
 		if (PHYSFSX_fseek( LoadFile, object_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to object_offset in gamesave.c" );
+			Error( "Error seeking to object_offset in gamesave.c" );
 
 		for (i = 0; i < gs_num_objects; i++) {
 
@@ -913,7 +912,7 @@ int load_game_data(PHYSFS_file *LoadFile)
 					Triggers[i].flags = TRIGGER_ILLUSION_ON;
 					break;
 				default:
-					RT_LOGF(RT_LOGSERVERITY_HIGH, "Warning: unsupported trigger type %d (%d)\n", type, i);
+					con_printf(CON_URGENT,"Warning: unsupported trigger type %d (%d)\n", type, i);
 			}
 			if (PHYSFSX_readByte(LoadFile) & 2)	// one shot
 				Triggers[i].flags |= TRIGGER_ONE_SHOT;
@@ -1148,7 +1147,7 @@ int load_level(const char * filename_passed)
 		#ifdef EDITOR
 			return 1;
 		#else
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Can't open file <%s>\n",filename);
+			Error("Can't open file <%s>\n",filename);
 		#endif
 	}
 

@@ -30,7 +30,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ai.h"
 #include "wall.h"
 #include "laser.h"
-#include "logger.h"
 
 #ifdef RT_DX12
 #include "RTgr.h"
@@ -445,7 +444,7 @@ void do_physics_sim(object *obj)
 
 	/*
 	if(obj-Objects == 0) {
-	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "%f\t%f\t%f\t%f\n", (double)(GameTime64)/(double)(F1_0),
+	con_printf(CON_NORMAL, "%f\t%f\t%f\t%f\n", (double)(GameTime64)/(double)(F1_0),
 		(double)(obj->pos.x)/(double)(F1_0),
 		(double)(obj->pos.y)/(double)(F1_0),
 		(double)(obj->pos.z)/(double)(F1_0));
@@ -453,7 +452,7 @@ void do_physics_sim(object *obj)
 	*/
 	/*
 	if(obj-Objects == 0) {
-	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "%f\t%f\t%f\t%f\n", (double)(GameTime64)/(double)(F1_0),
+	con_printf(CON_NORMAL, "%f\t%f\t%f\t%f\n", (double)(GameTime64)/(double)(F1_0),
 		(double)(obj->orient.uvec.x)/(double)(F1_0),
 		(double)(obj->orient.uvec.y)/(double)(F1_0),
 		(double)(obj->orient.uvec.z)/(double)(F1_0));
@@ -645,7 +644,7 @@ void do_physics_sim(object *obj)
 		fate = find_vector_intersection(&fq,&hit_info);
 		//if(fate != HIT_NONE) {
 		//	double radius = (double)(fq.rad) / (double)(F1_0); 
-		//	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Collision from object with radius %0.2f\n", radius);
+		//	con_printf(CON_NORMAL, "Collision from object with radius %0.2f\n", radius); 
 		//}
 
 
@@ -654,7 +653,7 @@ void do_physics_sim(object *obj)
 			object	*objp = &Objects[hit_info.hit_object];
 
 			//double radius = (double)(objp->size) / (double)(F1_0); 
-			// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "   Collided with object of radius %0.2f\n", radius);
+			//con_printf(CON_NORMAL, "   Collided with object of radius %0.2f\n", radius); 
 
 			if (((objp->type == OBJ_WEAPON) && is_proximity_bomb_or_smart_mine(objp->id)) || objp->type == OBJ_POWERUP) // do not increase count for powerups since they *should* not change our movement
 				count--;

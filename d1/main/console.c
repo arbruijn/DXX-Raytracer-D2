@@ -47,6 +47,64 @@ static void con_add_buffer_line(int priority, char *buffer)
 	}
 }
 
+void con_printf(int priority, const char *fmt, ...)
+{
+	va_list arglist;
+	char buffer[CON_LINE_LENGTH];
+
+	memset(buffer,'\0',CON_LINE_LENGTH);
+
+	if (priority <= ((int)GameArg.DbgVerbose))
+	{
+		char *p1, *p2;
+
+		va_start (arglist, fmt);
+		vsprintf (buffer,  fmt, arglist);
+		va_end (arglist);
+
+		/* Produce a sanitised version and send it to the console */
+		p1 = p2 = buffer;
+		do
+			switch (*p1)
+			{
+				case CC_COLOR:
+				case CC_LSPACING:
+					p1++;
+				case CC_UNDERLINE:
+					p1++;
+					break;
+				default:
+					*p2++ = *p1++;
+			}
+		while (*p1);
+		*p2 = 0;
+
+		/* add given string to con_buffer */
+		con_add_buffer_line(priority, buffer);
+
+		/* Print output to stdout */
+		printf("%s",buffer);
+
+		/* Print output to gamelog.txt */
+		if (gamelog_fp)
+		{
+			struct tm *lt;
+			time_t t;
+			t=time(NULL);
+			lt=localtime(&t);
+			PHYSFSX_printf(gamelog_fp,"%02i:%02i:%02i ",lt->tm_hour,lt->tm_min,lt->tm_sec);
+#ifdef _WIN32 // stupid hack to force DOS-style newlines
+			if (buffer[strlen(buffer)-1] == '\n' && strlen(buffer) <= CON_LINE_LENGTH)
+			{
+				buffer[strlen(buffer)-1]='\r';
+				buffer[strlen(buffer)]='\n';
+			}
+#endif
+			PHYSFSX_printf(gamelog_fp,"%s",buffer);
+		}
+	}
+}
+
 static void con_draw(void)
 {
 	int i = 0, y = 0, done = 0;

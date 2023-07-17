@@ -14,7 +14,6 @@
 #include "mouse.h"
 #include "playsave.h"
 #include "args.h"
-#include "logger.h"
 
 static struct mouseinfo {
 	ubyte  button_state[MOUSE_MAX_BUTTONS];
@@ -96,7 +95,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		
 		if (event2.dz)
 		{
-			// RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
+			//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
 			//		   event2.dx, event2.dy, event2.dz);
 			event_send((d_event *)&event2);
 		}
@@ -108,7 +107,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	event.button = button;
 	
 	#ifdef RT_MOUSE_LOG
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event %s, button %d, coords %d,%d,%d\n",
+	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
 			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
 	#endif // RT_MOUSE_LOG
 
@@ -122,7 +121,7 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 			event.type = EVENT_MOUSE_DOUBLE_CLICKED;
 			//event.button = button; // already set the button
 			#ifdef RT_MOUSE_LOG
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
+			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
 					   event.button, Mouse.x, Mouse.y);
 			#endif // RT_MOUSE_LOG
 
@@ -151,12 +150,9 @@ void mouse_motion_handler(SDL_MouseMotionEvent *mme)
 	
 	Mouse.old_delta_x = event.dx;
 	Mouse.old_delta_y = event.dy;
-
-	#ifdef RT_MOUSE_LOG
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
-			   event.dx, event.dy, event.dz);
-	#endif // RT_MOUSE_LOG
-
+	
+	//con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_MOVED, relative motion %d,%d,%d\n",
+	//		   event.dx, event.dy, event.dz);
 	event_send((d_event *)&event);
 }
 

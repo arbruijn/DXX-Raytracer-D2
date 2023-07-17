@@ -44,7 +44,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "newmenu.h"
 #include "custom.h"
-#include "logger.h"
 
 int piggy_is_substitutable_bitmap( char * name, char * subst_name );
 
@@ -338,7 +337,7 @@ int properties_init()
 	if (Piggy_fp==NULL)
 	{
 		if (!PHYSFSX_exists("BITMAPS.TBL",1) && !PHYSFSX_exists("BITMAPS.BIN",1))
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
+			Error("Cannot find " DEFAULT_PIGFILE_REGISTERED " or BITMAPS.TBL");
 		return 1;	// need to run gamedata_read_tbl
 	}
 
@@ -465,7 +464,7 @@ int properties_init()
 	{
 		SoundBits = d_malloc( sbytes + 16 );
 		if ( SoundBits == NULL )
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Not enough memory to load DESCENT.PIG sounds\n");
+			Error( "Not enough memory to load DESCENT.PIG sounds\n");
 	}
 
 #if 1	//def EDITOR
@@ -479,7 +478,7 @@ int properties_init()
 #endif
 	BitmapBits = d_malloc( Piggy_bitmap_cache_size );
 	if ( BitmapBits == NULL )
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Not enough memory to load DESCENT.PIG bitmaps\n" );
+		Error( "Not enough memory to load DESCENT.PIG bitmaps\n" );
 	Piggy_bitmap_cache_data = BitmapBits;
 	Piggy_bitmap_cache_next = 0;
 
@@ -515,14 +514,14 @@ void piggy_read_sounds(int pc_shareware)
 
 		if (!array && (PHYSFSX_fsize(DEFAULT_PIGFILE_REGISTERED) == D1_MAC_SHARE_PIGSIZE))
 		{
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Warning: Missing Sounds/sounds.array for Mac data files");
+			con_printf(CON_URGENT,"Warning: Missing Sounds/sounds.array for Mac data files");
 			return;
 		}
 		else if (array)
 		{
 			if (PHYSFS_read(array, Sounds, MAX_SOUNDS, 1) != 1)	// make the 'Sounds' index array match with the sounds we're about to read in
 			{
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
+				con_printf(CON_URGENT,"Warning: Can't read Sounds/sounds.array: %s", PHYSFS_getLastError());
 				PHYSFS_close(array);
 				return;
 			}

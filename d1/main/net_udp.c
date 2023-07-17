@@ -52,7 +52,6 @@ typedef long long ssize_t;
 #include "byteswap.h"
 #include "config.h"
 #include "vers_id.h"
-#include "logger.h"
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -372,7 +371,7 @@ void udp_traffic_stat()
 	if (timer_query() >= last_traf_time + F1_0)
 	{
 		last_traf_time = timer_query();
-		RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i TRAFFIC - OUT: %fKB/s %iPPS IN: %fKB/s %iPPS\n", Player_num, (float)UDP_len_sendto / 1024, UDP_num_sendto, (float)UDP_len_recvfrom / 1024, UDP_num_recvfrom);
+		con_printf(CON_VERBOSE, "P#%i TRAFFIC - OUT: %fKB/s %iPPS IN: %fKB/s %iPPS\n",Player_num, (float)UDP_len_sendto/1024, UDP_num_sendto, (float)UDP_len_recvfrom/1024, UDP_num_recvfrom);
 		UDP_num_sendto = UDP_len_sendto = UDP_num_recvfrom = UDP_len_recvfrom = 0;
 	}
 }
@@ -399,7 +398,7 @@ int udp_dns_filladdr( char *host, int port, struct _sockaddr *sAddr )
 	// Resolve the domain name
 	if( getaddrinfo( host, sPort, &hints, &result ) != 0 )
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "udp_dns_filladdr (getaddrinfo) failed\n");
+		con_printf( CON_URGENT, "udp_dns_filladdr (getaddrinfo) failed\n" );
 		nm_messagebox( TXT_ERROR, 1, TXT_OK, "Could not resolve address" );
 		return -1;
 	}
@@ -457,7 +456,7 @@ int udp_open_socket(int socknum, int port)
 	memset( &sAddr, '\0', sizeof( sAddr ) );
 
 	if ((UDP_Socket[socknum] = socket (_af, SOCK_DGRAM, 0)) < 0) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket: socket creation failed (port %i)\n", port);
+		con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)\n", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 		return -1;
 	}
@@ -476,8 +475,8 @@ int udp_open_socket(int socknum, int port)
 #endif
 	
 	if (bind (UDP_Socket[socknum], (struct sockaddr *) &sAddr, sizeof (struct sockaddr)) < 0) 
-	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket: bind name to socket failed (port %i)\n", port);
+	{      
+		con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 		udp_close_socket(socknum);
 		return -1;
@@ -518,14 +517,14 @@ int udp_open_socket(int socknum, int port)
 		{
 			// ai_family is not identic
 			freeaddrinfo (res);
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket: ai_family not identic (port %i)\n", port);
+			con_printf(CON_URGENT,"udp_open_socket: ai_family not identic (port %i)\n", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nai_family_not identic.", port);
 			return -1;
 		}
 	
 		if ((UDP_Socket[socknum] = socket (sres->ai_family, SOCK_DGRAM, 0)) < 0)
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket: socket creation failed (port %i)\n", port);
+			con_printf(CON_URGENT,"udp_open_socket: socket creation failed (port %i)\n", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not create socket.", port);
 			freeaddrinfo (res);
 			return -1;
@@ -533,7 +532,7 @@ int udp_open_socket(int socknum, int port)
 	
 		if ((err = bind (UDP_Socket[socknum], sres->ai_addr, sres->ai_addrlen)) < 0)
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket: bind name to socket failed (port %i)\n", port);
+			con_printf(CON_URGENT,"udp_open_socket: bind name to socket failed (port %i)\n", port);
 			nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not bind name to socket.", port);
 			udp_close_socket(socknum);
 			freeaddrinfo (res);
@@ -544,7 +543,7 @@ int udp_open_socket(int socknum, int port)
 	}
 	else {
 		UDP_Socket[socknum] = -1;
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "udp_open_socket (getaddrinfo):%s failed. port %i\n", gai_strerror(err), port);
+		con_printf(CON_URGENT,"udp_open_socket (getaddrinfo):%s failed. port %i\n", gai_strerror (err), port);
 		nm_messagebox(TXT_ERROR,1,TXT_OK,"Port: %i\nCould not get address information:\n%s", port, gai_strerror (err));
 	}
 	setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, &bcast, sizeof(bcast) );
@@ -761,7 +760,7 @@ int generate_token() {
    }
 
    // Not cryptographically secure, but apparently we can't do that
-   RT_LOG(RT_LOGSERVERITY_INFO, "Using cryptographically insecure token.\n");
+   con_printf(CON_DEBUG, "Using cryptographically insecure token.\n"); 
    srand(time(NULL));
    return rand(); 
 #else
@@ -777,7 +776,7 @@ void drop_rx_packet(ubyte  *data, char* reason) {
 	char comment[200];
 	snprintf(comment, 199, "Dropped %s: %s\n", msg_name(data[0]), reason); 
 	net_log_comment(comment);
-	RT_LOG(RT_LOGSERVERITY_HIGH, comment);
+	con_printf(CON_URGENT, comment); 
 }
 
 int is_master_ip(struct _sockaddr addr) {
@@ -1570,7 +1569,8 @@ void net_udp_receive_sequence_packet(ubyte *data, UDP_sequence_packet *seq, stru
 		struct sockaddr_in *addrin = (struct sockaddr_in*) &seq->player.protocol.udp.addr;
 		char *ip = inet_ntoa(addrin->sin_addr); 
 		ushort port = SWAPSHORT(addrin->sin_port);
-		RT_LOGF(RT_LOGSERVERITY_INFO, "New player joined from ip %s port %d\n", ip, port);
+		con_printf(CON_DEBUG, "New player joined from ip %s port %d\n", ip, port); 
+
 	} else if (multi_i_am_master()) {
 		memcpy(&seq->player.protocol.udp.addr, (struct _sockaddr *)&sender_addr, sizeof(struct _sockaddr));
 	}
@@ -1817,7 +1817,7 @@ net_udp_new_player(UDP_sequence_packet *their)
 	struct sockaddr_in *addrin = (struct sockaddr_in*) &their->player.protocol.udp.addr;
 	char *ip = inet_ntoa(addrin->sin_addr); 
 	ushort port = SWAPSHORT(addrin->sin_port);
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Received new player num %d at ip %s port %d\n", pnum, ip, port);
+	con_printf(CON_DEBUG, "Received new player num %d at ip %s port %d\n", pnum, ip, port); 
 
 	ClipRank (&their->player.rank);
 	Netgame.players[pnum].rank=their->player.rank;
@@ -3093,7 +3093,7 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 					struct sockaddr_in *addrin = (struct sockaddr_in*) &Netgame.players[i].protocol.udp.addr;
 					char *ip = inet_ntoa(addrin->sin_addr); 
 					ushort port = SWAPSHORT(addrin->sin_port);
-					RT_LOGF(RT_LOGSERVERITY_INFO, "Received new player num (in game info) %d at ip %s port %d\n", i, ip, port);
+					con_printf(CON_DEBUG, "Received new player num (in game info) %d at ip %s port %d\n", i, ip, port); 	
 				}		
 
 				len += sizeof(struct _sockaddr);
@@ -3249,7 +3249,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 	memset(&their, 0, sizeof(UDP_sequence_packet));
 
 	if(! pass_security_check(data, sender_addr, length, ! is_proxy)) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Dropped pid %s: failed security checks.\n", msg_name(data[0]));
+		con_printf(CON_URGENT, "Dropped pid %s: failed security checks.\n", msg_name(data[0])); 
 		return;
 	}
 
@@ -3421,7 +3421,7 @@ void net_udp_process_packet(ubyte *data, struct _sockaddr sender_addr, int lengt
 			break; 
 
 		default:
-			RT_LOGF(RT_LOGSERVERITY_INFO, "unknown packet type received - type %i\n", data[0]);
+			con_printf(CON_DEBUG, "unknown packet type received - type %i\n", data[0]);
 			break;
 	}
 }
@@ -4264,7 +4264,7 @@ void net_udp_reset_connection_statuses() {
 	}
 
 	netgame_token = my_player_token = generate_token(); 
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Generated token %d\n", netgame_token);
+	con_printf(CON_DEBUG, "Generated token %d\n", netgame_token); 
 }
 
 void
@@ -4307,7 +4307,7 @@ void net_udp_read_sync_packet( ubyte * data, int data_len, struct _sockaddr send
 	{
 		int packet_valid = net_udp_process_game_info(data, data_len, sender_addr, 0, 1);
 		if(! packet_valid ) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Dropped invalid sync packet.\n");
+			con_printf(CON_URGENT, "Dropped invalid sync packet.\n");
 			return; 
 		}
 	}
@@ -5258,7 +5258,7 @@ void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ush
 
 	if (UDP_mdata_queue[found].used) // seems the slot we found is used (list is full) so screw  those who still need ack's.
 	{
-		RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: MData store list is full!\n", Player_num);
+		con_printf(CON_VERBOSE, "P#%i: MData store list is full!\n", Player_num);
 		if (multi_i_am_master())
 		{
 			for ( i=1; i<N_players; i++ )
@@ -5280,8 +5280,8 @@ void net_udp_noloss_add_queue_pkt(uint32_t pkt_num, fix64 time, ubyte *data, ush
 			multi_reset_stuff();
 		}
 	}
-	
-	RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Adding MData pkt_num %i, type %i from P#%i to MData store list\n", Player_num, pkt_num, data[0], pnum);
+
+	con_printf(CON_VERBOSE, "P#%i: Adding MData pkt_num %i, type %i from P#%i to MData store list\n", Player_num, pkt_num, data[0], pnum);
 	UDP_mdata_queue[found].used = 1;
 	UDP_mdata_queue[found].pkt_initial_timestamp = time;
 	for (i = 0; i < MAX_PLAYERS; i++)
@@ -5315,8 +5315,8 @@ int net_udp_noloss_validate_mdata(uint32_t pkt_num, ubyte sender_pnum, struct _s
 			return 0;
 	}
 	*/
-
-	RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Sending MData ACK for pkt %i - pnum %i\n", Player_num, pkt_num, sender_pnum);
+	
+	con_printf(CON_VERBOSE, "P#%i: Sending MData ACK for pkt %i - pnum %i\n",Player_num, pkt_num, sender_pnum);
 	memset(&buf,0,sizeof(buf));
 	buf[len] = UPID_MDATA_ACK;													len++;
 	buf[len] = Player_num;														len++;
@@ -5355,7 +5355,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len)
 	{
 		if ((pkt_num == UDP_mdata_queue[i].pkt_num) && (dest_pnum == UDP_mdata_queue[i].Player_num))
 		{
-			RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Got MData ACK for pkt_num %i from pnum %i for pnum %i\n", Player_num, pkt_num, sender_pnum, dest_pnum);
+			con_printf(CON_VERBOSE, "P#%i: Got MData ACK for pkt_num %i from pnum %i for pnum %i\n",Player_num, pkt_num, sender_pnum, dest_pnum);
 			UDP_mdata_queue[i].player_ack[sender_pnum] = 1;
 			break;
 		}
@@ -5365,7 +5365,7 @@ void net_udp_noloss_got_ack(ubyte *data, int data_len)
 /* Init/Free the queue. Call at start and end of a game or level. */
 void net_udp_noloss_init_mdata_queue(void)
 {
-	RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Clearing MData store/GOT list\n", Player_num);
+	con_printf(CON_VERBOSE, "P#%i: Clearing MData store/GOT list\n",Player_num);
 	memset(&UDP_mdata_queue,0,sizeof(UDP_mdata_store)*UDP_MDATA_STOR_QUEUE_SIZE);
 	memset(&UDP_mdata_got,0,sizeof(UDP_mdata_recv)*MAX_PLAYERS);
 }
@@ -5373,7 +5373,7 @@ void net_udp_noloss_init_mdata_queue(void)
 /* Reset the trace list for given player when (dis)connect happens */
 void net_udp_noloss_clear_mdata_got(ubyte player_num)
 {
-	RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Clearing GOT list for %i\n", Player_num, player_num);
+	con_printf(CON_VERBOSE, "P#%i: Clearing GOT list for %i\n",Player_num, player_num);
 	memset(&UDP_mdata_got[player_num].pkt_num,0,sizeof(uint32_t)*UDP_MDATA_STOR_QUEUE_SIZE);
 	UDP_mdata_got[player_num].cur_slot = 0;
 }
@@ -5413,9 +5413,9 @@ void net_udp_noloss_process_queue(fix64 time)
 				{
 					ubyte buf[sizeof(UDP_mdata_info)];
 					int len = 0;
-
-					RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Resending pkt_num %i from pnum %i to pnum %i\n", Player_num, UDP_mdata_queue[queuec].pkt_num, UDP_mdata_queue[queuec].Player_num, plc);
-
+					
+					con_printf(CON_VERBOSE, "P#%i: Resending pkt_num %i from pnum %i to pnum %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, UDP_mdata_queue[queuec].Player_num, plc);
+					
 					UDP_mdata_queue[queuec].pkt_timestamp[plc] = time;
 					memset(&buf, 0, sizeof(UDP_mdata_info));
 					
@@ -5459,7 +5459,7 @@ void net_udp_noloss_process_queue(fix64 time)
 					multi_reset_stuff();
 				}
 			}
-			RT_LOGF(RT_LOGSERVERITY_INFO, "P#%i: Removing stored pkt_num %i - missing ACKs: %i\n", Player_num, UDP_mdata_queue[queuec].pkt_num, needack);
+			con_printf(CON_VERBOSE, "P#%i: Removing stored pkt_num %i - missing ACKs: %i\n",Player_num, UDP_mdata_queue[queuec].pkt_num, needack);
 			memset(&UDP_mdata_queue[queuec],0,sizeof(UDP_mdata_store));
 		}
 
@@ -5696,7 +5696,7 @@ void forward_to_observers(ubyte *data, int data_len) {
 }
 
 void add_message_to_obs_buffer(ubyte *data, int data_len) {
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Queueing obs message; next: %d, cur: %d, max: %d\n", next_obs_msg_to_send, cur_obs_msg, MAX_OBS_MESSAGES);
+	//con_printf(CON_NORMAL, "Queueing obs message; next: %d, cur: %d, max: %d\n", next_obs_msg_to_send, cur_obs_msg, MAX_OBS_MESSAGES); 
 	if(observer_data_buffer == 0) {
 		observer_data_buffer = d_malloc(MAX_OBS_MESSAGES*MAX_MESSAGE_SIZE); 
 		next_obs_msg_to_send = cur_obs_msg = 0; 
@@ -5704,7 +5704,7 @@ void add_message_to_obs_buffer(ubyte *data, int data_len) {
 
 	if( (next_obs_msg_to_send == cur_obs_msg + 1) ||
 		((next_obs_msg_to_send == 0) && (cur_obs_msg == MAX_OBS_MESSAGES -1)) )  {
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Observer message queue full!  Message dropped.\n");
+		con_printf(CON_URGENT, "Observer message queue full!  Message dropped.\n"); 
 		return;
 	}
 
@@ -5725,7 +5725,7 @@ void add_message_to_obs_buffer(ubyte *data, int data_len) {
 		(bufslot + data_len >= observer_message_offsets[next_obs_msg_to_send])
 		
 	  ) {
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Observer message queue out of space!  Message dropped.\n");
+		con_printf(CON_URGENT, "Observer message queue out of space!  Message dropped.\n"); 
 		return;
 	}
 
@@ -5738,13 +5738,13 @@ void add_message_to_obs_buffer(ubyte *data, int data_len) {
 	observer_message_lengths[cur_obs_msg] = data_len;
 	observer_message_timestamps[cur_obs_msg] = timer_query();
 
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Put message length %d in slot %d, buffer offset %d\n", data_len, cur_obs_msg, bufslot);
+	//con_printf(CON_NORMAL, "Put message length %d in slot %d, buffer offset %d\n", data_len, cur_obs_msg, bufslot); 
 }
 
 void check_obs_buffer(fix64 now) {
 	if (! multi_i_am_master()) { return; }
 
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Checking obs buffer; %d != %d && %f < %f\n", next_obs_msg_to_send, cur_obs_msg, (double)(observer_message_timestamps[next_obs_msg_to_send])/(double)(F1_0), (double)(now - OBSERVER_DELAY*F1_0)/(double)(F1_0)) ;
+	//con_printf(CON_NORMAL, "Checking obs buffer; %d != %d && %f < %f\n", next_obs_msg_to_send, cur_obs_msg, (double)(observer_message_timestamps[next_obs_msg_to_send])/(double)(F1_0), (double)(now - OBSERVER_DELAY*F1_0)/(double)(F1_0)) ;
 
 	while( (next_obs_msg_to_send != cur_obs_msg) &&
 		   (observer_message_timestamps[next_obs_msg_to_send] < now - OBSERVER_DELAY*F1_0)) {
@@ -5758,7 +5758,8 @@ void check_obs_buffer(fix64 now) {
 	    	next_obs_msg_to_send = 0; 
 	    }
 
-		// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Sent obs message; next: %d, cur: %d, max: %d\n", next_obs_msg_to_send, cur_obs_msg, MAX_OBS_MESSAGES);
+	    //con_printf(CON_NORMAL, "Sent obs message; next: %d, cur: %d, max: %d\n", next_obs_msg_to_send, cur_obs_msg, MAX_OBS_MESSAGES); 
+	
 	}
 }
 

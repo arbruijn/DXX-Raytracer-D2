@@ -35,7 +35,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 
 #include "medwall.h"
-#include "logger.h"
 
 void validate_selected_segments(void);
 
@@ -1223,10 +1222,10 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	// Read in group_top_fileinfo to get size of saved fileinfo.
 
 	if (PHYSFSX_fseek( LoadFile, 0, SEEK_SET ))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to 0 in group.c" );
+		Error( "Error seeking to 0 in group.c" );
 
 	if (PHYSFS_read( LoadFile, &group_top_fileinfo, sizeof(group_top_fileinfo),1 )!=1)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading top_fileinfo in group.c" );
+		Error( "Error reading top_fileinfo in group.c" );
 
 	// Check version number
 	if (group_top_fileinfo.fileinfo_version < COMPATIBLE_VERSION )
@@ -1248,10 +1247,10 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	// Now, Read in the fileinfo
 
 	if (PHYSFSX_fseek( LoadFile, 0, SEEK_SET ))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to 0b in group.c" );
+		Error( "Error seeking to 0b in group.c" );
 
 	if (PHYSFS_read( LoadFile, &group_fileinfo, group_top_fileinfo.fileinfo_sizeof,1 )!=1)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading group_fileinfo in group.c" );
+		Error( "Error reading group_fileinfo in group.c" );
 
 	//===================== READ HEADER INFO ========================
 
@@ -1262,10 +1261,10 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	if (group_fileinfo.header_offset > -1 )
 	{
 		if (PHYSFSX_fseek( LoadFile,group_fileinfo.header_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to header_offset in group.c" );
+			Error( "Error seeking to header_offset in group.c" );
 
 		if (PHYSFS_read( LoadFile, &group_header, group_fileinfo.header_size,1 )!=1)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading group_header in group.c" );
+			Error( "Error reading group_header in group.c" );
 	}
 
 	//===================== READ EDITOR INFO ==========================
@@ -1280,10 +1279,10 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	if (group_fileinfo.editor_offset > -1 )
 	{
 		if (PHYSFSX_fseek( LoadFile,group_fileinfo.editor_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to editor_offset in group.c" );
+			Error( "Error seeking to editor_offset in group.c" );
 
 		if (PHYSFS_read( LoadFile, &group_editor, group_fileinfo.editor_size,1 )!=1)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading group_editor in group.c" );
+			Error( "Error reading group_editor in group.c" );
 
 	}
 
@@ -1292,12 +1291,12 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	if ( (group_fileinfo.vertex_offset > -1) && (group_fileinfo.vertex_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile,group_fileinfo.vertex_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to vertex_offset in group.c" );
+			Error( "Error seeking to vertex_offset in group.c" );
 
 			for (i=0;i<group_header.num_vertices;i++) {
 
 				if (PHYSFS_read( LoadFile, &tvert, sizeof(tvert),1 )!=1)
-					RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading tvert in group.c" );
+					Error( "Error reading tvert in group.c" );
 				vertex_ids[i] = med_create_duplicate_vertex( &tvert ); 
 			}
 
@@ -1308,11 +1307,11 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	if ( (group_fileinfo.segment_offset > -1) && (group_fileinfo.segment_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile,group_fileinfo.segment_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to segment_offset in group.c" );
+			Error( "Error seeking to segment_offset in group.c" );
 
 		for (i=0;i<group_header.num_segments;i++) {
 			if (PHYSFS_read( LoadFile, &tseg, sizeof(segment),1 )!=1)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading tseg in group.c" );
+				Error( "Error reading tseg in group.c" );
 				
 			segment_ids[i] = get_free_segment_number();
 			Segments[segment_ids[i]] = tseg; 
@@ -1354,12 +1353,12 @@ int med_load_group( char *filename, int *vertex_ids, short *segment_ids, int *nu
 	if ( (group_fileinfo.texture_offset > -1) && (group_fileinfo.texture_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile, group_fileinfo.texture_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to texture_offset in gamemine.c" );
+			Error( "Error seeking to texture_offset in gamemine.c" );
 
 		for (i=0; i< group_fileinfo.texture_howmany; i++ )
 		{
 			if (PHYSFS_read( LoadFile, &old_tmap_list[i], group_fileinfo.texture_sizeof, 1 )!=1)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading old_tmap_list[i] in gamemine.c" );
+				Error( "Error reading old_tmap_list[i] in gamemine.c" );
 		}
 	}
 

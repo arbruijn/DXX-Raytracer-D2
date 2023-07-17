@@ -21,7 +21,6 @@
 #include "rbaudio.h"
 #include "console.h"
 #include "timer.h"
-#include "logger.h"
 
 #define REDBOOK_VOLUME_SCALE 255
 
@@ -46,14 +45,14 @@ void RBAInit()
 
 	if (SDL_Init(SDL_INIT_CDROM) < 0)
 	{
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "RBAudio: SDL library initialisation failed: %s.", SDL_GetError());
+		Warning("RBAudio: SDL library initialisation failed: %s.",SDL_GetError());
 		return;
 	}
 
 	num_cds = SDL_CDNumDrives();
 	if (num_cds < 1)
 	{
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "RBAudio: No cdrom drives found!\n");
+		con_printf(CON_NORMAL, "RBAudio: No cdrom drives found!\n");
 #if defined(__APPLE__) || defined(macintosh)
 		SDL_QuitSubSystem(SDL_INIT_CDROM);	// necessary for rescanning CDROMs
 #endif
@@ -78,12 +77,12 @@ void RBAInit()
 				break;	// we've found an audio CD
 		}
 		else if (s_cd == NULL)
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "RBAudio: Could not open cdrom %i for redbook audio:%s\n", i, SDL_GetError());
+			Warning("RBAudio: Could not open cdrom %i for redbook audio:%s\n", i, SDL_GetError());
 	}
 	
 	if (i == num_cds)
 	{
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "RBAudio: No audio CDs found\n");
+		con_printf(CON_NORMAL, "RBAudio: No audio CDs found\n");
 		if (s_cd)	// if there's no audio CD, say that there's no redbook and hence play MIDI instead
 		{
 			SDL_CDClose(s_cd);
@@ -112,7 +111,7 @@ int RBAPlayTrack(int a)
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)) ) {
 		if (SDL_CDPlayTracks(s_cd, a-1, 0, 0, 0) == 0)
 		{
-			RT_LOGF(RT_LOGSERVERITY_INFO, "RBAudio: Playing track %i\n", a);
+			con_printf(CON_VERBOSE, "RBAudio: Playing track %i\n", a);
 			return a;
 		}
 	}
@@ -126,7 +125,7 @@ void RBAStop()
 	if (!s_cd) return;
 	SDL_CDStop(s_cd);
 	redbook_finished_hook = NULL;	// no calling the finished hook - stopped means stopped here
-	RT_LOG(RT_LOGSERVERITY_INFO, "RBAudio: Playback stopped\n");
+	con_printf(CON_VERBOSE, "RBAudio: Playback stopped\n");
 }
 
 void RBAEjectDisk()
@@ -151,7 +150,7 @@ void RBASetVolume(int volume)
 	level = volume*REDBOOK_VOLUME_SCALE/8;
 
 	if ((level<0) || (level>REDBOOK_VOLUME_SCALE)) {
-		RT_LOGF(RT_LOGSERVERITY_ASSERT, "RBAudio: illegal volume value (allowed values 0-%i)\n", REDBOOK_VOLUME_SCALE);
+		con_printf(CON_CRITICAL, "RBAudio: illegal volume value (allowed values 0-%i)\n",REDBOOK_VOLUME_SCALE);
 		return;
 	}
 
@@ -161,7 +160,7 @@ void RBASetVolume(int volume)
 		= volctrl.channel3
 		= level;
 	if ( ioctl(cdfile, CDROMVOLCTRL, &volctrl) == -1 ) {
-		RT_LOG(RT_LOGSERVERITY_ASSERT, "RBAudio: CDROMVOLCTRL ioctl failed\n");
+		con_printf(CON_CRITICAL, "RBAudio: CDROMVOLCTRL ioctl failed\n");
 		return;
 	}
 #endif
@@ -171,14 +170,14 @@ void RBAPause()
 {
 	if (!s_cd) return;
 	SDL_CDPause(s_cd);
-	RT_LOG(RT_LOGSERVERITY_INFO, "RBAudio: Playback paused\n");
+	con_printf(CON_VERBOSE, "RBAudio: Playback paused\n");
 }
 
 int RBAResume()
 {
 	if (!s_cd) return -1;
 	SDL_CDResume(s_cd);
-	RT_LOG(RT_LOGSERVERITY_INFO, "RBAudio: Playback resumed\n");
+	con_printf(CON_VERBOSE, "RBAudio: Playback resumed\n");
 	return 1;
 }
 
@@ -189,12 +188,12 @@ int RBAPauseResume()
 	if (SDL_CDStatus(s_cd) == CD_PLAYING)
 	{
 		SDL_CDPause(s_cd);
-		RT_LOG(RT_LOGSERVERITY_INFO, "RBAudio: Toggle Playback pause\n");
+		con_printf(CON_VERBOSE, "RBAudio: Toggle Playback pause\n");
 	}
 	else if (SDL_CDStatus(s_cd) == CD_PAUSED)
 	{
 		SDL_CDResume(s_cd);
-		RT_LOG(RT_LOGSERVERITY_INFO, "RBAudio: Toggle Playback resume\n");
+		con_printf(CON_VERBOSE, "RBAudio: Toggle Playback resume\n");
 	}
 	else
 		return 0;
@@ -206,7 +205,7 @@ int RBAGetNumberOfTracks()
 {
 	if (!s_cd) return -1;
 	SDL_CDStatus(s_cd);
-	RT_LOGF(RT_LOGSERVERITY_INFO, "RBAudio: Found %i tracks on CD\n", s_cd->numtracks);
+	con_printf(CON_VERBOSE, "RBAudio: Found %i tracks on CD\n", s_cd->numtracks);
 	return s_cd->numtracks;
 }
 
@@ -223,7 +222,7 @@ void RBACheckFinishedHook()
 	{
 		if ((SDL_CDStatus(s_cd) == CD_STOPPED) && redbook_finished_hook)
 		{
-			RT_LOG(RT_LOGSERVERITY_INFO, "RBAudio: Playback done, calling finished-hook\n");
+			con_printf(CON_VERBOSE, "RBAudio: Playback done, calling finished-hook\n");
 			redbook_finished_hook();
 		}
 		last_check_time = timer_query();
@@ -239,7 +238,7 @@ int RBAPlayTracks(int first, int last, void (*hook_finished)(void))
 	if (CD_INDRIVE(SDL_CDStatus(s_cd)))
 	{
 		redbook_finished_hook = hook_finished;
-		RT_LOGF(RT_LOGSERVERITY_INFO, "RBAudio: Playing tracks %i to %i\n", first, last);
+		con_printf(CON_VERBOSE, "RBAudio: Playing tracks %i to %i\n", first, last);
 		return SDL_CDPlayTracks(s_cd, first - 1, 0, last - first + 1, 0) == 0;
 	}
 	return 0;
@@ -318,5 +317,5 @@ void RBAList(void)
 		return;
 
 	for (i = 0; i < s_cd->numtracks; i++)
-		RT_LOGF(RT_LOGSERVERITY_INFO, "RBAudio: CD track %d, type %s, length %d, offset %d", s_cd->track[i].id, (s_cd->track[i].type == SDL_AUDIO_TRACK) ? "audio" : "data", s_cd->track[i].length, s_cd->track[i].offset);
+		con_printf(CON_VERBOSE, "RBAudio: CD track %d, type %s, length %d, offset %d", s_cd->track[i].id, (s_cd->track[i].type == SDL_AUDIO_TRACK) ? "audio" : "data", s_cd->track[i].length, s_cd->track[i].offset);
 }

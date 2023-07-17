@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "dxxerror.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "window.h"
@@ -51,7 +52,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "cntrlcen.h"
 #include "collide.h"
 #include "playsave.h"
-#include "logger.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -1061,7 +1061,7 @@ void kc_change_joyaxis( kc_menu *menu, d_event *event, kc_item * item )
 
 	if ( abs(value-menu->old_jaxis[axis])<32 )
 		return;
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Axis Movement detected: Axis %i\n", axis);
+	con_printf(CON_DEBUG, "Axis Movement detected: Axis %i\n", axis);
 
 	for (i=0; i<menu->nitems; i++ )
 	{

@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #include "gameseg.h"
 #include "console.h"
-#include "logger.h"
 #define ONE_OVER_SQRT2 F1_0 * 0.707106781
 #define CURVE_RIGHT 1
 #define CURVE_UP 2
@@ -71,8 +70,7 @@ vms_vector evaluate_curve(vms_equation *coeffs, int degree, fix t) {
     fix t2, t3;
     vms_vector coord;
 
-    if (degree!=3)
-        RT_LOG(RT_LOGSERVERITY_ASSERT, " for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     t2 = fixmul(t,t); t3 = fixmul(t2,t);
 
@@ -88,8 +86,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 	 vms_vector coord;
     fix t, diff;
 
-    if (degree!=3)
-        RT_LOG(RT_LOGSERVERITY_ASSERT, " for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     for (t=t0;t<1*F1_0;t+=0.001*F1_0) {
         coord = evaluate_curve(coeffs, 3, t);
@@ -104,8 +101,7 @@ fix curve_dist(vms_equation *coeffs, int degree, fix t0, vms_vector *p0, fix dis
 void curve_dir(vms_equation *coeffs, int degree, fix t0, vms_vector *dir) {
     fix t2;
 
-    if (degree!=3)
-        RT_LOG(RT_LOGSERVERITY_ASSERT, " for Hermite Curves degree must be 3\n");
+    if (degree!=3) con_printf(CON_CRITICAL," for Hermite Curves degree must be 3\n");
 
     t2 = fixmul(t0,t0);
 

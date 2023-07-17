@@ -23,7 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #include "dxxerror.h"
 #include "gameseg.h"
-#include "logger.h"
 
 #define XDIM	0
 #define YDIM	1
@@ -111,7 +110,7 @@ void scale_vert(segment *sp, int vertex_ind, vms_vector *vp, fix scale_factor)
 				scale_vert_aux(vertex_ind, vp, scale_factor);
 			break;
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Unsupported SegSizeMode in ksegsize.c/scale_vert = %i\n", SegSizeMode);
+			Error("Unsupported SegSizeMode in ksegsize.c/scale_vert = %i\n", SegSizeMode);
 	}
 
 }

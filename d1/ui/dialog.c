@@ -30,7 +30,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "mouse.h"
 #include "timer.h"
-#include "logger.h"
+#include "dxxerror.h"
 
 #define D_X             (dlg->x)
 #define D_Y             (dlg->y)
@@ -226,7 +226,7 @@ UI_DIALOG * ui_create_dialog( short x, short y, short w, short h, enum dialog_fl
 	int sw, sh, req_w, req_h;
 
 	dlg = (UI_DIALOG *) d_malloc(sizeof(UI_DIALOG));
-	if (dlg==NULL) RT_LOG(RT_LOGSERVERITY_HIGH, "Could not create dialog: Out of memory");
+	if (dlg==NULL) Error("Could not create dialog: Out of memory");
 
 	sw = grd_curscreen->sc_w;
 	sh = grd_curscreen->sc_h;

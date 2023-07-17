@@ -28,6 +28,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
+#include "dxxerror.h"
 #include "byteswap.h"
 #include "bitmap.h"
 #include "makesig.h"
@@ -35,7 +36,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "config.h"
 #include "inferno.h"
-#include "logger.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -506,7 +506,7 @@ int get_font_total_width(grs_font * font){
 		int i,w=0,c=font->ft_minchar;
 		for (i=0;c<=font->ft_maxchar;i++,c++){
 			if (font->ft_widths[i]<0)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "heh?\n");
+				Error("heh?\n");
 			w+=font->ft_widths[i];
 		}
 		return w;
@@ -578,7 +578,7 @@ void ogl_font_choose_size(grs_font * font,int gap,int *rw,int *rh){
 		}
 	}
 	if (smallr<=0)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "couldn't fit font?\n");
+		Error("couldn't fit font?\n");
 }
 
 void ogl_init_font(grs_font * font)
@@ -620,7 +620,7 @@ void ogl_init_font(grs_font * font)
 		}
 
 		if (cury+h>th)
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "font doesn't really fit (%i/%i)?\n",i,nchars);
+			Error("font doesn't really fit (%i/%i)?\n",i,nchars);
 
 		if (font->ft_flags & FT_COLOR)
 		{
@@ -699,7 +699,7 @@ int ogl_internal_string(int x, int y, const char *s )
 	yy = y;
 
 	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "carp.\n");
+		Error("carp.\n");
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -758,7 +758,7 @@ int ogl_internal_string(int x, int y, const char *s )
 				if (grd_curcanv->cv_bitmap.bm_type==BM_OGL)
 					ogl_ubitmapm_cs(xx,yy,ft_w*(FONTSCALE_X(grd_curcanv->cv_font->ft_w)/grd_curcanv->cv_font->ft_w),FONTSCALE_Y(grd_curcanv->cv_font->ft_h),&grd_curcanv->cv_font->ft_bitmaps[letter],grd_curcanv->cv_font_fg_color,F1_0);
 				else
-					RT_LOG(RT_LOGSERVERITY_HIGH, "ogl_internal_string: non-color string to non-ogl dest\n");
+					Error("ogl_internal_string: non-color string to non-ogl dest\n");
 			}
 
 			xx += spacing;
@@ -1005,12 +1005,12 @@ grs_font * gr_init_font( const char * fontname )
 	fontfile = PHYSFSX_openReadBuffered(fontname);
 
 	if (!fontfile) {
-		RT_LOGF(RT_LOGSERVERITY_MINOR, "Can't open font file %s\n", fontname);
+		con_printf(CON_VERBOSE, "Can't open font file %s\n", fontname);
 		return NULL;
 	}
 	PHYSFS_read(fontfile, file_id, 4, 1);
 	if (memcmp( file_id, "PSFN", 4 )) {
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "File %s is not a font file\n", fontname);
+		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
 		return NULL;
 	}
 

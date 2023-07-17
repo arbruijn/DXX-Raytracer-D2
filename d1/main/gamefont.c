@@ -21,13 +21,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdio.h>
 
 #include "gr.h"
+#include "dxxerror.h"
 #include <string.h>
 #include "strutil.h"
 #include "args.h"
 #include "gamefont.h"
 #include "mission.h"
 #include "config.h"
-#include "logger.h"
 
 static const char Gamefont_filenames_l[][16] = {
 	"font1-1.fnt", // Font 0
@@ -110,7 +110,7 @@ void gamefont_choose_game_font(int scrx,int scry){
 				m=i;
 			}
 		if (m<0)
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "no gamefont found for %ix%i\n",scrx,scry);
+			Error("no gamefont found for %ix%i\n",scrx,scry);
 
 #ifdef OGL
 	if (!GameArg.OglFixedFont)

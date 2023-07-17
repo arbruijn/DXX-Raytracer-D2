@@ -23,7 +23,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "func.h"
 #include "dxxerror.h"
-#include "logger.h"
 
 #define MAX_NUM_PADS 20
 
@@ -313,7 +312,7 @@ void ui_pad_read( int n, char * filename )
 
 	infile = PHYSFSX_openReadBuffered( filename );
 	if (!infile) {
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM,  "Couldn't find %s\n", filename );
+		Warning( "Couldn't find %s\n", filename );
 		return;
 	}
 					  
@@ -515,10 +514,10 @@ void ui_pad_read( int n, char * filename )
 		functionnumber = func_get_index(buffer);
 		if (functionnumber==-1)
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Unknown function, %s, in %s\n", buffer, filename );
+			Error( "Unknown function, %s, in %s\n", buffer, filename );
 		} else if (keycode==-1)
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Unknown keystroke, %s, in %s\n", text, filename );
+			Error( "Unknown keystroke, %s, in %s\n", text, filename );
 			//ui_messagebox( -2, -2, 1, buffer, "Ok" );
 
 		} else {

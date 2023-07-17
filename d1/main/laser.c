@@ -47,8 +47,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "hudmsg.h"
 #include "playsave.h"
-#include "logger.h"
-#include "palette.h"
 
 #define NEWHOMER
 
@@ -72,7 +70,7 @@ void Laser_render(object *obj)
 	case WEAPON_TYPE_MISSILE:
 		break;
 	default:
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Invalid weapon type in Laser_render\n" );
+		Error( "Invalid weapon type in Laser_render\n" );
 	}
 #endif
 
@@ -89,7 +87,7 @@ void Laser_render(object *obj)
 	case WEAPON_RENDER_VCLIP:
 		Int3();	//	Oops, not supported, type added by mk on 09/09/94, but not for lasers...
 	default:
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Invalid weapon render type in Laser_render\n" );
+		Error( "Invalid weapon render type in Laser_render\n" );
 	}
 
 }
@@ -228,7 +226,7 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 		laser_length = 0;
 		break;
 	default:
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Invalid weapon render type in Laser_create_new\n" );
+		Error( "Invalid weapon render type in Laser_create_new\n" );
 	}
 
 	// Add to object list
@@ -792,7 +790,7 @@ void Laser_player_fire_spread_delay(object *obj, int laser_type, int gun_num, fi
 //double gx = (double)(pnt->x) / (double)(F1_0); 
 //double gy = (double)(pnt->y) / (double)(F1_0); 
 //double gz = (double)(pnt->z) / (double)(F1_0); 
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Creating weapon at offset %f, %f, %f\n", gx, gy, gz);
+//con_printf(CON_NORMAL, "Creating weapon at offset %f, %f, %f\n", gx, gy, gz); 
 
 	vm_copy_transpose_matrix(&m,&obj->orient);
 	vm_vec_rotate(&gun_point,pnt,&m);

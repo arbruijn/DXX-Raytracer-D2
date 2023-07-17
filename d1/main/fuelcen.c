@@ -48,7 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "laser.h"
 #include "multi.h"
 #include "multibot.h"
-#include "logger.h"
 
 #include "gameseq.h"
 
@@ -128,7 +127,7 @@ void fuelcen_create( segment *segp)
 	case SEGMENT_IS_ROBOTMAKER:
 		break;
 	default:
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Invalid station type %d in fuelcen.c\n", station_type );
+		Error( "Invalid station type %d in fuelcen.c\n", station_type );
 	}
 
 	Assert( (segp != NULL) );

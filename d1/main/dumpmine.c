@@ -36,7 +36,6 @@
 #include "gameseq.h"
 #include "polyobj.h"
 #include "gamesave.h"
-#include "logger.h"
 
 
 #ifdef EDITOR
@@ -82,7 +81,7 @@ void err_printf(PHYSFS_file *my_file, char * format, ... )
 	vsprintf(message,format,args);
 	va_end(args);
 
-	RT_LOGF(RT_LOGSERVERITY_ASSERT, "%s", message);
+	con_printf(CON_CRITICAL, "%s", message);
 	PHYSFSX_printf(my_file, "%s", message);
 	Errors_in_mine++;
 }
@@ -96,7 +95,7 @@ void warning_printf(PHYSFS_file *my_file, char * format, ... )
 	vsprintf(message,format,args);
 	va_end(args);
 
-	RT_LOGF(RT_LOGSERVERITY_HIGH, "%s", message);
+	con_printf(CON_URGENT, "%s", message);
 	PHYSFSX_printf(my_file, "%s", message);
 }
 

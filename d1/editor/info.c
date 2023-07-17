@@ -39,7 +39,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "objpage.h"		// Object selection paging stuff
 #include "wall.h"
 #include "switch.h"
-#include "logger.h"
 
 int init_info;
 
@@ -198,7 +197,7 @@ void info_display_segsize(int show_all)
 			case SEGSIZEMODE_EDGE:		strcpy(name, "edge   ");	break;
 			case SEGSIZEMODE_VERTEX:	strcpy(name, "vertex ");	break;
 			default:
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Illegal value for SegSizeMode in info.c/info_display_segsize\n");
+				Error("Illegal value for SegSizeMode in info.c/info_display_segsize\n");
 		}
 
 		gr_uprintf( 0, 0, "Mode: %s\n", name);

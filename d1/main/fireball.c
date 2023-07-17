@@ -50,7 +50,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "cntrlcen.h"
 #include "gameseg.h"
-#include "logger.h"
 
 #define EXPLOSION_SCALE fl2f(2.5)		//explosion is the obj size times this  
 
@@ -187,7 +186,7 @@ object *object_create_explosion_sub(object *objp, short segnum, vms_vector * pos
 												weapon_name = "unknown";
 										}
 										
-										RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from %s's %s blast!\n", (double)(damage) / (double)(F1_0), killer_name, weapon_name);
+										con_printf(CON_NORMAL, "You took %0.1f damage from %s's %s blast!\n", (double)(damage)/(double)(F1_0), killer_name, weapon_name);
 										
 										multi_send_damage(damage, obj0p->shields, killer->type, killer->id, DAMAGE_BLAST, objp);
 									}
@@ -415,7 +414,7 @@ int pick_connected_segment(object *objp, int max_depth)
 	head = 0;
 	tail = 0;
 
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Spawning from %d at depth %d\n", start_seg, max_depth);
+	//con_printf(CON_NORMAL, "Spawning from %d at depth %d\n", start_seg, max_depth);
 	
 	seg_queue[head++] = start_seg;
 	cur_depth = 0;
@@ -509,7 +508,7 @@ int segment_is_really_connected(object *objp, int target_segment)
 	start_seg = objp->segnum;
 	head = 0;
 	tail = 0;
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "  Is segment %d really connected to %d?\n", start_seg, target_segment);
+	//con_printf(CON_NORMAL, "  Is segment %d really connected to %d?\n", start_seg, target_segment); 
 	seg_queue[head++] = start_seg;
 
 	while (tail != head) {
@@ -529,7 +528,7 @@ int segment_is_really_connected(object *objp, int target_segment)
 				if (visited[segp->children[sidenum]] == 0) {
 					int new_seg = segp->children[sidenum];
 
-					// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    Checking segment %d\n", new_seg);
+					//con_printf(CON_NORMAL, "    Checking segment %d\n", new_seg); 
 
 					if(new_seg == target_segment)
 						return 1; 
@@ -544,7 +543,7 @@ int segment_is_really_connected(object *objp, int target_segment)
 			}
 		}
 	}
-	// RT_LOG(RT_LOGSERVERITY_MEDIUM, "  No.\n");
+	//con_printf(CON_NORMAL, "  No.\n"); 
 	return 0;
 }
 
@@ -572,7 +571,7 @@ int choose_drop_segment()
 	player_seg = Objects[Players[Player_num].objnum].segnum;
 
 	while ((segnum == -1) && (cur_drop_depth > BASE_NET_DROP_DEPTH/2)) {
-		// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Attempting spawn at depth %d\n", cur_drop_depth);
+		//con_printf(CON_NORMAL, "Attempting spawn at depth %d\n", cur_drop_depth); 
 
 		pnum = (d_rand() * N_players) >> 15;
 		count = 0;
@@ -601,7 +600,7 @@ int choose_drop_segment()
 				int ch = Segments[segnum].children[i];
 				if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 					segnum = -1;
-					// RT_LOG(RT_LOGSERVERITY_MEDIUM, "   Unacceptable: Rector child\n");
+					//con_printf(CON_NORMAL, "   Unacceptable: Rector child\n");
 					break;
 				}
 			}
@@ -612,7 +611,7 @@ int choose_drop_segment()
 			compute_segment_center(&tempv, &Segments[segnum]);
 			if (find_connected_distance(player_pos,player_seg,&tempv,segnum,-1,WID_FLY_FLAG) < i2f(20)*cur_drop_depth) {
 				segnum = -1;
-				// RT_LOG(RT_LOGSERVERITY_MEDIUM, "   Unacceptable: too close\n");
+				//con_printf(CON_NORMAL, "   Unacceptable: too close\n");
 			}
 		}
 
@@ -626,24 +625,24 @@ int choose_drop_segment()
 	int my_segment = Objects[Players[Player_num].objnum].segnum; 
 
 	if (segnum == -1) {
-		// RT_LOG(RT_LOGSERVERITY_MEDIUM, "Attempting to spawn under reduced constraints.\n");
+		//con_printf(CON_NORMAL, "Attempting to spawn under reduced constraints.\n");
 
 		cur_drop_depth = BASE_NET_DROP_DEPTH * 2; // CED -- more chances
 		while (cur_drop_depth > 0 && segnum == -1) // before dropping in random segment, try to find ANY segment which is connected to the player responsible for the drop so object will not spawn in inaccessible areas
 		{
 			segnum = pick_connected_segment(&Objects[Players[Player_num].objnum], --cur_drop_depth);
-			// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Can spawn at %d for depth %d?\n", segnum, cur_drop_depth);
+			//con_printf(CON_NORMAL, "Can spawn at %d for depth %d?\n", segnum, cur_drop_depth);
 			if (Segments[segnum].special == SEGMENT_IS_CONTROLCEN) {
 				segnum = -1;
 
-				// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "   Unacceptable: Rector segment\n", segnum);
+				//con_printf(CON_NORMAL, "   Unacceptable: Rector segment\n", segnum);
 			} else {	//don't drop in any children of control centers
 				int i;
 				for (i=0;i<6;i++) {
 					int ch = Segments[segnum].children[i];
 					if (IS_CHILD(ch) && Segments[ch].special == SEGMENT_IS_CONTROLCEN) {
 						segnum = -1;
-						// RT_LOG(RT_LOGSERVERITY_MEDIUM, "   Unacceptable: Rector child\n");
+						//con_printf(CON_NORMAL, "   Unacceptable: Rector child\n");
 						break;
 					}
 				}
@@ -988,7 +987,7 @@ int drop_powerup(int type, int id, int num, vms_vector *init_vel, vms_vector *po
 			break;
 
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Error: Illegal type (%i) in object spawning.\n", type);
+			Error("Error: Illegal type (%i) in object spawning.\n", type);
 	}
 
 	return objnum;

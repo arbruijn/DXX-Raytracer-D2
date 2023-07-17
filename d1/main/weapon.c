@@ -31,7 +31,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "newmenu.h"
 #include "playsave.h"
 #include "fireball.h"
-#include "logger.h"
 
 //	Convert primary weapons to indices in Weapon_info array.
 const ubyte Primary_weapon_to_weapon_info[MAX_PRIMARY_WEAPONS] = {0, VULCAN_ID, 12, PLASMA_ID, FUSION_ID};
@@ -647,7 +646,7 @@ int POrderList (int num)
 	{
 		return (i);
 	}
-	RT_LOG(RT_LOGSERVERITY_HIGH , "Primary Weapon is not in order list!!!");
+	Error ("Primary Weapon is not in order list!!!");
 }
 
 int SOrderList (int num)
@@ -659,7 +658,7 @@ int SOrderList (int num)
 		{
 			return (i);
 		}
-	RT_LOG(RT_LOGSERVERITY_HIGH, "Secondary Weapon is not in order list!!!");
+	Error ("Secondary Weapon is not in order list!!!");
 }
 
 int pick_up_primary_helper(int weapon_index, int is_quads);
@@ -860,21 +859,21 @@ int weapon_info_read_n(weapon_info *wi, int n, PHYSFS_file *fp, int file_version
 		bitmap_index_read(&wi[i].picture, fp);
 
 		/*
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "\n\nWeapon %d\n", i);
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    fire_wait: %f\n", (float)(wi[i].fire_wait)/(float)(F1_0));
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    blob_size: %f\n", (float)(wi[i].blob_size)/(float)(F1_0));
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    mass: %f\n", (float)(wi[i].mass)/(float)(F1_0));
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    drag: %f\n", (float)(wi[i].drag)/(float)(F1_0));
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    thrust: %f\n", (float)(wi[i].thrust)/(float)(F1_0));
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    lifetime: %f\n", (float)(wi[i].lifetime)/(float)(F1_0));
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    damage_radius: %f\n", (float)(wi[i].damage_radius)/(float)(F1_0));
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "    strength: \n");
+		con_printf(CON_NORMAL, "\n\nWeapon %d\n", i); 
+		con_printf(CON_NORMAL, "    fire_wait: %f\n", (float)(wi[i].fire_wait)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    blob_size: %f\n", (float)(wi[i].blob_size)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    mass: %f\n", (float)(wi[i].mass)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    drag: %f\n", (float)(wi[i].drag)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    thrust: %f\n", (float)(wi[i].thrust)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    lifetime: %f\n", (float)(wi[i].lifetime)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    damage_radius: %f\n", (float)(wi[i].damage_radius)/(float)(F1_0));
+		con_printf(CON_NORMAL, "    strength: \n"); 
 		for (j = 0; j < NDL; j++) {
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "        %f\n", (float)(wi[i].strength[j])/(float)(F1_0));
+			con_printf(CON_NORMAL, "        %f\n", (float)(wi[i].strength[j])/(float)(F1_0));
 		}
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "    speed: \n");
+		con_printf(CON_NORMAL, "    speed: \n"); 
 		for (j = 0; j < NDL; j++) {
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "        %f\n", (float)(wi[i].speed[j])/(float)(F1_0));
+			con_printf(CON_NORMAL, "        %f\n", (float)(wi[i].speed[j])/(float)(F1_0));
 		}
 		*/
 	}

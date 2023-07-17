@@ -55,7 +55,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 #include "args.h"
-#include "logger.h"
 
 #ifdef RT_DX12
 #include "Core/Arena.h"
@@ -502,7 +501,7 @@ im_so_ashamed: ;
 				}
 
 			} else
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type,(int)(segp-Segments), sidenum);
+                                Error("Illegal side type in render_side, type = %i, segment # = %i, side # = %i\n", sidep->type,(int)(segp-Segments), sidenum);
 		}
 	}
 }

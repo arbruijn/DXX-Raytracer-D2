@@ -48,7 +48,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "console.h"
 #include "args.h"
-#include "logger.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -169,7 +168,7 @@ static int show_title_screen( char * filename, int allow_keys, int from_hog_only
 	gr_init_bitmap_data (&ts->title_bm);
 
 	if ((pcx_error=pcx_read_bitmap( filename, &ts->title_bm, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE)	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
+		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
 	ts->timer = timer_query() + i2f(3);
@@ -971,7 +970,7 @@ static int load_briefing_screen(briefing *br, char *fname)
 
 	if ((pcx_error = pcx_read_bitmap(fname2, &br->background, BM_LINEAR, gr_palette))!=PCX_ERROR_NONE)
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
+		Error( "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",fname2, pcx_errormsg(pcx_error), pcx_error);
 	}
 
 	// Hack: Make sure black parts of robot are shown black

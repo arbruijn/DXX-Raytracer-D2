@@ -49,7 +49,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "byteswap.h"
 #include "cntrlcen.h"
-#include "logger.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -1611,7 +1610,7 @@ void draw_player_ship(int cloak_state,int x, int y)
 	}
 
 	//for(int i = 0; i < 8; i++) {
-	//	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Player ship %d %d\n", i, Gauges[GAUGE_SHIPS+i].index);
+	//	con_printf(CON_NORMAL, "Player ship %d %d\n", i, Gauges[GAUGE_SHIPS+i].index);
 	//}
 
 	if (cloak_state)

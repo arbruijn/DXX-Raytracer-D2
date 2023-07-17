@@ -12,7 +12,6 @@
 #include "window.h"
 #include "u_mem.h"
 #include "dxxerror.h"
-#include "logger.h"
 
 struct window
 {
@@ -73,7 +72,7 @@ int window_close(window *wind)
 	event.type = EVENT_WINDOW_CLOSE;
 
 	#ifdef RT_WINDOW_LOG
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
+	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
 			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
 	#endif // RT_WINDOW_LOG
 

@@ -33,7 +33,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "object.h"
 #include "endlevel.h"
 #include "fireball.h"
-#include "logger.h"
 
 #ifdef RT_DX12
 #include "RTutil.h"
@@ -388,7 +387,7 @@ void load_terrain(char *filename)
 
 	iff_error = iff_read_bitmap(filename,&height_bitmap,BM_LINEAR,NULL);
 	if (iff_error != IFF_NO_ERROR) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "File %s - IFF error: %s",filename,iff_errormsg(iff_error));
+		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
 	if (height_array)

@@ -40,7 +40,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ehostage.h"
 #include "centers.h"
 #include "piggy.h"
-#include "logger.h"
 
 int wall_add_door_flag(sbyte flag);
 int wall_add_to_side(segment *segp, int side, sbyte type);
@@ -266,7 +265,7 @@ int PrevWall() {
 				wall_type = Num_wall_anims-1;
 
 			if (wall_type == Walls[Cursegp->sides[Curside].wall_num].clip_num)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot find clip for door.");
+				Error("Cannot find clip for door."); 
 
 		} while (WallAnims[wall_type].num_frames == -1 || WallAnims[wall_type].flags & WCF_BLASTABLE);
 
@@ -282,7 +281,7 @@ int PrevWall() {
 				wall_type = Num_wall_anims-1;
 
 			if (wall_type == Walls[Cursegp->sides[Curside].wall_num].clip_num)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot find clip for blastable wall.");
+				Error("Cannot find clip for blastable wall."); 
 
 		} while (WallAnims[wall_type].num_frames == -1 || !(WallAnims[wall_type].flags & WCF_BLASTABLE));
 
@@ -313,7 +312,7 @@ int NextWall() {
 			if (wall_type >= Num_wall_anims) {
 				wall_type = 0;
 				if (Walls[Cursegp->sides[Curside].wall_num].clip_num==-1)
-					RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot find clip for door.");
+					Error("Cannot find clip for door."); 
 			}
 
 		} while (WallAnims[wall_type].num_frames == -1 || WallAnims[wall_type].flags & WCF_BLASTABLE);
@@ -328,7 +327,7 @@ int NextWall() {
 			if (wall_type >= Num_wall_anims) {
 				wall_type = 0;
 				if (Walls[Cursegp->sides[Curside].wall_num].clip_num==-1)
-					RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot find clip for blastable wall.");
+					Error("Cannot find clip for blastable wall."); 
 			}
 
 		} while (WallAnims[wall_type].num_frames == -1 || !(WallAnims[wall_type].flags & WCF_BLASTABLE));

@@ -17,7 +17,6 @@
 #include "window.h"
 #include "console.h"
 #include "args.h"
-#include "logger.h"
 
 static unsigned char Installed = 0;
 
@@ -417,7 +416,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
 		event.keycode = keycode;
 		#ifdef RT_KEY_LOG
-		RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event %s: %s %s %s %s %s %s\n",
+		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
 				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
 				(keycode & KEY_METAED)	? "META" : "",
 				(keycode & KEY_DEBUGGED)	? "DEBUG" : "",

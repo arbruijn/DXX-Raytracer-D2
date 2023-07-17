@@ -28,6 +28,7 @@
 #include "3d.h"
 #include "piggy.h"
 #include "../../3d/globvars.h"
+#include "dxxerror.h"
 #include "texmap.h"
 #include "palette.h"
 #include "rle.h"
@@ -52,11 +53,10 @@
 #include "gauges.h"
 #include "playsave.h"
 #include "args.h"
-#include "logger.h"
 
 //change to 1 for lots of spew.
 #if 0
-#define glmprintf(0, a) RT_LOG(RT_LOGSERVERITY_INFO, a)
+#define glmprintf(0,a) con_printf(CON_DEBUG, a)
 #else
 #define glmprintf(a)
 #endif
@@ -253,7 +253,7 @@ ogl_texture* ogl_get_free_texture(void){
 		if (++ogl_texture_list_cur>=OGL_TEXTURE_LIST_SIZE)
 			ogl_texture_list_cur=0;
 	}
-	RT_LOG(RT_LOGSERVERITY_HIGH, "OGL: texture list full!\n");
+	Error("OGL: texture list full!\n");
 }
 
 void ogl_texture_stats(void)
@@ -1318,7 +1318,7 @@ void ogl_init_pixel_buffers(int w, int h)
 	texbuf = d_malloc(max(w, 1024)*max(h, 256)*4);	// must also fit big font texture
 
 	if ((pixels == NULL) || (texbuf == NULL))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Not enough memory for current resolution");
+		Error("Not enough memory for current resolution");
 }
 
 void ogl_close_pixel_buffers(void)
@@ -1332,7 +1332,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 	int x,y,c,i;
 
 	if ((width > max(grd_curscreen->sc_w, 1024)) || (height > max(grd_curscreen->sc_h, 256)))
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Texture is too big: %ix%i", width, height);
+		Error("Texture is too big: %ix%i", width, height);
 
 	i=0;
 	for (y=0;y<theight;y++)
@@ -1389,7 +1389,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						break;
 #endif
 					default:
-						RT_LOG(RT_LOGSERVERITY_HIGH, "ogl_filltexbuf unhandled super-transparent texformat\n");
+						Error("ogl_filltexbuf unhandled super-transparent texformat\n");
 						break;
 				}
 			}
@@ -1421,7 +1421,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						break;
 #endif
 					default:
-						RT_LOG(RT_LOGSERVERITY_HIGH, "ogl_filltexbuf unknown texformat\n");
+						Error("ogl_filltexbuf unknown texformat\n");
 						break;
 				}
 			}
@@ -1453,7 +1453,7 @@ void ogl_filltexbuf(unsigned char *data, GLubyte *texp, int truewidth, int width
 						break;
 #endif
 					default:
-						RT_LOG(RT_LOGSERVERITY_HIGH, "ogl_filltexbuf unknown texformat\n");
+						Error("ogl_filltexbuf unknown texformat\n");
 						break;
 				}
 			}
@@ -1556,7 +1556,7 @@ void tex_set_size(ogl_texture *tex){
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "tex_set_size unknown texformat\n");
+			Error("tex_set_size unknown texformat\n");
 			break;
 	}
 	tex_set_size1(tex,bi,a,w,h);
@@ -1688,7 +1688,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 		sprintf(filename, "textures/%s.png", bitmapname);
 		if (read_png(filename, &pdata))
 		{
-			RT_LOGF(RT_LOGSERVERITY_INFO, "%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i\n", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
+			con_printf(CON_DEBUG,"%s: %ux%ux%i p=%i(%i) c=%i a=%i chans=%i\n", filename, pdata.width, pdata.height, pdata.depth, pdata.paletted, pdata.num_palette, pdata.color, pdata.alpha, pdata.channels);
 			if (pdata.depth == 8 && pdata.color)
 			{
 				if (bm->gltexture == NULL)
@@ -1701,7 +1701,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 			}
 			else
 			{
-				RT_LOGF(RT_LOGSERVERITY_INFO, "%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
+				con_printf(CON_DEBUG,"%s: unsupported texture format: must be rgb, rgba, or paletted, and depth 8\n", filename);
 				free(pdata.data);
 				if (pdata.palette)
 					free(pdata.palette);
@@ -1735,7 +1735,7 @@ void ogl_loadbmtexture_f(grs_bitmap *bm, int texfilt)
 		dbits = decodebuf;
 
 		for (i=0; i < bm->bm_h; i++ )    {
-			// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "RLE decoding bitmap %d\n", bm->bm_handle);
+			//con_printf(CON_NORMAL, "RLE decoding bitmap %d\n", bm->bm_handle); 
 			gr_rle_decode(sbits,dbits);
 			if ( bm->bm_flags & BM_FLAG_RLE_BIG )
 				sbits += (int)INTEL_SHORT(*((short *)&(bm->bm_data[4+(i*data_offset)])));

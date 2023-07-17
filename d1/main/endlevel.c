@@ -57,7 +57,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "songs.h"
 #include "titles.h"
-#include "logger.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -580,7 +579,7 @@ void do_endlevel_frame()
 					                    CT_NONE,MT_NONE,RT_NONE);
 
 					if (objnum == -1) { //can't get object, so abort
-						RT_LOG(RT_LOGSERVERITY_INFO, "Can't get object for endlevel sequence.  Aborting endlevel sequence.\n");
+					con_printf(CON_DEBUG, "Can't get object for endlevel sequence.  Aborting endlevel sequence.\n");
 						stop_endlevel_sequence();
 						return;
 					}
@@ -1405,7 +1404,7 @@ try_again:
                  {
 			if (level_num==1) {
 				return;		//abort
-				//RT_LOGF(RT_LOGSERVERITY_HIGH, "Cannot load file text of binary version of <%s>",filename);
+				//Error("Cannot load file text of binary version of <%s>",filename);
 			}
 			else {
 				level_num = 1;
@@ -1444,7 +1443,7 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&terrain_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-				RT_LOGF(RT_LOGSERVERITY_INFO, "Can't load exit terrain from file %s: IFF error: %s\n",
+					con_printf(CON_DEBUG, "Can't load exit terrain from file %s: IFF error: %s\n",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 					PHYSFS_close(ifile);
@@ -1501,7 +1500,7 @@ try_again:
 
 				iff_error = iff_read_bitmap(p,&satellite_bm_instance,BM_LINEAR,pal);
 				if (iff_error != IFF_NO_ERROR) {
-					RT_LOGF(RT_LOGSERVERITY_INFO, "Can't load exit satellite from file %s: IFF error: %s\n",
+					con_printf(CON_DEBUG, "Can't load exit satellite from file %s: IFF error: %s\n",
                                                 p, iff_errormsg(iff_error));
 					endlevel_data_loaded = 0; // won't be able to play endlevel sequence
 					PHYSFS_close(ifile);

@@ -16,7 +16,6 @@
 #include "digi_mixer_music.h"
 #include "u_mem.h"
 #include "console.h"
-#include "logger.h"
 
 #ifdef _WIN32
 extern int digi_win32_play_midi_song( char * filename, int loop );
@@ -100,7 +99,7 @@ int mix_play_file(char *filename, int loop, void (*hook_finished_track)())
 	}
 	else
 	{
-		RT_LOGF(RT_LOGSERVERITY_ASSERT, "Music %s could not be loaded: %s\n", filename, Mix_GetError());
+		con_printf(CON_CRITICAL,"Music %s could not be loaded: %s\n", filename, Mix_GetError());
 		mix_stop_music();
 	}
 

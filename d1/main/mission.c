@@ -36,7 +36,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "text.h"
 #include "u_mem.h"
 #include "ignorecase.h"
-#include "logger.h"
 
 //values that describe where a mission is located
 enum mle_loc
@@ -345,8 +344,8 @@ void add_d1_builtin_mission_to_list(mle *mission)
 		mission->anarchy_only_flag = 0;
 		break;
 	default:
-		//RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Unknown D1 hogsize %d\n", size);
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Unknown D1 hogsize %d\n", size);
+		//Warning("Unknown D1 hogsize %d\n", size);
+		con_printf(CON_URGENT, "Unknown D1 hogsize %d\n", size);
 		Int3();
 		// fall through
 	case D1_MISSION_HOGSIZE:
@@ -549,7 +548,7 @@ int load_mission(mle *mission)
 
 	// for Descent 1 missions, load descent.hog
 	if (!PHYSFSX_contfile_init("descent.hog", 1))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "descent.hog not available!\n");
+		Error("descent.hog not available!\n");
 	if (!d_stricmp(Current_mission_filename, D1_MISSION_FILENAME))
 		return load_mission_d1();
 

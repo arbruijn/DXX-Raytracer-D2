@@ -25,8 +25,8 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "u_mem.h"
 #include "gr.h"
 #include "grdef.h"
+#include "dxxerror.h"
 #include "fix.h"
-#include "logger.h"
 
 extern int gr_installed;
 
@@ -64,7 +64,7 @@ void gr_use_palette_table( char * filename )
 
 	fp = PHYSFSX_openReadBuffered( filename );
 	if ( fp==NULL)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Can't open palette file <%s>",filename);
+		Error("Can't open palette file <%s>",filename);
 
 	fsize	= PHYSFS_fileLength( fp );
 	Assert( fsize == 9472 );

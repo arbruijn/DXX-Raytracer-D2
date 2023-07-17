@@ -45,7 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "gameseq.h"
 #include "byteswap.h"
-#include "logger.h"
 
 void kill_stuck_objects(int wallnum);
 
@@ -291,7 +290,7 @@ void wall_destroy(segment *seg, int side)
 	if (Walls[seg->sides[side].wall_num].type == WALL_BLASTABLE)
 		blast_blastable_wall( seg, side );
 	else
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Hey bub, you are trying to destroy an indestructable wall.");
+		Error("Hey bub, you are trying to destroy an indestructable wall.");
 }
 
 //-----------------------------------------------------------------
@@ -416,7 +415,7 @@ void wall_open_door(segment *seg, int side)
 		d->front_wallnum[0] = seg->sides[side].wall_num;
 	}
 	else
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal Connectside %i in wall_open_door. Trying to hop over. Please check your level!\n", side);
+		con_printf(CON_URGENT, "Illegal Connectside %i in wall_open_door. Trying to hop over. Please check your level!\n", side);
 
 	Assert( seg-Segments != -1);
 
@@ -534,7 +533,7 @@ void do_door_open(int door_num)
 // 		Assert(seg->sides[side].wall_num != -1);		//Trying to do_door_open on illegal wall
 		if (seg->sides[side].wall_num == -1)
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Trying to do_door_open on illegal wall %i. Please check your level!\n", side);
+			con_printf(CON_URGENT, "Trying to do_door_open on illegal wall %i. Please check your level!\n",side);
 			continue;
 		}
 	
@@ -890,7 +889,7 @@ void wall_toggle(int segnum, int side)
 	if (segnum < 0 || segnum > Highest_segment_index || side < 0 || side >= MAX_SIDES_PER_SEGMENT)
 	{
 #ifndef NDEBUG
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Can't toggle side %d (%i) of\nsegment %d (%i)!\n", side, MAX_SIDES_PER_SEGMENT, segnum, Highest_segment_index);
+		Warning("Can't toggle side %d (%i) of\nsegment %d (%i)!\n", side, MAX_SIDES_PER_SEGMENT, segnum, Highest_segment_index);
 #endif
 		return;
 	}

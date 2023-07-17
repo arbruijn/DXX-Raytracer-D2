@@ -64,7 +64,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "text.h"
 #include "maths.h"
-#include "logger.h"
 #ifdef EDITOR
 #include "editor/editor.h"
 #endif
@@ -172,7 +171,7 @@ void apply_force_damage(object *obj,fix force,object *other_obj)
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 			{
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from colliding with a ship!\n", (double)(damage) / (double)(F1_0));
+				con_printf(CON_NORMAL, "You took %0.1f damage from colliding with a ship!\n", (double)(damage) / (double)(F1_0)); 
 
 				multi_send_damage(damage, Players[Player_num].shields, OBJ_PLAYER, other_obj->id, DAMAGE_COLLISION, NULL);
 			}
@@ -319,7 +318,7 @@ void collide_player_and_wall( object * player, fix hitspeed, short hitseg, short
 				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
-					RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from hitting a wall!\n", (double)(damage) / (double)(F1_0));
+			  		con_printf(CON_NORMAL, "You took %0.1f damage from hitting a wall!\n", (double)(damage) / (double)(F1_0)); 
 
 					multi_send_damage(damage, Players[Player_num].shields, NULL, NULL, DAMAGE_WALL, NULL);
 				}
@@ -353,7 +352,7 @@ void scrape_player_on_wall(object *obj, short hitseg, short hitside, vms_vector 
 			#ifdef NETWORK
 			if (Game_mode & GM_MULTI)
 			{
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from lava!\n", (double)(damage) / (double)(F1_0));
+				con_printf(CON_NORMAL, "You took %0.1f damage from lava!\n", (double)(damage) / (double)(F1_0)); 
 
 				multi_send_damage(damage, Players[Player_num].shields, NULL, NULL, DAMAGE_LAVA, NULL);
 			}
@@ -1368,9 +1367,7 @@ char* weapon_id_to_name(int weapon_id) {
 		case PLAYER_SMART_HOMING_ID: return "smart blob"; 
 		case MEGA_ID: return "mega";
 		case FLARE_ID: return "flare"; 
-		default:
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Unknown weapon: %d\n", weapon_id);
-			return "unknown weapon";
+		default: con_printf(CON_NORMAL, "Unknown weapon: %d\n", weapon_id); return "unknown weapon"; 
 	}
 }
 
@@ -1488,7 +1485,7 @@ void collide_player_and_weapon( object * player, object * weapon, vms_vector *co
 				#ifdef NETWORK
 				if (Game_mode & GM_MULTI)
 				{
-						RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from %s's %s!\n",
+					con_printf(CON_NORMAL, "You took %0.1f damage from %s's %s!\n", 
 						(double)(damage)/(double)(F1_0), killer_name, weapon_name); 
 
 					multi_send_damage(damage, Players[Player_num].shields, killer->type, killer->id, DAMAGE_WEAPON, NULL);
@@ -1525,7 +1522,7 @@ void collide_player_and_nasty_robot( object * player, object * robot, vms_vector
 	#ifdef NETWORK
 		if (Game_mode & GM_MULTI)
 		{
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from bumping a robot!\n", (double)(damage) / (double)(F1_0));
+			con_printf(CON_NORMAL, "You took %0.1f damage from bumping a robot!\n", (double)(damage) / (double)(F1_0)); 
 
 			multi_send_damage(damage, Players[Player_num].shields, OBJ_ROBOT, NULL, DAMAGE_COLLISION, NULL);
 		}
@@ -1776,10 +1773,10 @@ void collide_weapon_and_debris( object * weapon, object * debris, vms_vector *co
 
 #define ERROR_COLLISION(type1,type2,collision_function)					\
 	case COLLISION_OF( (type1), (type2) ):										\
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error in collision type!" );									\
+		Error( "Error in collision type!" );									\
 		break;																			\
 	case COLLISION_OF( (type2), (type1) ):										\
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error in collision type!" );									\
+		Error( "Error in collision type!" );									\
 		break;
 #endif
 
@@ -1836,7 +1833,7 @@ void collide_two_objects( object * A, object * B, vms_vector *collision_point )
 	DO_COLLISION( OBJ_ROBOT, OBJ_CNTRLCEN, collide_robot_and_controlcen )
 	DO_COLLISION( OBJ_WEAPON, OBJ_CLUTTER, collide_weapon_and_clutter )
 	default:
-		Int3();	//RT_LOGF(RT_LOGSERVERITY_HIGH, "Unhandled collision_type in collide.c!\n" );
+		Int3();	//Error( "Unhandled collision_type in collide.c!\n" );
 	}
 }
 
@@ -1905,7 +1902,7 @@ void collide_object_with_wall( object * A, fix hitspeed, short hitseg, short hit
 
 	switch( A->type )	{
 	case OBJ_NONE:
-		RT_LOG(RT_LOGSERVERITY_HIGH, "A object of type NONE hit a wall!\n");
+		Error( "A object of type NONE hit a wall!\n");
 		break;
 	case OBJ_PLAYER:		collide_player_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
 	case OBJ_WEAPON:		collide_weapon_and_wall(A,hitspeed,hitseg,hitwall,hitpt); break;
@@ -1919,6 +1916,6 @@ void collide_object_with_wall( object * A, fix hitspeed, short hitseg, short hit
 	case OBJ_GHOST:		break;	//do nothing
 
 	default:
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Unhandled object type hit wall in collide.c\n" );
+		Error( "Unhandled object type hit wall in collide.c\n" );
 	}
 }

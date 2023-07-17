@@ -372,7 +372,7 @@ extern ushort gr_fade_table_selector;
 // whatever color the 2d uses for transparency. This is normally used
 // right after a call to iff_read_bitmap like this:
 //		iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
-//		if (iff_error != IFF_NO_ERROR) RT_LOGF(RT_LOGSERVERITY_HIGH, "Can't load IFF file <%s>, error=%d",filename,iff_error);
+//		if (iff_error != IFF_NO_ERROR) Error("Can't load IFF file <%s>, error=%d",filename,iff_error);
 //		if ( iff_has_transparency )
 //			gr_remap_bitmap( new, newpal, iff_transparent_color );
 //		else

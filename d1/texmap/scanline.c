@@ -29,6 +29,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmapl.h"
 #include "scanline.h"
 #include "strutil.h"
+#include "dxxerror.h"
 
 void c_tmap_scanline_flat()
 {

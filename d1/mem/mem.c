@@ -23,9 +23,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <string.h>
 #include "physfsx.h"
 #include "pstypes.h"
+#include "dxxerror.h"
 #include "args.h"
 #include "console.h"
-#include "logger.h"
 
 #define MEMSTATS 0
 #define FULL_MEM_CHECKING 1
@@ -82,7 +82,7 @@ void mem_init()
 
 void PrintInfo( int id )
 {
-	RT_LOGF(RT_LOGSERVERITY_INFO, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id]);
+	con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
 }
 
 
@@ -112,9 +112,9 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 #endif	// end of ifdef memstats
 
 	if ( num_blocks >= MAX_INDEX )	{
-		RT_LOG(RT_LOGSERVERITY_ASSERT, "\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n");
-		RT_LOGF(RT_LOGSERVERITY_ASSERT, "\tBlock '%s' created in %s, line %d.\n", var, filename, line);
-		RT_LOG(RT_LOGSERVERITY_HIGH, "MEM_OUT_OF_SLOTS" );
+		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
+		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", var, filename, line );
+		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
 	id = free_list[ num_blocks++ ];
@@ -123,9 +123,9 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 
 	if (id==-1)
 	{
-		RT_LOG(RT_LOGSERVERITY_ASSERT, "\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n");
-		// RT_LOGF(RT_LOGSERVERITY_ASSERT, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
-		RT_LOG(RT_LOGSERVERITY_HIGH, "MEM_OUT_OF_SLOTS" );
+		con_printf(CON_CRITICAL,"\nMEM_OUT_OF_SLOTS: Not enough space in mem.c to hold all the mallocs.\n" );		
+		//con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
+		Error( "MEM_OUT_OF_SLOTS" );
 	}
 
 	ptr = malloc( size+CHECKSIZE );
@@ -133,8 +133,9 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 	if (ptr==NULL)
 	{
 		out_of_memory = 1;
-		RT_LOG(RT_LOGSERVERITY_ASSERT, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n");
-		RT_LOGF(RT_LOGSERVERITY_ASSERT, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id]);
+		con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
+		con_printf(CON_CRITICAL, "\tBlock '%s' created in %s, line %d.\n", Varname[id], Filename[id], LineNum[id] );
+		Error( "MEM_OUT_OF_MEMORY" );
 	}
 
 	MallocBase[id] = ptr;
@@ -183,13 +184,13 @@ int mem_check_integrity( int block_number )
 	for (i=0; i<CHECKSIZE; i++ )
 		if (CheckData[i] != CHECKBYTE ) {
 			ErrorCount++;
-			RT_LOGF(RT_LOGSERVERITY_INFO, "OA: %p ", &CheckData[i]);
+			con_printf(CON_CRITICAL, "OA: %p ", &CheckData[i] );
 		}
 
 	if (ErrorCount &&  (!out_of_memory))	{
-		RT_LOG(RT_LOGSERVERITY_INFO, "\nMEM_OVERWRITE: Memory after the end of allocated block overwritten.\n");
+		con_printf(CON_CRITICAL, "\nMEM_OVERWRITE: Memory after the end of allocated block overwritten.\n" );
 		PrintInfo( block_number );
-		RT_LOGF(RT_LOGSERVERITY_INFO, "\t%d/%d check bytes were overwritten.\n", ErrorCount, CHECKSIZE);
+		con_printf(CON_CRITICAL, "\t%d/%d check bytes were overwritten.\n", ErrorCount, CHECKSIZE );
 		Int3();
 	}
 
@@ -220,8 +221,8 @@ void mem_free( void * buffer )
 
 	if (buffer==NULL  &&  (!out_of_memory))
 	{
-		RT_LOG(RT_LOGSERVERITY_INFO, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n");
-		RT_LOG(RT_LOGSERVERITY_INFO, "MEM: Freeing the NULL pointer!");
+		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
+		Warning( "MEM: Freeing the NULL pointer!" );
 		Int3();
 		return;
 	}
@@ -230,8 +231,8 @@ void mem_free( void * buffer )
 
 	if (id==-1 &&  (!out_of_memory))
 	{
-		RT_LOG(RT_LOGSERVERITY_ASSERT, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included.\n");
-		RT_LOG(RT_LOGSERVERITY_MEDIUM,  "MEM: Freeing a non-malloced pointer!" );
+		con_printf(CON_CRITICAL, "\nMEM_FREE_NOMALLOC: An attempt was made to free a ptr that wasn't\nallocated with mem.h included.\n" );
+		Warning( "MEM: Freeing a non-malloced pointer!" );
 		Int3();
 		return;
 	}
@@ -304,7 +305,7 @@ void mem_display_blocks()
 		{
 			numleft++;
 			if (GameArg.DbgShowMemInfo)	{
-				RT_LOG(RT_LOGSERVERITY_ASSERT, "\nMEM_LEAKAGE: Memory block has not been freed.\n");
+				con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: Memory block has not been freed.\n" );
 				PrintInfo( i );
 			}
 			mem_free( (void *)MallocBase[i] );
@@ -313,7 +314,7 @@ void mem_display_blocks()
 
 	if (numleft &&  (!out_of_memory))
 	{
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM,  "MEM: %d blocks were left allocated!\n", numleft );
+		Warning( "MEM: %d blocks were left allocated!\n", numleft );
 	}
 
 }
@@ -391,18 +392,18 @@ void * mem_malloc( unsigned int size, char * var, char * filename, int line, int
 #endif	// end of ifdef memstats
 
 	if (size==0)	{
-		RT_LOG(RT_LOGSERVERITY_INFO, "\nMEM_MALLOC_ZERO: Attempting to malloc 0 bytes.\n");
-		RT_LOGF(RT_LOGSERVERITY_INFO, "\tVar %s, file %s, line %d.\n", var, filename, line);
-		RT_LOG(RT_LOGSERVERITY_HIGH, "MEM_MALLOC_ZERO" );
+		con_printf(CON_CRITICAL, "\nMEM_MALLOC_ZERO: Attempting to malloc 0 bytes.\n" );
+		con_printf(CON_CRITICAL, "\tVar %s, file %s, line %d.\n", var, filename, line );
+		Error( "MEM_MALLOC_ZERO" );
 		Int3();
 	}
 
 	ptr = malloc( size + CHECKSIZE );
 
 	if (ptr==NULL)	{
-		RT_LOG(RT_LOGSERVERITY_INFO, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n");
-		RT_LOGF(RT_LOGSERVERITY_INFO, "\tVar %s, file %s, line %d.\n", var, filename, line);
-		RT_LOG(RT_LOGSERVERITY_HIGH, "MEM_OUT_OF_MEMORY" );
+		con_printf(CON_CRITICAL, "\nMEM_OUT_OF_MEMORY: Malloc returned NULL\n" );
+		con_printf(CON_CRITICAL, "\tVar %s, file %s, line %d.\n", var, filename, line );
+		Error( "MEM_OUT_OF_MEMORY" );
 		Int3();
 	}
 
@@ -444,8 +445,8 @@ void mem_free( void * buffer )
 #endif	// end of ifdef memstats
 
 	if (buffer==NULL)	{
-		RT_LOG(RT_LOGSERVERITY_INFO, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n");
-		RT_LOG(RT_LOGSERVERITY_MEDIUM,  "MEM: Freeing the NULL pointer!" );
+		con_printf(CON_CRITICAL, "\nMEM_FREE_NULL: An attempt was made to free the null pointer.\n" );
+		Warning( "MEM: Freeing the NULL pointer!" );
 		Int3();
 		return;
 	}
@@ -476,15 +477,15 @@ void mem_display_blocks()
 #endif	// end of ifdef memstats
 
 	if (BytesMalloced != 0 )	{
-		RT_LOGF(RT_LOGSERVERITY_ASSERT, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.\n", BytesMalloced);
+		con_printf(CON_CRITICAL, "\nMEM_LEAKAGE: %d bytes of memory have not been freed.\n", BytesMalloced );
 	}
 
 	if (GameArg.DbgShowMemInfo)	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "\n\nMEMORY USAGE:\n");
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "  %u Kbytes dynamic data\n", (LargestAddress - SmallestAddress + 512) / 1024);
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "  %u Kbytes code/static data.\n", (SmallestAddress - (4 * 1024 * 1024) + 512) / 1024);
-		RT_LOG(RT_LOGSERVERITY_HIGH, "  ---------------------------\n");
-		RT_LOGF(RT_LOGSERVERITY_ASSERT, "  %u Kbytes required.\n", (LargestAddress - (4 * 1024 * 1024) + 512) / 1024);
+		con_printf(CON_CRITICAL, "\n\nMEMORY USAGE:\n" );
+		con_printf(CON_CRITICAL, "  %u Kbytes dynamic data\n", (LargestAddress-SmallestAddress+512)/1024 );
+		con_printf(CON_CRITICAL, "  %u Kbytes code/static data.\n", (SmallestAddress-(4*1024*1024)+512)/1024 );
+		con_printf(CON_CRITICAL, "  ---------------------------\n" );
+		con_printf(CON_CRITICAL, "  %u Kbytes required.\n", 	(LargestAddress-(4*1024*1024)+512)/1024 );
 	}
 }
 

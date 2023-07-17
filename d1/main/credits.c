@@ -23,6 +23,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdarg.h>
 #include <ctype.h>
 
+#include "dxxerror.h"
 #include "pstypes.h"
 #include "gr.h"
 #include "window.h"
@@ -41,7 +42,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "songs.h"
 #include "menu.h"
 #include "config.h"
-#include "logger.h"
 
 #define ROW_SPACING			(SHEIGHT / 17)
 #define NUM_LINES			20 //14
@@ -232,7 +232,7 @@ void credits_show(char *credits_filename)
 		sprintf(nfile, "%s.txb", filename);
 		cr->file = PHYSFSX_openReadBuffered(nfile);
 		if (cr->file == NULL)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Missing CREDITS.TEX and CREDITS.TXB file\n");
+			Error("Missing CREDITS.TEX and CREDITS.TXB file\n");
 		cr->have_bin_file = 1;
 	}
 

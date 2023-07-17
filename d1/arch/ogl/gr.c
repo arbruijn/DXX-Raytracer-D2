@@ -37,6 +37,7 @@
 #include "grdef.h"
 #include "palette.h"
 #include "u_mem.h"
+#include "dxxerror.h"
 #include "inferno.h"
 #include "screens.h"
 #include "strutil.h"
@@ -50,7 +51,6 @@
 #include "config.h"
 #include "vers_id.h"
 #include "game.h"
-#include "logger.h"
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <OpenGL/glu.h>
@@ -98,7 +98,7 @@ bool TestEGLError(char* pszLocation)
 	EGLint iErr = eglGetError();
 	if (iErr != EGL_SUCCESS)
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "%s failed (%d).\n", pszLocation, iErr);
+		con_printf(CON_URGENT, "%s failed (%d).\n", pszLocation, iErr);
 		return 0;
 	}
 	
@@ -133,10 +133,10 @@ void rpi_destroy_element(void)
 {
 	if (dispman_element != DISPMANX_NO_HANDLE) {
 		DISPMANX_UPDATE_HANDLE_T dispman_update;
-		RT_LOG(RT_LOGSERVERITY_INFO, "RPi: destroying display manager element\n");
+		con_printf(CON_DEBUG, "RPi: destroying display manager element\n");
 		dispman_update = vc_dispmanx_update_start( 0 );
 		if (vc_dispmanx_element_remove( dispman_update, dispman_element)) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "RPi: failed to remove dispmanx element!\n");
+			 con_printf(CON_URGENT, "RPi: failed to remove dispmanx element!\n");
 		}
 		vc_dispmanx_update_submit_sync( dispman_update );
 		dispman_element = DISPMANX_NO_HANDLE;
@@ -160,23 +160,23 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 
 	success = graphics_get_display_size(rpi_display_device, &display_width, &display_height);
 	if ( success < 0 ) {
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Could not get RPi display size, assuming 640x480\n");
+		con_printf(CON_URGENT, "Could not get RPi display size, assuming 640x480\n");
 		display_width=640;
 		display_height=480;
 	}
 
 	if ((uint32_t)x > display_width) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: Requested width %d exceeds display width %u, scaling down!\n",
+		con_printf(CON_URGENT, "RPi: Requested width %d exceeds display width %u, scaling down!\n",
 			x,display_width);
 		x=(int)display_width;
 	}
 	if ((uint32_t)y > display_height) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: Requested height %d exceeds display height %u, scaling down!\n",
+		con_printf(CON_URGENT, "RPi: Requested height %d exceeds display height %u, scaling down!\n",
 			y,display_height);
 		y=(int)display_height;
 	}
 
-	RT_LOGF(RT_LOGSERVERITY_INFO, "RPi: display resolution %ux%u, game resolution: %dx%d (%s)\n", display_width, display_height, x, y, (video_flags & SDL_FULLSCREEN) ? "fullscreen" : "windowed");
+	con_printf(CON_DEBUG, "RPi: display resolution %ux%u, game resolution: %dx%d (%s)\n", display_width, display_height, x, y, (video_flags & SDL_FULLSCREEN)?"fullscreen":"windowed");
 	if (video_flags & SDL_FULLSCREEN) {
 		/* scale to the full display size... */
 		dst_rect.x = 0;
@@ -205,10 +205,10 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 
 	// open display, if we do not already have one ...
 	if (dispman_display == DISPMANX_NO_HANDLE) {
-		RT_LOGF(RT_LOGSERVERITY_INFO, "RPi: opening display: %u\n", rpi_display_device);
+		con_printf(CON_DEBUG, "RPi: opening display: %u\n",rpi_display_device);
 		dispman_display = vc_dispmanx_display_open(rpi_display_device);
 		if (dispman_display == DISPMANX_NO_HANDLE) {
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: failed to open display: %u\n", rpi_display_device);
+			con_printf(CON_URGENT,"RPi: failed to open display: %u\n",rpi_display_device);
 		}
 	}
 
@@ -225,7 +225,7 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 	dispman_update = vc_dispmanx_update_start( 0 );
 
 	if (update) {
-		RT_LOG(RT_LOGSERVERITY_INFO, "RPi: updating display manager element\n");
+		con_printf(CON_DEBUG, "RPi: updating display manager element\n");
 		vc_dispmanx_element_change_attributes ( dispman_update, nativewindow.element,
 							ELEMENT_CHANGE_DEST_RECT | ELEMENT_CHANGE_SRC_RECT,
 							0 /*layer*/, 0 /*opacity*/,
@@ -233,14 +233,14 @@ int rpi_setup_element(int x, int y, Uint32 video_flags, int update)
 							0 /*mask*/, VC_IMAGE_ROT0 /*transform*/);
 	} else {
 		// create a new element
-		RT_LOG(RT_LOGSERVERITY_INFO, "RPi: creating display manager element\n");
+		con_printf(CON_DEBUG, "RPi: creating display manager element\n");
 		dispman_element = vc_dispmanx_element_add ( dispman_update, dispman_display,
 								0 /*layer*/, &dst_rect, 0 /*src*/,
 								&src_rect, DISPMANX_PROTECTION_NONE,
 								&alpha_descriptor, NULL /*clamp*/,
 								VC_IMAGE_ROT0 /*transform*/);
 		if (dispman_element == DISPMANX_NO_HANDLE) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "RPi: failed to creat display manager element\n");
+			con_printf(CON_URGENT,"RPi: failed to creat display manager elemenr\n");
 		}
 		nativewindow.element = dispman_element;
 	}
@@ -261,19 +261,19 @@ void ogles_destroy(void)
 	}
 
 	if (eglContext != EGL_NO_CONTEXT) {
-		RT_LOG(RT_LOGSERVERITY_INFO, "EGL: destroyig context\n");
+		con_printf(CON_DEBUG, "EGL: destroyig context\n");
 		eglDestroyContext(eglDisplay, eglContext);
 		eglContext = EGL_NO_CONTEXT;
 	}
 
 	if (eglSurface != EGL_NO_SURFACE) {
-		RT_LOG(RT_LOGSERVERITY_INFO, "EGL: destroyig surface\n");
+		con_printf(CON_DEBUG, "EGL: destroyig surface\n");
 		eglDestroySurface(eglDisplay, eglSurface);
 		eglSurface = EGL_NO_SURFACE;
 	}
 
 	if (eglDisplay != EGL_NO_DISPLAY) {
-		RT_LOG(RT_LOGSERVERITY_INFO, "EGL: terminating\n");
+		con_printf(CON_DEBUG, "EGL: terminating\n");
 		eglTerminate(eglDisplay);
 		eglDisplay = EGL_NO_DISPLAY;
 	}
@@ -327,17 +327,17 @@ int ogl_init_window(int x, int y)
 			use_bpp=vinfo->vfmt->BitsPerPixel;
 			use_flags=SDL_SWSURFACE | SDL_ANYFORMAT;
 		} else {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Could not query video info\n");
+			con_printf(CON_URGENT, "Could not query video info\n");
 		}
 	}
 
 	if (!SDL_SetVideoMode(use_x, use_y, use_bpp, use_flags))
 	{
 #ifdef RPI
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not set %dx%dx%d opengl video mode: %s\n (Ignored for RPI)",
+		con_printf(CON_URGENT, "Could not set %dx%dx%d opengl video mode: %s\n (Ignored for RPI)",
 			    x, y, GameArg.DbgBpp, SDL_GetError());
 #else
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
+		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
 #endif
 	}
 	SDL_Surface t_Surf;
@@ -355,7 +355,7 @@ int ogl_init_window(int x, int y)
 		if (info.subsystem == SDL_SYSWM_X11) {
 			x11Display = info.info.x11.display;
 			x11Window = info.info.x11.window;
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Display: %p, Window: %i ===\n", (void *)x11Display, (int)x11Window);
+			con_printf (CON_DEBUG, "Display: %p, Window: %i ===\n", (void*)x11Display, (int)x11Window);
 		}
 	}
 
@@ -366,28 +366,28 @@ int ogl_init_window(int x, int y)
 		eglDisplay = eglGetDisplay((EGLNativeDisplayType)x11Display);
 #endif
 		if (eglDisplay == EGL_NO_DISPLAY) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "EGL: Error querying EGL Display\n");
+			con_printf(CON_URGENT, "EGL: Error querying EGL Display\n");
 		}
 
 		if (!eglInitialize(eglDisplay, &ver_maj, &ver_min)) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "EGL: Error initializing EGL\n");
+			con_printf(CON_URGENT, "EGL: Error initializing EGL\n");
 		} else {
-			RT_LOGF(RT_LOGSERVERITY_INFO, "EGL: Initialized, version: major %i minor %i\n", ver_maj, ver_min);
+			con_printf(CON_DEBUG, "EGL: Initialized, version: major %i minor %i\n", ver_maj, ver_min);
 		}
 	}
 
 	
 #ifdef RPI
 	if (rpi_setup_element(x,y,sdl_video_flags,1)) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: Could not set up a %dx%d element\n", x, y);
+		Error("RPi: Could not set up a %dx%d element\n", x, y);
 	}
 #endif
 
 	if (eglSurface == EGL_NO_SURFACE) {
 		if (!eglChooseConfig(eglDisplay, configAttribs, &eglConfig, 1, &iConfigs) || (iConfigs != 1)) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "EGL: Error choosing config\n");
+			con_printf(CON_URGENT, "EGL: Error choosing config\n");
 		} else {
-			RT_LOG(RT_LOGSERVERITY_INFO, "EGL: config chosen\n");
+			con_printf(CON_DEBUG, "EGL: config chosen\n");
 		}
 
 #ifdef RPI
@@ -396,26 +396,26 @@ int ogl_init_window(int x, int y)
 		eglSurface = eglCreateWindowSurface(eglDisplay, eglConfig, (NativeWindowType)x11Window, winAttribs);
 #endif
 		if ((!TestEGLError("eglCreateWindowSurface")) || eglSurface == EGL_NO_SURFACE) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "EGL: Error creating window surface\n");
+			con_printf(CON_URGENT, "EGL: Error creating window surface\n");
 		} else {
-			RT_LOG(RT_LOGSERVERITY_INFO, "EGL: Created window surface\n");
+			con_printf(CON_DEBUG, "EGL: Created window surface\n");
 		}
 	}
 	
 	if (eglContext == EGL_NO_CONTEXT) {
 		eglContext = eglCreateContext(eglDisplay, eglConfig, EGL_NO_CONTEXT, contextAttribs);
 		if ((!TestEGLError("eglCreateContext")) || eglContext == EGL_NO_CONTEXT) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "EGL: Error creating context\n");
+			con_printf(CON_URGENT, "EGL: Error creating context\n");
 		} else {
-			RT_LOG(RT_LOGSERVERITY_INFO, "EGL: Created context\n");
+			con_printf(CON_DEBUG, "EGL: Created context\n");
 		}
 	}
 	
 	eglMakeCurrent(eglDisplay, eglSurface, eglSurface, eglContext);
 	if (!TestEGLError("eglMakeCurrent")) {
-		RT_LOG(RT_LOGSERVERITY_HIGH, "EGL: Error making current\n");
+		con_printf(CON_URGENT, "EGL: Error making current\n");
 	} else {
-		RT_LOG(RT_LOGSERVERITY_INFO, "EGL: made context current\n");
+		con_printf(CON_DEBUG, "EGL: made context current\n");
 	}
 #endif
 
@@ -442,17 +442,17 @@ int gr_toggle_fullscreen(void)
 		if (sdl_no_modeswitch == 0) {
 			if (!SDL_VideoModeOK(SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, sdl_video_flags))
 			{
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "Cannot set %ix%i. Fallback to 640x480\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+				con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 				Game_screen_mode=SM(640,480);
 			}
 			if (!SDL_SetVideoMode(SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, sdl_video_flags))
 			{
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not set %dx%dx%d opengl video mode: %s\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, SDL_GetError());
+				Error("Could not set %dx%dx%d opengl video mode: %s\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode), GameArg.DbgBpp, SDL_GetError());
 			}
 		}
 #ifdef RPI
 		if (rpi_setup_element(SM_W(Game_screen_mode), SM_H(Game_screen_mode), sdl_video_flags, 1)) {
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "RPi: Could not set up %dx%d element\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
+			 Error("RPi: Could not set up %dx%d element\n", SM_W(Game_screen_mode), SM_H(Game_screen_mode));
 		}
 #endif
 	}
@@ -516,7 +516,7 @@ void ogl_get_verinfo(void)
 	gl_version = (const char *) glGetString (GL_VERSION);
 	gl_extensions = (const char *) glGetString (GL_EXTENSIONS);
 
-	RT_LOGF(RT_LOGSERVERITY_MINOR, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n", gl_vendor, gl_renderer, gl_version);
+	con_printf(CON_VERBOSE, "OpenGL: vendor: %s\nOpenGL: renderer: %s\nOpenGL: version: %s\n",gl_vendor,gl_renderer,gl_version);
 
 #ifdef _WIN32
 	dglMultiTexCoord2fARB = (glMultiTexCoord2fARB_fp)wglGetProcAddress("glMultiTexCoord2fARB");
@@ -545,12 +545,12 @@ void ogl_get_verinfo(void)
 #endif
 
 #ifndef NDEBUG
-	RT_LOGF(RT_LOGSERVERITY_MINOR, "gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n", GameArg.DbgGlIntensity4Ok, GameArg.DbgGlLuminance4Alpha4Ok, GameArg.DbgGlRGBA2Ok, GameArg.DbgGlReadPixelsOk, GameArg.DbgGlGetTexLevelParamOk);
+	con_printf(CON_VERBOSE,"gl_intensity4:%i gl_luminance4_alpha4:%i gl_rgba2:%i gl_readpixels:%i gl_gettexlevelparam:%i\n",GameArg.DbgGlIntensity4Ok,GameArg.DbgGlLuminance4Alpha4Ok,GameArg.DbgGlRGBA2Ok,GameArg.DbgGlReadPixelsOk,GameArg.DbgGlGetTexLevelParamOk);
 #endif
 	if (!d_stricmp(gl_extensions,"GL_EXT_texture_filter_anisotropic")==0)
 	{
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &ogl_maxanisotropy);
-		RT_LOGF(RT_LOGSERVERITY_MINOR, "ogl_maxanisotropy:%f\n", ogl_maxanisotropy);
+		con_printf(CON_VERBOSE,"ogl_maxanisotropy:%f\n",ogl_maxanisotropy);
 	}
 	else if (GameCfg.TexFilt >= 3)
 		GameCfg.TexFilt = 2;
@@ -627,7 +627,7 @@ int gr_set_mode(u_int32_t mode)
 
 	if (!gr_check_mode(mode))
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Cannot set %ix%i. Fallback to 640x480\n", w, h);
+		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
 		w=640;
 		h=480;
 		Game_screen_mode=mode=SM(w,h);
@@ -663,7 +663,7 @@ int ogl_atotexfilti(char *a,int min)
 		GLstrcmptestr(a,LINEAR_MIPMAP_NEAREST);
 		GLstrcmptestr(a,LINEAR_MIPMAP_LINEAR);
 	}
-	RT_LOGF(RT_LOGSERVERITY_HIGH, "unknown/invalid texture filter %s\n", a);
+	Error("unknown/invalid texture filter %s\n",a);
 }
 
 #ifdef _WIN32
@@ -680,12 +680,12 @@ int ogl_init_load_library(void)
 		{
 			if(!glEnd)
 			{
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Opengl: Functions not imported\n");
+				Error("Opengl: Functions not imported\n");
 			}
 		}
 		else
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Opengl: error loading %s\n", OglLibPath);
+			Error("Opengl: error loading %s\n", OglLibPath);
 		}
 		ogl_rt_loaded=1;
 	}
@@ -740,7 +740,7 @@ int gr_init(int mode)
 	sdl_driver_ret=SDL_VideoDriverName(sdl_driver,32);
 	if (sdl_driver_ret) {
 		if (strcmp(sdl_driver_ret,"x11")) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "RPi: activating hack for console driver\n");
+			con_printf(CON_URGENT,"RPi: activating hack for console driver\n");
 			sdl_no_modeswitch=1;
 		}
 	}
@@ -813,10 +813,10 @@ void gr_close()
 #ifdef OGLES
 	ogles_destroy();
 #ifdef RPI
-	RT_LOG(RT_LOGSERVERITY_INFO, "RPi: cleanuing up\n");
+	con_printf(CON_DEBUG, "RPi: cleanuing up\n");
 	if (dispman_display != DISPMANX_NO_HANDLE) {
 		rpi_destroy_element();
-		RT_LOG(RT_LOGSERVERITY_INFO, "RPi: closing display\n");
+		con_printf(CON_DEBUG, "RPi: closing display\n");
 		vc_dispmanx_display_close(dispman_display);
 		dispman_display = DISPMANX_NO_HANDLE;
 	}
@@ -1045,7 +1045,7 @@ void write_bmp(char *savename,int w,int h,unsigned char *buf)
 
 	if (!(TGAFile = PHYSFSX_openWriteBuffered(savename)))
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Could not create TGA file to dump screenshot!");
+		con_printf(CON_URGENT,"Could not create TGA file to dump screenshot!");
 		d_free(buf);
 		return;
 	}

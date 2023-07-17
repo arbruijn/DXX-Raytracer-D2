@@ -25,7 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "u_mem.h"
 #include "strutil.h"
-#include "logger.h"
+
 	
 int hashtable_init( hashtable *ht, int size )	{
 	int i;
@@ -42,11 +42,11 @@ int hashtable_init( hashtable *ht, int size )	{
 	size = ht->size;
 	ht->and_mask = ht->size - 1;
 	if (ht->size==0)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Hashtable has size of 0" );
+		Error( "Hashtable has size of 0" );
 
 	ht->key = (char **)d_malloc( size * sizeof(char *) );
 	if (ht->key==NULL)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Not enough memory to create a hash table of size %d", size );
+		Error( "Not enough memory to create a hash table of size %d", size );
 
 	for (i=0; i<size; i++ )
 		ht->key[i] = NULL;
@@ -55,7 +55,7 @@ int hashtable_init( hashtable *ht, int size )	{
 	ht->value = d_malloc( size*sizeof(int) );
 	if (ht->value==NULL)	{
 		d_free(ht->key);
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Not enough memory to create a hash table of size %d\n", size );
+		Error( "Not enough memory to create a hash table of size %d\n", size );
 	}
 
 	ht->nitems = 0;
@@ -117,5 +117,5 @@ void hashtable_insert( hashtable *ht, char *key, int value )	{
 			return;
 		}
 	}
-	RT_LOG(RT_LOGSERVERITY_HIGH, "Out of hash slots\n" );
+	Error( "Out of hash slots\n" );
 }

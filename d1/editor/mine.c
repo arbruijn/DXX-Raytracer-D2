@@ -40,7 +40,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "medwall.h"
 #include "switch.h"
 #include "fuelcen.h"
-#include "logger.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
@@ -154,7 +153,7 @@ int save_mine_data(PHYSFS_file * SaveFile)
 
 	// Write the editor info
 	if (header_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 
 	PHYSFS_write( SaveFile, &mine_header, sizeof(mine_header), 1 );
 
@@ -176,35 +175,35 @@ int save_mine_data(PHYSFS_file * SaveFile)
 		mine_editor.Groupside[i]     =	Groupside[i];
 
 	if (editor_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, &mine_editor, sizeof(mine_editor), 1 );
 
 	//===================== SAVE TEXTURE INFO ==========================
 
 	if (texture_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, current_tmap_list, 13, NumTextures );
 	
 	//===================== SAVE VERTEX INFO ==========================
 
 	if (vertex_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, Vertices, sizeof(vms_vector), Num_vertices );
 
 	//===================== SAVE SEGMENT INFO =========================
 
 	if (segment_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, Segments, sizeof(segment), Num_segments );
 
 	//===================== SAVE NEWSEGMENT INFO ======================
 
 	if (newsegment_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, &New_segment, sizeof(segment), 1 );
 
 	if (newseg_verts_offset != PHYSFS_tell(SaveFile))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "OFFSETS WRONG IN MINE.C!" );
+		Error( "OFFSETS WRONG IN MINE.C!" );
 	PHYSFS_write( SaveFile, &Vertices[New_segment.verts[0]], sizeof(vms_vector), 8 );
 
 	//==================== CLOSE THE FILE =============================

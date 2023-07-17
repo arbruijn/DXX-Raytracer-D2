@@ -13,11 +13,11 @@
 #include "grdef.h"
 #include "palette.h"
 #include "u_mem.h"
+#include "dxxerror.h"
 #include "vers_id.h"
 #include "gamefont.h"
 #include "args.h"
 #include "config.h"
-#include "logger.h"
 
 int sdl_video_flags = SDL_SWSURFACE | SDL_HWPALETTE | SDL_DOUBLEBUF;
 SDL_Surface *screen,*canvas;
@@ -107,7 +107,7 @@ int gr_set_mode(u_int32_t mode)
 	}
 	else
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Cannot set %ix%i. Fallback to 640x480\n", w, h);
+		con_printf(CON_URGENT,"Cannot set %ix%i. Fallback to 640x480\n",w,h);
 		w=640;
 		h=480;
 		Game_screen_mode=mode=SM(w,h);
@@ -116,14 +116,14 @@ int gr_set_mode(u_int32_t mode)
 
 	if (screen == NULL)
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not set %dx%dx%d video mode\n", w, h, GameArg.DbgBpp);
+		Error("Could not set %dx%dx%d video mode\n",w,h,GameArg.DbgBpp);
 		exit(1);
 	}
 
 	canvas = SDL_CreateRGBSurface(sdl_video_flags, w, h, 8, 0, 0, 0, 0);
 	if (canvas == NULL)
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Could not create canvas surface\n");
+		Error("Could not create canvas surface\n");
 		exit(1);
 	}
 
@@ -170,7 +170,7 @@ int gr_init(int mode)
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "SDL library video initialisation failed: %s.", SDL_GetError());
+		Error("SDL library video initialisation failed: %s.",SDL_GetError());
 	}
 
 	MALLOC( grd_curscreen,grs_screen,1 );

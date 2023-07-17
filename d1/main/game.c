@@ -89,7 +89,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vers_id.h"
 #include "event.h"
 #include "window.h"
-#include "logger.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -384,27 +383,27 @@ int set_screen_mode(int sm)
 		case SCREEN_MENU:
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
-					RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot set screen mode.");
+					Error("Cannot set screen mode.");
 			break;
 
 		case SCREEN_GAME:
 			if  (grd_curscreen->sc_mode != Game_screen_mode)
 				if (gr_set_mode(Game_screen_mode))
-					RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot set screen mode.");
+					Error("Cannot set screen mode.");
 			break;
 #ifdef EDITOR
 		case SCREEN_EDITOR:
 			if (grd_curscreen->sc_mode != SM(800,600))	{
 				int gr_error;
 				if ((gr_error=gr_set_mode(SM(800,600)))!=0) { //force into game scrren
-					RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Cannot init editor screen (error=%d)",gr_error);
+					Warning("Cannot init editor screen (error=%d)",gr_error);
 					return 0;
 				}
 			}
 			break;
 #endif
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Invalid screen mode %d",sm);
+			Error("Invalid screen mode %d",sm);
 	}
 
 	gr_set_current_canvas(NULL);
@@ -1401,7 +1400,7 @@ void FireLaser()
 #ifdef NETWORK
 					if(Game_mode & GM_MULTI) {
 						multi_send_play_sound(11, F1_0);
-						RT_LOGF(RT_LOGSERVERITY_MEDIUM, "You took %0.1f damage from overcharging fusion!\n", (double)(damage) / (double)(F1_0));
+						con_printf(CON_NORMAL, "You took %0.1f damage from overcharging fusion!\n", (double)(damage)/(double)(F1_0)); 
 
 						multi_send_damage(damage, Players[Player_num].shields, OBJ_PLAYER, Player_num, DAMAGE_OVERCHARGE, NULL);
 					}

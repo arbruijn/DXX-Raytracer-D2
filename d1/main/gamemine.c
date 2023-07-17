@@ -41,7 +41,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "hash.h"
 #include "key.h"
 #include "piggy.h"
-#include "logger.h"
 
 #define REMOVE_EXT(s)  (*(strchr( (s), '.' ))='\0')
 
@@ -119,10 +118,10 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	memset( &mine_top_fileinfo, 0, sizeof(mine_top_fileinfo) );
 
 	if (PHYSFSX_fseek( LoadFile, mine_start, SEEK_SET ))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error moving to top of file in gamemine.c" );
+		Error( "Error moving to top of file in gamemine.c" );
 
 	if (PHYSFS_read( LoadFile, &mine_top_fileinfo, sizeof(mine_top_fileinfo), 1 )!=1)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading mine_top_fileinfo in gamemine.c" );
+		Error( "Error reading mine_top_fileinfo in gamemine.c" );
 
 	if (mine_top_fileinfo.fileinfo_signature != 0x2884)
 		return -1;
@@ -133,10 +132,10 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 	// Now, Read in the fileinfo
 	if (PHYSFSX_fseek( LoadFile, mine_start, SEEK_SET ))
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to top of file in gamemine.c" );
+		Error( "Error seeking to top of file in gamemine.c" );
 
 	if (PHYSFS_read( LoadFile, &mine_fileinfo, mine_top_fileinfo.fileinfo_sizeof, 1 )!=1)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading mine_fileinfo in gamemine.c" );
+		Error( "Error reading mine_fileinfo in gamemine.c" );
 
 	//===================== READ HEADER INFO ========================
 
@@ -147,10 +146,10 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if (mine_fileinfo.header_offset > -1 )
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.header_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to header_offset in gamemine.c" );
+			Error( "Error seeking to header_offset in gamemine.c" );
 	
 		if (PHYSFS_read( LoadFile, &mine_header, mine_fileinfo.header_size, 1 )!=1)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading mine_header in gamemine.c" );
+			Error( "Error reading mine_header in gamemine.c" );
 	}
 
 	//===================== READ EDITOR INFO ==========================
@@ -166,10 +165,10 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if (mine_fileinfo.editor_offset > -1 )
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.editor_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to editor_offset in gamemine.c" );
+			Error( "Error seeking to editor_offset in gamemine.c" );
 	
 		if (PHYSFS_read( LoadFile, &mine_editor, mine_fileinfo.editor_size, 1 )!=1)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading mine_editor in gamemine.c" );
+			Error( "Error reading mine_editor in gamemine.c" );
 	}
 
 	//===================== READ TEXTURE INFO ==========================
@@ -177,12 +176,12 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if ( (mine_fileinfo.texture_offset > -1) && (mine_fileinfo.texture_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.texture_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to texture_offset in gamemine.c" );
+			Error( "Error seeking to texture_offset in gamemine.c" );
 
 		for (i=0; i< mine_fileinfo.texture_howmany; i++ )
 		{
 			if (PHYSFS_read( LoadFile, &old_tmap_list[i], mine_fileinfo.texture_sizeof, 1 )!=1)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading old_tmap_list[i] in gamemine.c" );
+				Error( "Error reading old_tmap_list[i] in gamemine.c" );
 		}
 	}
 
@@ -242,7 +241,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if ( (mine_fileinfo.vertex_offset > -1) && (mine_fileinfo.vertex_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.vertex_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to vertex_offset in gamemine.c" );
+			Error( "Error seeking to vertex_offset in gamemine.c" );
 
 		for (i=0; i< mine_fileinfo.vertex_howmany; i++ )
 		{
@@ -252,7 +251,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			Vertices[i].z = 1;
 
 			if (PHYSFS_read( LoadFile, &Vertices[i], mine_fileinfo.vertex_sizeof, 1 )!=1)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading Vertices[i] in gamemine.c" );
+				Error( "Error reading Vertices[i] in gamemine.c" );
 		}
 	}
 
@@ -269,7 +268,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.segment_offset,SEEK_SET ))
 
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to segment_offset in gamemine.c" );
+			Error( "Error seeking to segment_offset in gamemine.c" );
 
 		Highest_segment_index = mine_fileinfo.segment_howmany-1;
 
@@ -284,11 +283,11 @@ int load_mine_data(PHYSFS_file *LoadFile)
 				Assert(mine_fileinfo.segment_sizeof == sizeof(v16_seg));
 
 				if (PHYSFS_read( LoadFile, &v16_seg, mine_fileinfo.segment_sizeof, 1 )!=1)
-					RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading segments in gamemine.c" );
+					Error( "Error reading segments in gamemine.c" );
 
 			}				
 			else 
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Invalid mine version");
+				Error("Invalid mine version");
 
 			Segments[i] = v16_seg;
 
@@ -349,15 +348,15 @@ int load_mine_data(PHYSFS_file *LoadFile)
 	if (mine_editor.newsegment_offset > -1)
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_editor.newsegment_offset,SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to newsegment_offset in gamemine.c" );
+			Error( "Error seeking to newsegment_offset in gamemine.c" );
 		if (PHYSFS_read( LoadFile, &New_segment, mine_editor.newsegment_size,1 )!=1)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading new_segment in gamemine.c" );
+			Error( "Error reading new_segment in gamemine.c" );
 	}
 
 	if ( (mine_fileinfo.newseg_verts_offset > -1) && (mine_fileinfo.newseg_verts_howmany > 0))
 	{
 		if (PHYSFSX_fseek( LoadFile, mine_fileinfo.newseg_verts_offset, SEEK_SET ))
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Error seeking to newseg_verts_offset in gamemine.c" );
+			Error( "Error seeking to newseg_verts_offset in gamemine.c" );
 		for (i=0; i< mine_fileinfo.newseg_verts_howmany; i++ )
 		{
 			// Set the default values for this vertex
@@ -366,7 +365,7 @@ int load_mine_data(PHYSFS_file *LoadFile)
 			Vertices[NEW_SEGMENT_VERTICES+i].z = 1;
 			
 			if (PHYSFS_read( LoadFile, &Vertices[NEW_SEGMENT_VERTICES+i], mine_fileinfo.newseg_verts_sizeof,1 )!=1)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c" );
+				Error( "Error reading Vertices[NEW_SEGMENT_VERTICES+i] in gamemine.c" );
 
 			New_segment.verts[i] = NEW_SEGMENT_VERTICES+i;
 		}

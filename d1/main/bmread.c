@@ -54,7 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "text.h"
 #include "strutil.h"
-#include "logger.h"
 #ifdef EDITOR
 #include "editor/texpage.h"
 #endif
@@ -198,7 +197,7 @@ bitmap_index bm_load_sub(int skip, char * filename )
 	MALLOC( new, grs_bitmap, 1 );
 	iff_error = iff_read_bitmap(filename,new,BM_LINEAR,newpal);
 	if (iff_error != IFF_NO_ERROR)		{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "File %s - IFF error: %s", filename, iff_errormsg(iff_error));
+		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
 	if ( iff_has_transparency )
@@ -248,7 +247,7 @@ void ab_load(int skip, char * filename, bitmap_index bmp[], int *nframes )
 
 	iff_error = iff_read_animbrush(filename,bm,MAX_BITMAPS_PER_BRUSH,nframes,newpal);
 	if (iff_error != IFF_NO_ERROR)	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "File %s - IFF error: %s",filename,iff_errormsg(iff_error));
+		Error("File %s - IFF error: %s",filename,iff_errormsg(iff_error));
 	}
 
 	for (i=0;i< *nframes; i++)	{
@@ -401,7 +400,7 @@ int gamedata_read_tbl(int pc_shareware)
 	if (InfoFile == NULL) {
 		InfoFile = PHYSFSX_openReadBuffered("BITMAPS.BIN");
 		if (InfoFile == NULL)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Missing BITMAPS.TBL and BITMAPS.BIN file\n");
+			Error("Missing BITMAPS.TBL and BITMAPS.BIN file\n");
 		have_bin_tbl = 1;
 	}
 	linenum = 0;
@@ -432,7 +431,7 @@ int gamedata_read_tbl(int pc_shareware)
 		if (strchr(inputline, ';')!=NULL) REMOVE_COMMENTS(inputline);
 
 		if (strlen(inputline) == LINEBUF_SIZE-1)
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Possible line truncation in BITMAPS.TBL on line %d\n",linenum);
+			Error("Possible line truncation in BITMAPS.TBL on line %d\n",linenum);
 
 		SuperX = -1;
 
@@ -545,7 +544,7 @@ int gamedata_read_tbl(int pc_shareware)
 				  (Effects[i].changing_object_texture!=-1)
              )
 			 && (Effects[i].vc.num_frames==-1) )
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "EClip %d referenced (by polygon object?), but not defined",i);
+			Error("EClip %d referenced (by polygon object?), but not defined",i);
 
 	#ifndef NDEBUG
 	{
@@ -574,7 +573,7 @@ void verify_textures()
 			j++;
 		}
 	}
-	if (j) RT_LOG(RT_LOGSERVERITY_HIGH, "There are game textures that are not 64x64");
+	if (j) Error("There are game textures that are not 64x64");
 }
 
 void set_lighting_flag(sbyte *bp)
@@ -695,9 +694,9 @@ void bm_read_eclip(int skip)
 		Effects[clip_num].dest_bm_num = i;
 
 		if (dest_vclip==-1)
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Desctuction vclip missing on line %d",linenum);
+			Error("Desctuction vclip missing on line %d",linenum);
 		if (dest_size==-1)
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Desctuction vclip missing on line %d",linenum);
+			Error("Desctuction vclip missing on line %d",linenum);
 
 		Effects[clip_num].dest_vclip = dest_vclip;
 		Effects[clip_num].dest_size = dest_size;
@@ -751,7 +750,7 @@ void bm_read_wclip(int skip)
 	if (!abm_flag)	{
 		bitmap = bm_load_sub(skip, arg);
 		if ( (WallAnims[clip_num].num_frames>-1) && (clip_count==0) )
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Wall Clip %d is already used!", clip_num );
+			Error( "Wall Clip %d is already used!", clip_num );
 		WallAnims[clip_num].play_time = fl2f(play_time);
 		WallAnims[clip_num].num_frames = frames;
 		//WallAnims[clip_num].frame_time = fl2f(play_time)/frames;
@@ -770,7 +769,7 @@ void bm_read_wclip(int skip)
 		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
 		int nframes;
 		if ( (WallAnims[clip_num].num_frames>-1)  )
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "AB_Wall clip %d is already used!", clip_num );
+			Error( "AB_Wall clip %d is already used!", clip_num );
 		abm_flag = 0;
 		ab_load(skip, arg, bm, &nframes );
 		WallAnims[clip_num].num_frames = nframes;
@@ -807,7 +806,7 @@ void bm_read_vclip(int skip)
 
 	if (!abm_flag)	{
 		if ( (Vclip[clip_num].num_frames>-1) && (clip_count==0)  )
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Vclip %d is already used!", clip_num );
+			Error( "Vclip %d is already used!", clip_num );
 		bi = bm_load_sub(skip, arg);
 		Vclip[clip_num].play_time = fl2f(play_time);
 		Vclip[clip_num].num_frames = frames;
@@ -826,7 +825,7 @@ void bm_read_vclip(int skip)
 		bitmap_index bm[MAX_BITMAPS_PER_BRUSH];
 		abm_flag = 0;
 		if ( (Vclip[clip_num].num_frames>-1)  )
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "AB_Vclip %d is already used!", clip_num );
+			Error( "AB_Vclip %d is already used!", clip_num );
 		ab_load(skip, arg, bm, &Vclip[clip_num].num_frames );
 
 		if (rod_flag) {
@@ -907,7 +906,7 @@ void bm_read_sound(int skip, int pc_shareware)
 	alt_sound_num = pc_shareware ? sound_num : get_int();
 
 	if ( sound_num>=MAX_SOUNDS )
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Too many sound files.\n" );
+		Error( "Too many sound files.\n" );
 
 	if (sound_num >= num_sounds)
 		num_sounds = sound_num+1;
@@ -924,7 +923,7 @@ void bm_read_sound(int skip, int pc_shareware)
 		AltSounds[sound_num] = alt_sound_num;
 
 	if (Sounds[sound_num] == 255)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Can't load soundfile <%s>",arg);
+		Error("Can't load soundfile <%s>",arg);
 }
 
 // ------------------------------------------------------------------------------
@@ -1062,7 +1061,7 @@ void bm_read_robot(int skip)
 			} else if (!d_stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
-					RT_LOGF(RT_LOGSERVERITY_HIGH, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
+					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			} else if (!d_stricmp( arg, "weapon_type" )) {
 				weapon_type = atoi(equal_ptr);
@@ -1208,7 +1207,7 @@ void bm_read_object(int skip)
 			} else if (!d_stricmp( arg, "lighting" ))	{
 				lighting = fl2f(atof(equal_ptr));
 				if ( (lighting < 0) || (lighting > F1_0 )) {
-					RT_LOGF(RT_LOGSERVERITY_HIGH, "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
+					Error( "In bitmaps.tbl, lighting value of %.2f is out of range 0..1.\n", f2fl(lighting));
 				}
 			} else if (!d_stricmp( arg, "strength" )) {
 				strength = fl2f(atof(equal_ptr));
@@ -1235,7 +1234,7 @@ void bm_read_object(int skip)
 		Dead_modelnums[model_num] = -1;
 
 	if (type == -1)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "No object type specfied for object in BITMAPS.TBL on line %d\n",linenum);
+		Error("No object type specfied for object in BITMAPS.TBL on line %d\n",linenum);
 
 	ObjType[Num_total_object_types] = type;
 	ObjId[Num_total_object_types] = model_num;

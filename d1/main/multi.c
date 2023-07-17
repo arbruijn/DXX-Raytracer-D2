@@ -63,7 +63,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "net_udp.h"
 #endif
 #include "args.h"
-#include "logger.h"
 
 //
 // Local macros and prototypes
@@ -358,7 +357,7 @@ int multi_objnum_is_past(int objnum)
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_objnum_is_past\n");
+			Error("Protocol handling missing in multi_objnum_is_past\n");
 			break;
 	}
 }
@@ -856,7 +855,7 @@ void multi_do_protocol_frame(int force, int listen)
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_do_protocol_frame\n");
+			Error("Protocol handling missing in multi_do_protocol_frame\n");
 			break;
 	}
 }
@@ -915,15 +914,15 @@ void
 multi_send_data(unsigned char *buf, int len, int priority)
 {
 	if (len != message_length[(int)buf[0]]) {
-		//RT_LOGF(RT_LOGSERVERITY_HIGH, "multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "multi_send_data: Packet type %i length: %i priority %i, expected: %i\n", buf[0], len, priority, message_length[(int)buf[0]]);
+		//Error("multi_send_data: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+		con_printf(CON_NORMAL, "multi_send_data: Packet type %i length: %i priority %i, expected: %i\n", buf[0], len, priority, message_length[(int)buf[0]]);
 		for(int i = 0; i < len; i++) {
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "    %d: %d\n", i, buf[i]);
+			con_printf(CON_NORMAL, "    %d: %d\n", i, buf[i]); 
 		}
 		return;
 	}
 	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0])) {
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "multi_send_data: Illegal packet type %i\n", buf[0]);
+		con_printf(CON_NORMAL, "multi_send_data: Illegal packet type %i\n", buf[0]);
 		return;
 	}
 
@@ -937,7 +936,7 @@ multi_send_data(unsigned char *buf, int len, int priority)
 				break;
 #endif
 			default:
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_send_data\n");
+				Error("Protocol handling missing in multi_send_data\n");
 				break;
 		}
 	}
@@ -946,11 +945,11 @@ multi_send_data(unsigned char *buf, int len, int priority)
 void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
 {
 	if (len != message_length[(int)buf[0]])
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
+		Error("multi_send_data_direct: Packet type %i length: %i, expected: %i\n", buf[0], len, message_length[(int)buf[0]]);
 	if (buf[0] >= sizeof(message_length) / sizeof(message_length[0]))
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "multi_send_data_direct: Illegal packet type %i\n", buf[0]);
+		Error("multi_send_data_direct: Illegal packet type %i\n", buf[0]);
 	if (pnum < 0 || pnum > MAX_PLAYERS)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "multi_send_data_direct: Illegal player num: %i\n", pnum);
+		Error("multi_send_data_direct: Illegal player num: %i\n", pnum);
 
 	switch (multi_protocol)
 	{
@@ -960,7 +959,7 @@ void multi_send_data_direct(const ubyte *buf, int len, int pnum, int priority)
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_send_data_direct\n");
+			Error("Protocol handling missing in multi_send_data_direct\n");
 			break;
 	}
 }
@@ -997,7 +996,7 @@ multi_leave_game(void)
 				break;
 #endif
 			default:
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_leave_game\n");
+				Error("Protocol handling missing in multi_leave_game\n");
 				break;
 		}
 	}
@@ -1031,7 +1030,7 @@ multi_endlevel(int *secret)
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_endlevel\n");
+			Error("Protocol handling missing in multi_endlevel\n");
 			break;
 	}
 
@@ -1048,7 +1047,7 @@ int multi_endlevel_poll1( newmenu *menu, d_event *event, void *userdata )
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_endlevel_poll1\n");
+			Error("Protocol handling missing in multi_endlevel_poll1\n");
 			break;
 	}
 	
@@ -1065,7 +1064,7 @@ int multi_endlevel_poll2( newmenu *menu, d_event *event, void *userdata )
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_endlevel_poll2\n");
+			Error("Protocol handling missing in multi_endlevel_poll2\n");
 			break;
 	}
 	
@@ -1082,7 +1081,7 @@ void multi_send_endlevel_packet()
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_send_endlevel_packet\n");
+			Error("Protocol handling missing in multi_send_endlevel_packet\n");
 			break;
 	}
 }
@@ -1374,7 +1373,7 @@ void multi_send_message_end()
 						break;
 #endif
 					default:
-						RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_send_message_end\n");
+						Error("Protocol handling missing in multi_send_message_end\n");
 						break;
 				}
 
@@ -2075,7 +2074,7 @@ void multi_disconnect_player(int pnum)
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_disconnect_player\n");
+			Error("Protocol handling missing in multi_disconnect_player\n");
 			break;
 	}
 
@@ -2435,7 +2434,7 @@ int get_color_for_first_team_player(int team, int missile) {
 			return Netgame.players[i].color;
 		}
 	}
-	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Couldn't find team color for team %d\n", team);
+con_printf(CON_NORMAL, "Couldn't find team color for team %d\n", team);
 	return team; 
 } 
 
@@ -2485,7 +2484,7 @@ void multi_reset_object_texture (object *objp)
 	int wid = get_color_for_player(objp->id, 0);
 	int mid = get_color_for_player(objp->id, 1);
 
-	// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Custom color for player %d is %d,%d\n", objp->id, wid, mid);
+	//con_printf(CON_NORMAL, "Custom color for player %d is %d,%d\n", objp->id, wid, mid); 
 
     int id; 
 	if (Game_mode & GM_TEAM)
@@ -2508,7 +2507,7 @@ void multi_reset_object_texture (object *objp)
 		}
 	} else {
 		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Too many player ship textures!\n");
+			Error("Too many player ship textures!\n");
 
 		for (int i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++)
 			multi_player_textures[id-1][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
@@ -2532,7 +2531,7 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 		type = buf[bytes_processed];
 
 		if ( (type>= sizeof(message_length)/sizeof(message_length[0])))	{
-			RT_LOGF(RT_LOGSERVERITY_INFO, "multi_process_bigdata: Invalid packet type %d!\n", type);
+			con_printf( CON_DEBUG,"multi_process_bigdata: Invalid packet type %d!\n", type );
 			return;
 		}
 
@@ -2541,7 +2540,7 @@ multi_process_bigdata(const ubyte *buf, unsigned len)
 		Assert(sub_len > 0);
 
 		if ( (bytes_processed+sub_len) > len )  {
-			RT_LOGF(RT_LOGSERVERITY_INFO, "multi_process_bigdata: packet type %d too short (%d>%d)!\n", type, (bytes_processed + sub_len), len);
+			con_printf(CON_DEBUG, "multi_process_bigdata: packet type %d too short (%d>%d)!\n", type, (bytes_processed+sub_len), len );
 			Int3();
 			return;
 		}
@@ -2626,7 +2625,7 @@ multi_send_endlevel_start(int secret)
 				break;
 #endif
 			default:
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_send_endlevel_start\n");
+				Error("Protocol handling missing in multi_send_endlevel_start\n");
 				break;
 		}
 	}
@@ -2758,8 +2757,8 @@ void multi_powcap_cap_objects()
 		if (PowerupsInMine[(int)type]>=MaxPowerupsAllowed[(int)type])
 			if(Players[Player_num].primary_weapon_flags & (1 << index))
 			{
-				RT_LOGF(RT_LOGSERVERITY_INFO, "PIM=%d MPA=%d\n", PowerupsInMine[(int)type], MaxPowerupsAllowed[(int)type]);
-				RT_LOGF(RT_LOGSERVERITY_INFO, "Killing a primary cuz there's too many! (%d)\n", type);
+				con_printf(CON_VERBOSE,"PIM=%d MPA=%d\n",PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
+				con_printf(CON_VERBOSE,"Killing a primary cuz there's too many! (%d)\n",type);
 				Players[Player_num].primary_weapon_flags&=(~(1 << index));
 			}
 	}
@@ -2777,7 +2776,7 @@ void multi_powcap_cap_objects()
 				Players[Player_num].secondary_ammo[index]=0;
 			else
 				Players[Player_num].secondary_ammo[index]=(MaxPowerupsAllowed[(int)type]-PowerupsInMine[(int)type]);
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Hey! I killed secondary type %d because PIM=%d MPA=%d\n", type, PowerupsInMine[(int)type], MaxPowerupsAllowed[(int)type]);
+			con_printf(CON_VERBOSE,"Hey! I killed secondary type %d because PIM=%d MPA=%d\n",type,PowerupsInMine[(int)type],MaxPowerupsAllowed[(int)type]);
 		}
 	}
 
@@ -3548,7 +3547,7 @@ multi_prep_level(void)
 					if(is_dupable_primary(Objects[i].id)) {
 						for(int dup = 0; dup < Netgame.PrimaryDupFactor - 1; dup++) {
 							objnum = obj_create(OBJ_POWERUP, Objects[i].id, Objects[i].segnum, &Objects[i].pos, &vmd_identity_matrix, Powerup_info[Objects[i].id].size, CT_POWERUP, MT_PHYSICS, RT_POWERUP);
-							// RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Duped %d (%d) as %d\n", i, objnum, Objects[i].id);
+							// con_printf(CON_NORMAL, "Duped %d (%d) as %d\n", i, objnum, Objects[i].id); 							
 							if (objnum != -1)
 							{
 								Objects[objnum].rtype.vclip_info.vclip_num = Powerup_info[Objects[i].id].vclip_num;
@@ -3647,7 +3646,7 @@ int multi_level_sync(void)
 			break;
 #endif
 		default:
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Protocol handling missing in multi_level_sync\n");
+			Error("Protocol handling missing in multi_level_sync\n");
 			break;
 	}
 }

@@ -45,6 +45,7 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "3d.h"
 #include "bm.h"
 #include "inferno.h"
+#include "dxxerror.h"
 #include "game.h"
 #include "segment.h"		//for Side_to_verts
 #include "u_mem.h"
@@ -74,7 +75,6 @@ char copyright[] = "DESCENT   COPYRIGHT (C) 1994,1995 PARALLAX SOFTWARE CORPORAT
 #include "rbaudio.h"
 #ifndef __LINUX__
 #include "messagebox.h"
-#include "logger.h"
 #endif
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
 		"\tIn a subdirectory called 'Data'\n"	\
 		DXX_HOGFILE_APPLICATION_BUNDLE	\
 		"Or use the -hogdir option to specify an alternate location."
-		RT_LOG(RT_LOGSERVERITY_ASSERT, DXX_MISSING_HOGFILE_ERROR_TEXT);
+		Error(DXX_MISSING_HOGFILE_ERROR_TEXT);
 
 	switch (PHYSFSX_fsize("descent.hog"))
 	{
@@ -362,14 +362,14 @@ int main(int argc, char *argv[])
 	load_text();
 
 	//print out the banner title
-	RT_LOGF(RT_LOGSERVERITY_INFO, "%s  %s\n", DESCENT_VERSION, g_descent_build_datetime); // D1X version
-	RT_LOGF(RT_LOGSERVERITY_INFO, "This is a MODIFIED version of Descent, based on %s.\n", BASED_VERSION);
-	RT_LOGF(RT_LOGSERVERITY_INFO, "%s\n%s\n", TXT_COPYRIGHT, TXT_TRADEMARK);
-	RT_LOG(RT_LOGSERVERITY_INFO, "Copyright (C) 2005-2011 Christian Beckhaeuser\n\n");
+	con_printf(CON_NORMAL, "%s  %s\n", DESCENT_VERSION, g_descent_build_datetime); // D1X version
+	con_printf(CON_NORMAL, "This is a MODIFIED version of Descent, based on %s.\n", BASED_VERSION);
+	con_printf(CON_NORMAL, "%s\n%s\n",TXT_COPYRIGHT,TXT_TRADEMARK);
+	con_printf(CON_NORMAL, "Copyright (C) 2005-2011 Christian Beckhaeuser\n\n");
 
 	if (GameArg.DbgVerbose)
-		RT_LOGF(RT_LOGSERVERITY_INFO, "%s%s", TXT_VERBOSE_1, "\n");
-
+		con_printf(CON_VERBOSE,"%s%s", TXT_VERBOSE_1, "\n");
+	
 	ReadConfigFile();
 
 	PHYSFSX_addArchiveContent();
@@ -378,15 +378,14 @@ int main(int argc, char *argv[])
 
 	select_tmap(GameArg.DbgTexMap);
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "Going into graphics mode...\n");
-
+	con_printf(CON_VERBOSE, "Going into graphics mode...\n");
 	gr_set_mode(Game_screen_mode);
 
 	// Load the palette stuff. Returns non-zero if error.
-	RT_LOG(RT_LOGSERVERITY_INFO, "Initializing palette system...\n");
+	con_printf(CON_DEBUG, "Initializing palette system...\n" );
 	gr_use_palette_table( "PALETTE.256" );
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "Initializing font system...\n");
+	con_printf(CON_DEBUG, "Initializing font system...\n" );
 	gamefont_init();	// must load after palette data loaded.
 
 	set_default_handler(standard_handler);
@@ -396,16 +395,16 @@ int main(int argc, char *argv[])
 #endif
 	set_screen_mode(SCREEN_MENU);
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "\nDoing gamedata_init...");
+	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
 	gamedata_init();
 
 	if (GameArg.DbgNoRun)
 		return(0);
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "\nInitializing texture caching system...");
+	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "\nRunning game...\n");
+	con_printf( CON_DEBUG, "\nRunning game...\n" );
 	init_game();
 
 	Players[Player_num].callsign[0] = '\0';
@@ -462,7 +461,8 @@ int main(int argc, char *argv[])
 
 	WriteConfigFile();
 	show_order_form();
-	RT_LOG(RT_LOGSERVERITY_INFO, "\nCleanup...\n");
+
+	con_printf( CON_DEBUG, "\nCleanup...\n" );
 	close_game();
 	texmerge_close();
 	gamedata_close();

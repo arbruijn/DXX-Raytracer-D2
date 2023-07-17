@@ -66,7 +66,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "gameseq.h"
 #include "playsave.h" 
 #include "timer.h"
-#include "logger.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -170,7 +169,7 @@ void object_goto_next_viewer()
 		}
 	}
 
-	RT_LOG(RT_LOGSERVERITY_HIGH, "Couldn't find a viewer object!" );
+	Error( "Couldn't find a viewer object!" );
 
 }
 #endif
@@ -760,7 +759,7 @@ void render_object(object *obj)
 			break;
 
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Unknown render_type <%d>",obj->render_type);
+			Error("Unknown render_type <%d>",obj->render_type);
 	}
 
 	gr_settransblend( GR_FADE_OFF, GR_BLEND_NORMAL ); // revert any transparency/blending setting back to normal
@@ -1840,7 +1839,7 @@ void object_move_one( object * obj )
 
 		default:
 
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Unknown control type %d in object %d, sig/type/id = %d/%d/%d", obj->control_type, (int)(obj - Objects), obj->signature, obj->type, obj->id);
+                        con_printf(CON_NORMAL, "Unknown control type %d in object %d, sig/type/id = %d/%d/%d",obj->control_type,(int) (obj-Objects), obj->signature, obj->type, obj->id);
 
 			break;
 

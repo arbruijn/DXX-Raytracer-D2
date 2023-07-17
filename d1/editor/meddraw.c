@@ -45,7 +45,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "texmap.h"
 #include "object.h"
 #include "fuelcen.h"
-#include "logger.h"
 
 //	Colors used in editor for indicating various kinds of segments.
 #define	SELECT_COLOR		BM_XRGB( 63/2 , 41/2 ,  0/2)
@@ -165,8 +164,8 @@ void check_segment(segment *seg)
 			if (N_found_segs < MAX_FOUND_SEGS)
 				Found_segs[N_found_segs++] = SEG_PTR_2_NUM(seg);
 			else
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "Found too many segs! (limit=%d)", MAX_FOUND_SEGS);
-		}
+				Warning("Found too many segs! (limit=%d)",MAX_FOUND_SEGS);
+                 }
 	}
 }
 
@@ -298,7 +297,7 @@ int find_edge_num(int v0,int v1)
 		if (*edgep++ == vv)
 			return (N_EDGES_PER_SEGMENT-i);
 
-	RT_LOGF(RT_LOGSERVERITY_HIGH, "couldn't find edge for %d,%d", v0, v1);
+	Error("couldn't find edge for %d,%d",v0,v1);
 
 	//return -1;
 }
@@ -323,8 +322,7 @@ int find_edge(int v0,int v1,seg_edge **edge_ptr)
 		else if (edge_list[hash].v.vv == vv) ret=1;
 		else {
 			if (++hash==edge_list_size) hash=0;
-			if (hash==oldhash)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "Edge list full!");
+			if (hash==oldhash) Error("Edge list full!");
 		}
 	}
 
@@ -880,7 +878,7 @@ void draw_world(grs_canvas *screen_canvas,editor_view *v,segment *mine_ptr,int d
 		else if ( screen_canvas == RightViewBox->canvas )
 			gr_ustring( 5, 5, "RIGHT" );
 #else
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Ortho views have been removed, what gives?\n");
+			Error("Ortho views have been removed, what gives?\n");
 #endif
 
 	}

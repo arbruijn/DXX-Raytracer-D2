@@ -13,7 +13,6 @@
 #include "u_mem.h"
 #include "console.h"
 #include "timer.h"
-#include "logger.h"
 
 #ifdef WORDS_BIGENDIAN
 #define MIDIINT(x) (x)
@@ -522,22 +521,22 @@ void hmp_reset()
 		switch (rval)
 		{
 			case MIDIERR_NODEVICE:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutOpen Error: no MIDI port was found.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: no MIDI port was found.\n");
 				break;
 			case MMSYSERR_ALLOCATED:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutOpen Error: specified resource is already allocated.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified resource is already allocated.\n");
 				break;
 			case MMSYSERR_BADDEVICEID:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutOpen Error: specified device identifier is out of range.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified device identifier is out of range.\n");
 				break;
 			case MMSYSERR_INVALPARAM:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutOpen Error: specified pointer or structure is invalid.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: specified pointer or structure is invalid.\n");
 				break;
 			case MMSYSERR_NOMEM:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutOpen Error: unable to allocate or lock memory.\n");
+				con_printf(CON_DEBUG, "midiOutOpen Error: unable to allocate or lock memory.\n");
 				break;
 			default:
-				RT_LOGF(RT_LOGSERVERITY_INFO, "midiOutOpen Error code %i\n", rval);
+				con_printf(CON_DEBUG, "midiOutOpen Error code %i\n",rval);
 				break;
 		}
 		return;
@@ -572,7 +571,7 @@ void hmp_reset()
 				timer_update();
 				if (timer_query() >= wait_done + F1_0)
 				{
-					RT_LOG(RT_LOGSERVERITY_INFO, "hmp_reset: Timeout waiting for MHDR_DONE\n");
+					con_printf(CON_DEBUG, "hmp_reset: Timeout waiting for MHDR_DONE\n");
 					break;
 				}
 			}
@@ -582,19 +581,19 @@ void hmp_reset()
 			switch (rval)
 			{
 				case MIDIERR_NOTREADY:
-					RT_LOG(RT_LOGSERVERITY_INFO, "midiOutLongMsg Error: the hardware is busy with other data.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the hardware is busy with other data.\n");
 					break;
 				case MIDIERR_UNPREPARED:
-					RT_LOG(RT_LOGSERVERITY_INFO, "midiOutLongMsg Error: the buffer pointed to by lpMidiOutHdr has not been prepared.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the buffer pointed to by lpMidiOutHdr has not been prepared.\n");
 					break;
 				case MMSYSERR_INVALHANDLE:
-					RT_LOG(RT_LOGSERVERITY_INFO, "midiOutLongMsg Error: the specified device handle is invalid.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified device handle is invalid.\n");
 					break;
 				case MMSYSERR_INVALPARAM:
-					RT_LOG(RT_LOGSERVERITY_INFO, "midiOutLongMsg Error: the specified pointer or structure is invalid.\n");
+					con_printf(CON_DEBUG, "midiOutLongMsg Error: the specified pointer or structure is invalid.\n");
 					break;
 				default:
-					RT_LOGF(RT_LOGSERVERITY_INFO, "midiOutLongMsg Error code %i\n", rval);
+					con_printf(CON_DEBUG, "midiOutLongMsg Error code %i\n",rval);
 					break;
 			}
 		}
@@ -607,16 +606,16 @@ void hmp_reset()
 		switch (rval)
 		{
 			case MMSYSERR_INVALHANDLE:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutPrepareHeader Error: The specified device handle is invalid.\n");
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified device handle is invalid.\n");
 				break;
 			case MMSYSERR_INVALPARAM:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutPrepareHeader Error: The specified address is invalid or the given stream buffer is greater than 64K.\n");
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The specified address is invalid or the given stream buffer is greater than 64K.\n");
 				break;
 			case MMSYSERR_NOMEM:
-				RT_LOG(RT_LOGSERVERITY_INFO, "midiOutPrepareHeader Error: The system is unable to allocate or lock memory.\n");
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error: The system is unable to allocate or lock memory.\n");
 				break;
 			default:
-				RT_LOGF(RT_LOGSERVERITY_INFO, "midiOutPrepareHeader Error code %i\n", rval);
+				con_printf(CON_DEBUG, "midiOutPrepareHeader Error code %i\n",rval);
 				break;
 		}
 	}

@@ -18,14 +18,13 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
  */
 
 #include <stdlib.h>
+#include "dxxerror.h"
 
 #include "3d.h"
 #include "globvars.h"
 #include "gr.h"
 #include "byteswap.h"
 #include "polyobj.h"
-#include "logger.h"
-#include "RText.h" //We doing some RT extending over here
 
 #define OP_EOF          0   //eof
 #define OP_DEFPOINTS    1   //defpoints
@@ -688,7 +687,7 @@ void swap_polygon_model_data(ubyte *data)
 				break;
 				
 			default:
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "invalid polygon model\n"); //Int3();
+				Error("invalid polygon model\n"); //Int3();
 		}
 		short_swap(wp(p));
 	}
@@ -750,7 +749,7 @@ int get_chunks(ubyte *data, ubyte *new_data, chunk *list, int *no)
 				p += 4;
 				break;
 			default:
-				RT_LOG(RT_LOGSERVERITY_HIGH, "invalid polygon model\n");
+				Error("invalid polygon model\n");
 		}
 	}
 	return p + 2 - data;

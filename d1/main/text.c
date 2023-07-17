@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "inferno.h"
 #include "text.h"
 #include "args.h"
-#include "logger.h"
 
 char *text;
 
@@ -207,7 +206,7 @@ void load_text()
 	if ((tfile = PHYSFSX_openReadBuffered(filename)) == NULL) {
 		filename="descent.txb";
 		if ((ifile = PHYSFSX_openReadBuffered(filename)) == NULL) {
-			RT_LOG(RT_LOGSERVERITY_HIGH, "Cannot open file DESCENT.TEX or DESCENT.TXB");
+			Error("Cannot open file DESCENT.TEX or DESCENT.TXB");
 			return;
 		}
 		have_binary = 1;
@@ -256,7 +255,7 @@ void load_text()
 		}
 		else if (!tptr && i < N_TEXT_STRINGS_MIN)
 		{
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_MIN,i);
+			Error("Not enough strings in text file - expecting %d (or at least %d), found %d",N_TEXT_STRINGS,N_TEXT_STRINGS_MIN,i);
 		}
 		
 		Text_string[i] = tptr;
@@ -276,7 +275,7 @@ void load_text()
 			else if (p[1] == 't') newchar = '\t';
 			else if (p[1] == '\\') newchar = '\\';
 			else
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename);
+				Error("Unsupported key sequence <\\%c> on line %d of file <%s>",p[1],i+1,filename);
 
 			p[0] = newchar;
 // 			strcpy(p+1,p+2);

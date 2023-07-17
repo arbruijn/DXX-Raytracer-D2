@@ -19,6 +19,7 @@
 #include "screens.h"
 #include "gauges.h"
 #include "physics.h"
+#include "dxxerror.h"
 #include "menu.h"           // For the font.
 #include "collide.h"
 #include "newdemo.h"
@@ -30,7 +31,6 @@
 #include "laser.h"
 #include "args.h"
 #include "playsave.h"
-#include "logger.h"
 
 typedef struct hudmsg
 {
@@ -183,7 +183,7 @@ static int HUD_init_message_literal_worth_showing(int class_flag, const char *me
 
 	if (HUD_color == -1)
 		HUD_color = BM_XRGB(0,28,0);
-	RT_LOGF(RT_LOGSERVERITY_INFO, "%s\n", message);
+	con_printf(CON_HUD, "%s\n", message);
 
 	if (Newdemo_state == ND_STATE_RECORDING )
 		newdemo_record_hud_message( message );

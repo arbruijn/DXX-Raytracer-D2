@@ -82,7 +82,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "gameseq.h"
 #include "newmenu.h"
-#include "logger.h"
 
 //#define _MARK_ON 1
 //#include <wsample.h>		//should come after inferno.h to get mark setting //Not included here.
@@ -350,7 +349,7 @@ void medkey_init()
 				Assert( key < 2048);
 				KeyFunction[key] = func_get( LispCommand, &np );
 			} else {
-				RT_LOGF(RT_LOGSERVERITY_HIGH, "Bad key %s in GLOBAL.KEY!", keypress );
+				Error( "Bad key %s in GLOBAL.KEY!", keypress );
 			}
 		}
 		PHYSFS_close(keyfile);
@@ -1408,15 +1407,15 @@ void test_fade(void)
 	int	i,c;
 
 	for (c=0; c<256; c++) {
-		RT_LOGF(RT_LOGSERVERITY_INFO, "%4i: {%3i %3i %3i} ", c, gr_palette[3 * c], gr_palette[3 * c + 1], gr_palette[3 * c + 2]);
+		con_printf(CON_DEBUG,"%4i: {%3i %3i %3i} ",c,gr_palette[3*c],gr_palette[3*c+1],gr_palette[3*c+2]);
 		for (i=0; i<16; i++) {
 			int col = gr_fade_table[256*i+c];
 
-			RT_LOGF(RT_LOGSERVERITY_INFO, "[%3i %3i %3i] ", gr_palette[3 * col], gr_palette[3 * col + 1], gr_palette[3 * col + 2]);
+			con_printf(CON_DEBUG,"[%3i %3i %3i] ",gr_palette[3*col],gr_palette[3*col+1],gr_palette[3*col+2]);
 		}
 		if ( (c%16) == 15)
-			RT_LOG(RT_LOGSERVERITY_INFO, "\n");
-		RT_LOG(RT_LOGSERVERITY_INFO, "\n");
+			con_printf(CON_DEBUG,"\n");
+		con_printf(CON_DEBUG,"\n");
 	}
 }
 
@@ -1424,40 +1423,40 @@ void dump_stuff(void)
 {
 	int	i,j,prev_color;
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "Palette:\n");
+	con_printf(CON_DEBUG,"Palette:\n");
 
 	for (i=0; i<256; i++)
-		RT_LOGF(RT_LOGSERVERITY_INFO, "%3i: %2i %2i %2i\n", i, gr_palette[3 * i], gr_palette[3 * i + 1], gr_palette[3 * i + 2]);
+		con_printf(CON_DEBUG,"%3i: %2i %2i %2i\n",i,gr_palette[3*i],gr_palette[3*i+1],gr_palette[3*i+2]);
 
 	for (i=0; i<16; i++) {
-		RT_LOGF(RT_LOGSERVERITY_INFO, "\nFade table #%i\n", i);
+		con_printf(CON_DEBUG,"\nFade table #%i\n",i);
 		for (j=0; j<256; j++) {
 			int	c = gr_fade_table[i*256 + j];
-			RT_LOGF(RT_LOGSERVERITY_INFO, "[%3i %2i %2i %2i] ", c, gr_palette[3 * c], gr_palette[3 * c + 1], gr_palette[3 * c + 2]);
+			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ",c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 			if ((j % 8) == 7)
-				RT_LOG(RT_LOGSERVERITY_INFO, "\n");
+				con_printf(CON_DEBUG,"\n");
 		}
 	}
 
-	RT_LOG(RT_LOGSERVERITY_INFO, "Colors indexed by intensity:\n");
-	RT_LOG(RT_LOGSERVERITY_INFO, ". = change from previous, * = no change\n");
+	con_printf(CON_DEBUG,"Colors indexed by intensity:\n");
+	con_printf(CON_DEBUG,". = change from previous, * = no change\n");
 	for (j=0; j<256; j++) {
-		RT_LOGF(RT_LOGSERVERITY_INFO, "%3i: ", j);
+		con_printf(CON_DEBUG,"%3i: ",j);
 		prev_color = -1;
 		for (i=0; i<16; i++) {
 			int	c = gr_fade_table[i*256 + j];
 			if (c == prev_color)
-				RT_LOG(RT_LOGSERVERITY_INFO, "*");
+				con_printf(CON_DEBUG,"*");
 			else
-				RT_LOG(RT_LOGSERVERITY_INFO, ".");
+				con_printf(CON_DEBUG,".");
 			prev_color = c;
 		}
-		RT_LOG(RT_LOGSERVERITY_INFO, "  ");
+		con_printf(CON_DEBUG,"  ");
 		for (i=0; i<16; i++) {
 			int	c = gr_fade_table[i*256 + j];
-			RT_LOGF(RT_LOGSERVERITY_INFO, "[%3i %2i %2i %2i] ", c, gr_palette[3 * c], gr_palette[3 * c + 1], gr_palette[3 * c + 2]);
+			con_printf(CON_DEBUG,"[%3i %2i %2i %2i] ", c, gr_palette[3*c], gr_palette[3*c+1], gr_palette[3*c+2]);
 		}
-		RT_LOG(RT_LOGSERVERITY_INFO, "\n");
+		con_printf(CON_DEBUG,"\n");
 	}
 
 }

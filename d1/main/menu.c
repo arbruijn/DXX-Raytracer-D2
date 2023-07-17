@@ -75,7 +75,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
-#include "logger.h"
 #ifdef RT_DX12
 #define RT_RENDER_SETTINGS_CONFIG_FILE "render_settings.vars"
 #include "Core/String.h"
@@ -612,7 +611,7 @@ int do_option ( int select)
 			break;
 #endif
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Unknown option %d in do_option",select);
+			Error("Unknown option %d in do_option",select);
 			break;
 	}
 

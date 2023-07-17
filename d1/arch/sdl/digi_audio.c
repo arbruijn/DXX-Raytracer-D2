@@ -11,6 +11,7 @@
 #include <SDL/SDL.h>
 #include <digi_audio.h>
 #include "pstypes.h"
+#include "dxxerror.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"
@@ -21,7 +22,6 @@
 #include "newdemo.h"
 #include "kconfig.h"
 #include "config.h"
-#include "logger.h"
 
 //changed on 980905 by adb to increase number of concurrent sounds
 #define MAX_SOUND_SLOTS 32
@@ -171,7 +171,7 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 int digi_audio_init()
 {
 	if (SDL_InitSubSystem(SDL_INIT_AUDIO)<0) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "SDL audio initialisation failed: %s.", SDL_GetError());
+		Error("SDL audio initialisation failed: %s.",SDL_GetError());
 	}
 
 	WaveSpec.freq = digi_sample_rate;
@@ -184,7 +184,7 @@ int digi_audio_init()
 
 	if ( SDL_OpenAudio(&WaveSpec, NULL) < 0 ) {
 		//edited on 10/05/98 by Matt Mueller - should keep running, just with no sound.
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "\nError: Couldn't open audio: %s\n", SDL_GetError());
+		Warning("\nError: Couldn't open audio: %s\n", SDL_GetError());
 		//killed  exit(2);
 		return 1;
 		//end edit -MM

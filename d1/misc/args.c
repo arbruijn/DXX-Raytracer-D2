@@ -28,7 +28,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "args.h"
 #include "game.h"
 #include "gauges.h"
-#include "logger.h"
 #ifdef USE_UDP
 #include "net_udp.h"
 #endif

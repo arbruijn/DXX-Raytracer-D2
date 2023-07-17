@@ -32,7 +32,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "byteswap.h"
 #include "mission.h"
-#include "logger.h"
+
 
 // How far a point can be from a plane, and still be "in" the plane
 #define PLANE_DIST_TOLERANCE	250
@@ -96,7 +96,7 @@ int get_num_faces(side *sidep)
 		case SIDE_IS_TRI_02:
 		case SIDE_IS_TRI_13:	return 2;	break;
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal type = %i\n", sidep->type);
+			Error("Illegal type = %i\n", sidep->type);
                         return 0;
 			break;
 	}
@@ -173,7 +173,7 @@ void create_all_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal side type (1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (1), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
 			break;
 	}
 
@@ -231,7 +231,7 @@ void create_all_vertnum_lists(int *num_faces, int *vertnums, int segnum, int sid
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal side type (2), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
+			Error("Illegal side type (2), type = %i, segment # = %i, side # = %i\n Please report this bug.\n", sidep->type, segnum, sidenum);
 			break;
 	}
 
@@ -286,7 +286,7 @@ void create_abs_vertex_lists(int *num_faces, int *vertices, int segnum, int side
 			//CREATE_ABS_VERTEX_LISTS(), CREATE_ALL_VERTEX_LISTS(), CREATE_ALL_VERTNUM_LISTS()
 			break;
 		default:
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal side type (3), type = %i, segment # = %i, side # = %i caller:%s:%i\n Please report this bug.\n", sidep->type, segnum, sidenum ,calling_file,calling_linenum);
+			Error("Illegal side type (3), type = %i, segment # = %i, side # = %i caller:%s:%i\n Please report this bug.\n", sidep->type, segnum, sidenum ,calling_file,calling_linenum);
 			break;
 	}
 
@@ -305,7 +305,7 @@ segmasks get_seg_masks(const vms_vector *checkp, int segnum, fix rad, const char
 	extern int Current_level_num;
 
 	if (segnum < 0 || segnum > Highest_segment_index)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
+		Error("segnum == %i (%i) in get_seg_masks() \ncheckp: %i,%i,%i, rad: %i \nfrom file: %s, line: %i \nMission: %s (%i) \nPlease report this bug.\n",segnum,Highest_segment_index,checkp->x,checkp->y,checkp->z,rad,calling_file,calling_linenum, Current_mission_filename, Current_level_num);
 
 	Assert((segnum <= Highest_segment_index) && (segnum >= 0));
 
@@ -708,7 +708,7 @@ int trace_segs(vms_vector *p0, int oldsegnum, int recursion_count)
 	Assert((oldsegnum <= Highest_segment_index) && (oldsegnum >= 0));
 
 	if (recursion_count >= Num_segments) {
-		RT_LOGF(RT_LOGSERVERITY_INFO, "trace_segs: Segment not found\n");
+		con_printf (CON_DEBUG, "trace_segs: Segment not found\n");
 		return -1;
 	}
 	if (recursion_count == 0)

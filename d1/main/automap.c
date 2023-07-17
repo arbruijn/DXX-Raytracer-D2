@@ -21,6 +21,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <stdlib.h>
 #include <string.h>
 
+#include "dxxerror.h"
 #include "3d.h"
 #include "inferno.h"
 #include "u_mem.h"
@@ -66,7 +67,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "window.h"
 #include "playsave.h"
 #include "args.h"
-#include "logger.h"
 
 #ifdef OGL
 #include "ogl_init.h"
@@ -345,7 +345,7 @@ void draw_automap(automap *am)
 					case POW_KEY_BLUE:	gr_setcolor(BM_XRGB(5, 5, 63)); break;
 					case POW_KEY_GOLD:	gr_setcolor(BM_XRGB(63, 63, 10)); break;
 					default:
-						RT_LOGF(RT_LOGSERVERITY_HIGH, "Illegal key type: %i", objp->id);
+						Error("Illegal key type: %i", objp->id);
 					}
 					g3_rotate_point(&sphere_point,&objp->pos);
 					g3_draw_sphere(&sphere_point,objp->size*4);	
@@ -637,7 +637,7 @@ void do_automap( int key_code )
 
 	if (automap_wind == NULL)
 	{
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "Out of memory");
+		Warning("Out of memory");
 		return;
 	}
 
@@ -657,7 +657,7 @@ void do_automap( int key_code )
 		if (am->drawingListBright)
 			d_free(am->drawingListBright);
 
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "Out of memory");
+		Warning("Out of memory");
 		return;
 	}
 	
@@ -712,7 +712,7 @@ void do_automap( int key_code )
 	gr_init_bitmap_data (&am->automap_background);
 	pcx_error = pcx_read_bitmap(MAP_BACKGROUND_FILENAME, &am->automap_background, BM_LINEAR, pal);
 	if (pcx_error != PCX_ERROR_NONE)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
+		Error("File %s - PCX error: %s", MAP_BACKGROUND_FILENAME, pcx_errormsg(pcx_error));
 	gr_remap_bitmap_good(&am->automap_background, pal, -1, -1);
 	if (!MacHog)
 		gr_init_sub_canvas(&am->automap_view, &grd_curscreen->sc_canvas, (SWIDTH/23), (SHEIGHT/6), (SWIDTH/1.1), (SHEIGHT/1.45));
@@ -890,7 +890,7 @@ static int automap_find_edge(automap *am, int v0,int v1,Edge_info **edge_ptr)
 		else if (evv == vv) ret=1;
 		else {
 			if (++hash==am->max_edges) hash=0;
-			if (hash==oldhash) RT_LOG(RT_LOGSERVERITY_HIGH, "Edge list full!");
+			if (hash==oldhash) Error("Edge list full!");
 		}
 	}
 
@@ -1039,7 +1039,7 @@ void add_segment_edges(automap *am, segment *seg)
 								case KEY_BLUE:	color = am->wall_door_blue;	no_fade = 1; break;
 								case KEY_GOLD:	color = am->wall_door_gold;	no_fade = 1; break;
 								case KEY_RED:	color = am->wall_door_red;	no_fade = 1; break;
-								default:	RT_LOG(RT_LOGSERVERITY_HIGH, "Inconsistent data.  Supposed to be a colored wall, but not blue, gold or red.\n");
+								default:	Error("Inconsistent data.  Supposed to be a colored wall, but not blue, gold or red.\n");
 							}
 						}
 

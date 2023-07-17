@@ -27,7 +27,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "piggy.h"
 #include "timer.h"
-#include "logger.h"
 
 //resending textures into video ram is very slow, so cache more (worst case, the ogl driver will swap out some itself, probably doing a better job) -MM
 #ifdef OGL
@@ -153,9 +152,9 @@ grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 	}
 	Assert( piggy_page_flushed == 0 );
 	if (bitmap_bottom->bm_w != bitmap_bottom->bm_h || bitmap_top->bm_w != bitmap_top->bm_h)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Texture width != texture height!\n");
+		Error("Texture width != texture height!\n");
 	if (bitmap_bottom->bm_w != bitmap_top->bm_w || bitmap_bottom->bm_h != bitmap_top->bm_h)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Top and Bottom textures have different size!\n");
+		Error("Top and Bottom textures have different size!\n");
 
 	if (Cache[least_recently_used].bitmap != NULL)
 		gr_free_bitmap(Cache[least_recently_used].bitmap);

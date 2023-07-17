@@ -24,7 +24,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "window.h"
 #include "dxxerror.h"
-#include "logger.h"
 
 #include "key.h"
 
@@ -41,7 +40,7 @@ UI_GADGET * ui_gadget_add( UI_DIALOG * dlg, short kind, short x1, short y1, shor
 	UI_GADGET * gadget;
 
 	gadget = (UI_GADGET *) d_malloc(sizeof(UI_GADGET));
-	if (gadget==NULL) RT_LOGF(RT_LOGSERVERITY_HIGH, "Could not create gadget: Out of memory");
+	if (gadget==NULL) Error("Could not create gadget: Out of memory");
 
 	if (dlg->gadget == NULL )
 	{

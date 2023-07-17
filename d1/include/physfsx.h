@@ -26,7 +26,6 @@
 #include "vecmat.h"
 #include "ignorecase.h"
 #include "byteswap.h"
-#include "logger.h"
 
 extern void PHYSFSX_init(int argc, char *argv[]);
 
@@ -239,7 +238,7 @@ static inline int PHYSFSX_readInt(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE32(file, &i))
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading int in PHYSFSX_readInt()");
+		Error("Error reading int in PHYSFSX_readInt()");
 		exit(1);
 	}
 
@@ -252,7 +251,7 @@ static inline short PHYSFSX_readShort(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE16(file, &s))
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading short in PHYSFSX_readShort()");
+		Error("Error reading short in PHYSFSX_readShort()");
 		exit(1);
 	}
 
@@ -265,7 +264,7 @@ static inline sbyte PHYSFSX_readByte(PHYSFS_file *file)
 
 	if (PHYSFS_read(file, &b, sizeof(b), 1) != 1)
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading byte in PHYSFSX_readByte()");
+		Error("Error reading byte in PHYSFSX_readByte()");
 		exit(1);
 	}
 
@@ -278,7 +277,7 @@ static inline fix PHYSFSX_readFix(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE32(file, &f))
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading fix in PHYSFSX_readFix()");
+		Error("Error reading fix in PHYSFSX_readFix()");
 		exit(1);
 	}
 
@@ -291,7 +290,7 @@ static inline fixang PHYSFSX_readFixAng(PHYSFS_file *file)
 
 	if (!PHYSFS_readSLE16(file, &f))
 	{
-		RT_LOG(RT_LOGSERVERITY_HIGH, "Error reading fixang in PHYSFSX_readFixAng()");
+		Error("Error reading fixang in PHYSFSX_readFixAng()");
 		exit(1);
 	}
 

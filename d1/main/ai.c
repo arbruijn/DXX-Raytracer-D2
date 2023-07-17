@@ -54,7 +54,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "powerup.h"
 #include "gauges.h"
 #include "text.h"
-#include "logger.h"
 
 #ifdef EDITOR
 #include "editor/editor.h"
@@ -513,7 +512,7 @@ int player_is_visible_from_object(object *objp, vms_vector *pos, fix field_of_vi
 		if (segnum == -1) {
 			fq.startseg = objp->segnum;
 			*pos = objp->pos;
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Object %hu, gun is outside mine, moving towards center.\n", (unsigned short)(objp - Objects));
+			con_printf(CON_DEBUG, "Object %hu, gun is outside mine, moving towards center.\n", (unsigned short)(objp-Objects));
 			move_towards_segment_center(objp);
 		} else
 			fq.startseg = segnum;
@@ -694,7 +693,7 @@ void ai_frame_animation(object *objp)
 
 #ifndef NDEBUG
 if (Ai_animation_test) {
-			RT_LOGF(RT_LOGSERVERITY_INFO, "%i: [%7.3f %7.3f %7.3f]  [%7.3f %7.3f %7.3f]\n", joint, f2fl(curangp->p), f2fl(curangp->b), f2fl(curangp->h), f2fl(goalangp->p), f2fl(goalangp->b), f2fl(goalangp->h));
+	con_printf(CON_DEBUG, "%i: [%7.3f %7.3f %7.3f]  [%7.3f %7.3f %7.3f]\n", joint, f2fl(curangp->p), f2fl(curangp->b), f2fl(curangp->h), f2fl(goalangp->p), f2fl(goalangp->b), f2fl(goalangp->h));
 }
 #endif
 		delta_to_goal = goalangp->p - curangp->p;
@@ -1286,7 +1285,7 @@ void compute_vis_and_vec(object *objp, vms_vector *pos, ai_local *ailp, vms_vect
 			//	Compute expensive stuff -- vec_to_player and player_visibility
 			vm_vec_normalized_dir_quick(vec_to_player, &Believed_player_pos, pos);
 			if ((vec_to_player->x == 0) && (vec_to_player->y == 0) && (vec_to_player->z == 0)) {
-				RT_LOG(RT_LOGSERVERITY_INFO, "Warning: Player and robot at exactly the same location.\n");
+				con_printf(CON_DEBUG, "Warning: Player and robot at exactly the same location.\n");
 				vec_to_player->x = F1_0;
 			}
 			*player_visibility = player_is_visible_from_object(objp, pos, robptr->field_of_view[Difficulty_level], vec_to_player);
@@ -1362,7 +1361,7 @@ void move_object_to_legal_spot(object *objp)
 	}
 
 	// Int3();		//	Darn you John, you done it again!  (But contact Mike)
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Note: Killing robot #%hu because he's badly stuck outside the mine.\n", (unsigned short)(objp - Objects));
+	con_printf(CON_DEBUG, "Note: Killing robot #%hu because he's badly stuck outside the mine.\n", (unsigned short)(objp-Objects));
 
 	apply_damage_to_robot(objp, objp->shields*2, objp-Objects);
 }
@@ -1566,7 +1565,7 @@ int create_gated_robot( int segnum, int object_id)
 		return 0;
 	}
 
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Gating in object %hu in segment %hu\n", (unsigned short)objnum, (unsigned short)(segp - Segments));
+	con_printf(CON_DEBUG, "Gating in object %hu in segment %hu\n", (unsigned short)objnum, (unsigned short)(segp-Segments));
 
 	#ifdef NETWORK
 	Net_create_objnums[0] = objnum; // A convenient global to get objnum back to caller for multiplayer

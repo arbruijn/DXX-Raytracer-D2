@@ -46,7 +46,6 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
-#include "logger.h"
 
 #ifdef RT_DX12
 #include "RTgr.h"
@@ -94,7 +93,7 @@ int pof_read_int(ubyte *bufp)
 	return INTEL_INT(i);
 
 //	if (PHYSFS_read(f,&i,sizeof(i),1) != 1)
-	//		RT_LOGF(RT_LOGSERVERITY_HIGH, "Unexpected end-of-file while reading object");
+//		Error("Unexpected end-of-file while reading object");
 //
 //	return i;
 }
@@ -125,7 +124,7 @@ short pof_read_short(ubyte *bufp)
 	Pof_addr += 2;
 	return INTEL_SHORT(s);
 //	if (PHYSFS_read(f,&s,sizeof(s),1) != 1)
-	//		RT_LOGF(RT_LOGSERVERITY_HIGH, "Unexpected end-of-file while reading object");
+//		Error("Unexpected end-of-file while reading object");
 //
 //	return s;
 }
@@ -282,7 +281,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Can't open file <%s>", filename);
+		Error("Can't open file <%s>",filename);
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
 
@@ -293,12 +292,12 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	id = pof_read_int(model_buf);
 
 	if (id!=0x4f505350) /* 'OPSP' */
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Bad ID in model file <%s>", filename);
+		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);
 	
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Bad version (%d) in model file <%s>", version, filename);
+		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	while (new_pof_read_int(id,model_buf) == 1) {
 		id = INTEL_INT(id);
@@ -443,7 +442,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Can't open file <%s>", filename);
+		Error("Can't open file <%s>",filename);
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
 
@@ -454,14 +453,14 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 	id = pof_read_int(model_buf);
 
 	if (id!=0x4f505350) /* 'OPSP' */
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Bad ID in model file <%s>", filename);
+		Error("Bad ID in model file <%s>",filename);
 
 	version = pof_read_short(model_buf);
 
 	Assert(version >= 7);		//must be 7 or higher for this data
 
 	if (version < PM_COMPATIBLE_VERSION || version > PM_OBJFILE_VERSION)
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Bad version (%d) in model file <%s>", version, filename);
+		Error("Bad version (%d) in model file <%s>",version,filename);
 
 	while (new_pof_read_int(id,model_buf) == 1) {
 		id = INTEL_INT(id);
@@ -482,7 +481,7 @@ int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs,
 				if (gun_submodels)
 					gun_submodels[id] = sm;
 				else if (sm!=0)
-					RT_LOGF(RT_LOGSERVERITY_HIGH, "Invalid gun submodel in file <%s>", filename);
+					Error("Invalid gun submodel in file <%s>",filename);
 				pof_read_vecs(&gun_points[id],1,model_buf);
 
 				pof_read_vecs(&gun_dirs[id],1,model_buf);
@@ -718,9 +717,8 @@ int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures)
 
 	g3_init_polygon_model(Polygon_models[N_polygon_models].model_data);
 
-	//Don't need this log, because we don't use highest_texture_num on dx12
-	//if (highest_texture_num + 1 != n_textures)
-	//	RT_LOGF(RT_LOGSERVERITY_HIGH, "Model <%s> references %d textures but specifies %d.", filename, highest_texture_num + 1, n_textures);
+	if (highest_texture_num+1 != n_textures)
+		Error("Model <%s> references %d textures but specifies %d.",filename,highest_texture_num+1,n_textures);
 
 	Polygon_models[N_polygon_models].n_textures = n_textures;
 	Polygon_models[N_polygon_models].first_texture = first_texture;

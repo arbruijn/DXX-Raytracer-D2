@@ -7,13 +7,13 @@
 #include <string.h>   // for memset
 
 #include "joy.h"
+#include "dxxerror.h"
 #include "timer.h"
 #include "console.h"
 #include "event.h"
 #include "text.h"
 #include "u_mem.h"
 #include "playsave.h"
-#include "logger.h"
 
 extern char *joybutton_text[]; //from kconfig.c
 extern char *joyaxis_text[]; //from kconfig.c
@@ -69,9 +69,7 @@ void joy_button_handler(SDL_JoyButtonEvent *jbe)
 
 	event.type = (jbe->type == SDL_JOYBUTTONDOWN) ? EVENT_JOYSTICK_BUTTON_DOWN : EVENT_JOYSTICK_BUTTON_UP;
 	event.button = button;
-#if 0
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event %s, button %d\n", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
-#endif
+	con_printf(CON_DEBUG, "Sending event %s, button %d\n", (jbe->type == SDL_JOYBUTTONDOWN) ? "EVENT_JOYSTICK_BUTTON_DOWN" : "EVENT_JOYSTICK_JOYSTICK_UP", event.button);
 	event_send((d_event *)&event);
 }
 
@@ -100,14 +98,14 @@ void joy_hat_handler(SDL_JoyHatEvent *jhe)
 		{
 			event.type = EVENT_JOYSTICK_BUTTON_DOWN;
 			event.button = hat+hbi;
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_JOYSTICK_BUTTON_DOWN, button %d\n", event.button);
+			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_DOWN, button %d\n", event.button);
 			event_send((d_event *)&event);
 		}
 		else if(Joystick.button_last_state[hat+hbi] && !Joystick.button_state[hat+hbi])  //last_state down, current state up
 		{
 			event.type = EVENT_JOYSTICK_BUTTON_UP;
 			event.button = hat+hbi;
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d\n", event.button);
+			con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_BUTTON_UP, button %d\n", event.button);
 			event_send((d_event *)&event);
 		}
 	}
@@ -127,9 +125,7 @@ int joy_axis_handler(SDL_JoyAxisEvent *jae)
 	event.type = EVENT_JOYSTICK_MOVED;
 	event.axis = axis;
 	event.value = Joystick.axis_value[axis] = jae->value/256;
-#if 0
-	RT_LOGF(RT_LOGSERVERITY_INFO, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d\n", event.axis, event.value);
-#endif
+	con_printf(CON_DEBUG, "Sending event EVENT_JOYSTICK_MOVED, axis: %d, value: %d\n",event.axis, event.value);
 	event_send((d_event *)&event);
 
 	return 1;
@@ -144,7 +140,7 @@ void joy_init()
 	char temp[10];
 
 	if (SDL_Init(SDL_INIT_JOYSTICK) < 0) {
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: initialisation failed: %s.", SDL_GetError());
+		con_printf(CON_NORMAL, "sdl-joystick: initialisation failed: %s.",SDL_GetError());
 		return;
 	}
 
@@ -154,9 +150,9 @@ void joy_init()
 
 	n = SDL_NumJoysticks();
 
-	RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: found %d joysticks\n", n);
+	con_printf(CON_NORMAL, "sdl-joystick: found %d joysticks\n", n);
 	for (i = 0; i < n; i++) {
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
+		con_printf(CON_NORMAL, "sdl-joystick %d: %s\n", i, SDL_JoystickName(i));
 		SDL_Joysticks[num_joysticks].handle = SDL_JoystickOpen(i);
 		if (SDL_Joysticks[num_joysticks].handle) {
 
@@ -164,8 +160,8 @@ void joy_init()
 				= SDL_JoystickNumAxes(SDL_Joysticks[num_joysticks].handle);
 			if(SDL_Joysticks[num_joysticks].n_axes > MAX_AXES_PER_JOYSTICK)
 			{
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d axes, only %d supported.\n", SDL_Joysticks[num_joysticks].n_axes, MAX_AXES_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_axes = MAX_AXES_PER_JOYSTICK;
 			}
 
@@ -173,7 +169,7 @@ void joy_init()
 				= SDL_JoystickNumButtons(SDL_Joysticks[num_joysticks].handle);
 			if(SDL_Joysticks[num_joysticks].n_buttons > MAX_BUTTONS_PER_JOYSTICK)
 			{
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: found %d buttons, only %d supported.\n", SDL_Joysticks[num_joysticks].n_buttons, MAX_BUTTONS_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d buttons, only %d supported.\n", SDL_Joysticks[num_joysticks].n_buttons, MAX_BUTTONS_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_buttons = MAX_BUTTONS_PER_JOYSTICK;
 			}
 
@@ -181,13 +177,13 @@ void joy_init()
 				= SDL_JoystickNumHats(SDL_Joysticks[num_joysticks].handle);
 			if(SDL_Joysticks[num_joysticks].n_hats > MAX_HATS_PER_JOYSTICK)
 			{
-				RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: found %d hats, only %d supported.\n", SDL_Joysticks[num_joysticks].n_hats, MAX_HATS_PER_JOYSTICK);
+				Warning("sdl-joystick: found %d hats, only %d supported.\n", SDL_Joysticks[num_joysticks].n_hats, MAX_HATS_PER_JOYSTICK);
 				SDL_Joysticks[num_joysticks].n_hats = MAX_HATS_PER_JOYSTICK;
 			}
 
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: %d axes\n", SDL_Joysticks[num_joysticks].n_axes);
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
-			RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
+			con_printf(CON_NORMAL, "sdl-joystick: %d axes\n", SDL_Joysticks[num_joysticks].n_axes);
+			con_printf(CON_NORMAL, "sdl-joystick: %d buttons\n", SDL_Joysticks[num_joysticks].n_buttons);
+			con_printf(CON_NORMAL, "sdl-joystick: %d hats\n", SDL_Joysticks[num_joysticks].n_hats);
 
 			for (j=0; j < SDL_Joysticks[num_joysticks].n_axes; j++)
 			{
@@ -218,10 +214,10 @@ void joy_init()
 			num_joysticks++;
 		}
 		else
-			RT_LOG(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: initialization failed!\n");
+			con_printf(CON_NORMAL, "sdl-joystick: initialization failed!\n");
 
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
-		RT_LOGF(RT_LOGSERVERITY_MEDIUM, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
+		con_printf(CON_NORMAL, "sdl-joystick: %d axes (total)\n", Joystick.n_axes);
+		con_printf(CON_NORMAL, "sdl-joystick: %d buttons (total)\n", Joystick.n_buttons);
 	}
 
 	joy_num_axes = Joystick.n_axes;

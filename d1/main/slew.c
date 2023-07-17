@@ -25,6 +25,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "key.h"
 #include "joy.h"
 #include "object.h"
+#include "dxxerror.h"
 #include "physics.h"
 #include "kconfig.h"
 

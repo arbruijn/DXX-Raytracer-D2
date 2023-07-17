@@ -4,6 +4,7 @@
  */
 
 #include "pstypes.h"
+#include "dxxerror.h"
 #include "fix.h"
 #include "vecmat.h"
 #include "gr.h"
@@ -16,7 +17,6 @@
 #include "console.h"
 #include "rbaudio.h"
 #include "jukebox.h"
-#include "logger.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -52,7 +52,7 @@ void digi_select_system(int n) {
 	switch (n) {
 #ifdef USE_SDLMIXER
 	case SDLMIXER_SYSTEM:
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "Using SDL_mixer library\n");
+	con_printf(CON_NORMAL,"Using SDL_mixer library\n");
 	fptr_init = digi_mixer_init;
 	fptr_close = digi_mixer_close;
 	fptr_reset = digi_mixer_reset;
@@ -69,7 +69,7 @@ void digi_select_system(int n) {
 #endif
 	case SDLAUDIO_SYSTEM:
 	default:
-		RT_LOG(RT_LOGSERVERITY_MEDIUM, "Using plain old SDL audio\n");
+	con_printf(CON_NORMAL,"Using plain old SDL audio\n");
         fptr_init = digi_audio_init;
         fptr_close = digi_audio_close;
         fptr_reset = digi_audio_reset;
