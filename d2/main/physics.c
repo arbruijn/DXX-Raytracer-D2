@@ -41,6 +41,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "player.h"
 
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif
+
 //Global variables for physics system
 
 #define ROLL_RATE	0x2000
@@ -369,7 +373,11 @@ void do_physics_sim(object *obj)
 
 #ifdef EXTRA_DEBUG
 	//check for correct object segment
-	if(!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0)
+	if (!get_seg_masks(&obj->pos, obj->segnum, 0, __FILE__, __LINE__).centermask == 0 
+#ifdef RT_DX12
+		&& !g_rt_free_cam_info.g_free_cam_enabled && !g_rt_free_cam_info.g_free_cam_clipping_enabled
+#endif
+		)
 	{
 		if (!update_object_seg(obj)) {
 			if (!(Game_mode & GM_MULTI))
@@ -452,6 +460,14 @@ void do_physics_sim(object *obj)
 
 		vm_vec_add(&new_pos,&obj->pos,&frame_vec);
 
+#ifdef RT_DX12
+		//This needs to be checked seperate for the ifdef
+		if (g_rt_free_cam_info.g_free_cam_enabled && g_rt_free_cam_info.g_free_cam_clipping_enabled) {
+			obj->pos = new_pos;
+			return;
+		}
+#endif
+		
 		ignore_obj_list[n_ignore_objs] = -1;
 
 		fq.p0						= &obj->pos;

@@ -340,6 +340,7 @@ int ogl_init_window(int x, int y)
 		Error("Could not set %dx%dx%d opengl video mode: %s\n", x, y, GameArg.DbgBpp, SDL_GetError());
 #endif
 	}
+	SDL_Surface t_Surf;
 
 #ifdef OGLES
 #ifndef RPI
@@ -640,7 +641,7 @@ int gr_set_mode(u_int32_t mode)
 	grd_curscreen->sc_mode = mode;
 	grd_curscreen->sc_w = w;
 	grd_curscreen->sc_h = h;
-	grd_curscreen->sc_aspect = fixdiv(grd_curscreen->sc_w*GameCfg.AspectX,grd_curscreen->sc_h*GameCfg.AspectY);
+	grd_curscreen->sc_aspect = fixdiv(GameCfg.AspectX, GameCfg.AspectY);
 	gr_init_canvas(&grd_curscreen->sc_canvas, d_realloc(gr_bm_data,w*h), BM_OGL, w, h);
 	gr_set_current_canvas(NULL);
 
@@ -789,6 +790,11 @@ int gr_init(int mode)
 	return 0;
 }
 
+//NOTE (sam)
+//I moved this code here to remove some very unneeded externals in internal.h no reason for them to be there.
+int ogl_brightness_ok = 0;
+int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
+static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 void gr_close()
 {
 	ogl_brightness_r = ogl_brightness_g = ogl_brightness_b = 0;
@@ -960,10 +966,6 @@ void ogl_do_palfx(void)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
-
-int ogl_brightness_ok = 0;
-int ogl_brightness_r = 0, ogl_brightness_g = 0, ogl_brightness_b = 0;
-static int old_b_r = 0, old_b_g = 0, old_b_b = 0;
 
 void gr_palette_step_up(int r, int g, int b)
 {

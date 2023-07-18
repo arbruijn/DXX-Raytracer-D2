@@ -62,8 +62,9 @@ typedef struct _grs_point {
 #define BM_SVGA     2
 #define BM_RGB15    3   //5 bits each r,g,b stored at 16 bits
 #define BM_SVGA15   4
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 #define BM_OGL      5
+#define BM_RGBA8    6
 #endif /* def OGL */
 
 #define SM(w,h) ((((u_int32_t)w)<<16)+(((u_int32_t)h)&0xFFFF))
@@ -95,6 +96,9 @@ typedef struct _grs_bitmap {
 	fix avg_color_rgb[3]; // same as above but real rgb value to be used to textured objects that should emit light
 	sbyte   unused;     // to 4-byte align.
 	struct _grs_bitmap  *bm_parent;
+#ifdef RT_DX12
+	struct _dx_texture* dxtexture;
+#endif
 #ifdef OGL
 	struct _ogl_texture *gltexture;
 #endif /* def OGL */
@@ -113,7 +117,7 @@ typedef struct _grs_font {
 	ubyte    ** ft_chars;       // Ptrs to data for each char (required for prop font)
 	short     * ft_widths;      // Array of widths (required for prop font)
 	ubyte     * ft_kerndata;    // Array of kerning triplet data
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	// These fields do not participate in disk i/o!
 	grs_bitmap *ft_bitmaps;
 	grs_bitmap ft_parent_bitmap;

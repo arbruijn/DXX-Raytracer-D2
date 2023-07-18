@@ -25,6 +25,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 
 #include "object.h"
 
+#ifdef RT_DX12
+//TODO, remove this
+#include "Game/Level.h"
+#endif
+
 #define MAX_RENDER_SEGS     500
 #define OBJS_PER_SEG          5
 #define N_EXTRA_OBJ_LISTS    50
@@ -44,7 +49,10 @@ extern int Max_debris_objects; // How many debris objects to create
 
 extern int Clear_window;    // 1 = Clear whole background window, 2 = clear view portals into rest of world, 0 = no clear
 
-void render_frame(fix eye_offset, int window_num);  //draws the world into the current canvas
+#ifdef RT_DX12
+void RT_GetLevelGeomerty(RT_Index* verts_ids, RT_Vertex* verts, int* indices_count, int* verts_count);
+#endif
+void render_frame(fix eye_offset, int window_num);		//draws the world into the current canvas
 
 // cycle the flashing light for when mine destroyed
 void flash_frame();

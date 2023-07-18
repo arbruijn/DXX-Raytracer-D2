@@ -50,14 +50,19 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mission.h"
 #include "gameseq.h"
 #include "args.h"
+#include "globvars.h"
 
 #ifdef OGL
 #include "ogl_init.h"
 #endif
 
-extern int LinearSVGABuffer;
+#ifdef RT_DX12
+#include "dx12.h"
+#include "GLTFLoader.h"
+#include "Core/Arena.h"
+#include "Core/MiniMath.h"
+#endif
 
-extern void newmenu_free_background();
 int netplayerinfo_on=0;
 
 extern ubyte DefiningMarkerMessage;
@@ -747,6 +752,11 @@ void game_render_frame_mono(int flip)
 {
 	int no_draw_hud=0;
 
+#ifdef RT_DX12
+	if (RT_CheckWindowMinimized())
+		return;
+#endif
+
 	gr_set_current_canvas(&Screen_3d_window);
 	
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
@@ -803,6 +813,10 @@ void game_render_frame_mono(int flip)
 
 	if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_STATUS_BAR)
 		render_gauges();
+#ifdef RT_DX12
+	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D)
+		render_gauges();
+#endif
 
 	if (Newdemo_state == ND_STATE_PLAYBACK)
 		Game_mode = GM_NORMAL;
@@ -834,6 +848,11 @@ void toggle_cockpit()
 			new_mode = CM_STATUS_BAR;
 			break;
 		case CM_STATUS_BAR:
+#ifdef RT_DX12
+			new_mode = CM_MODEL_3D;
+			break;
+        case CM_MODEL_3D:
+#endif
 			new_mode = CM_FULL_SCREEN;
 			break;
 		case CM_FULL_SCREEN:
@@ -854,6 +873,13 @@ int last_drawn_cockpit = -1;
 extern void ogl_loadbmtexture(grs_bitmap *bm);
 
 // This actually renders the new cockpit onto the screen.
+#ifdef OGL
+#define UBITMAPM ogl_ubitmapm_cs
+#elif RT_DX12
+#define UBITMAPM dx12_ubitmapm_cs
+#else
+#define UBITMAPM(x, y, dw, dh, bm, c, scale) gr_ubitmapm(x, y, bm)
+#endif
 void update_cockpits()
 {
 	grs_bitmap *bm;
@@ -864,19 +890,11 @@ void update_cockpits()
 	switch( PlayerCfg.CockpitMode[1] )	{
 		case CM_FULL_COCKPIT:
 			gr_set_current_canvas(NULL);
-#ifdef OGL
-			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
-#else
-			gr_ubitmapm(0,0, bm);
-#endif
+			UBITMAPM(0, 0, -1, grd_curcanv->cv_bitmap.bm_h, bm,255, F1_0);
 			break;
 		case CM_REAR_VIEW:
 			gr_set_current_canvas(NULL);
-#ifdef OGL
-			ogl_ubitmapm_cs (0, 0, -1, -1, bm, 255, F1_0);
-#else
-			gr_ubitmapm(0,0, bm);
-#endif
+			UBITMAPM(0, 0, -1, grd_curcanv->cv_bitmap.bm_h, bm,255, F1_0);
 			break;
 	
 		case CM_FULL_SCREEN:
@@ -885,17 +903,17 @@ void update_cockpits()
 		case CM_STATUS_BAR:
 	
 			gr_set_current_canvas(NULL);
-#ifdef OGL
-			ogl_ubitmapm_cs (0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
-#else
-			gr_ubitmapm(0,SHEIGHT-bm->bm_h,bm);
-#endif
+			UBITMAPM(0, (HIRESMODE?(SHEIGHT*2)/2.6:(SHEIGHT*2)/2.72), -1, ((int) ((double) (bm->bm_h) * (HIRESMODE?(double)SHEIGHT/480:(double)SHEIGHT/200) + 0.5)), bm,255, F1_0);
 			break;
 	
 		case CM_LETTERBOX:
 			gr_set_current_canvas(NULL);
 			break;
 
+#ifdef RT_DX12
+	    case CM_MODEL_3D:
+            break;
+#endif
 	}
 
 	gr_set_current_canvas(NULL);

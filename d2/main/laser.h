@@ -147,6 +147,9 @@ typedef struct muzzle_info {
 	fix64       create_time;
 	short       segnum;
 	vms_vector  pos;
+#ifdef RT_DX12
+	vms_vector	RT_muzzleColor;
+#endif
 } muzzle_info;
 
 extern muzzle_info Muzzle_data[MUZZLE_QUEUE_MAX];

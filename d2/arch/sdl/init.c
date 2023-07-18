@@ -52,6 +52,8 @@ void arch_init(void)
 	if (!GameArg.CtlNoJoystick)
 		joy_init();
 
+	//The raytracing build requires delayed initialization due to the HWND.
+	// TODO: Will throw an error even when initialized.
 	if ((t = gr_init(0)) != 0)
 		Error(TXT_CANT_INIT_GFX,t);
 

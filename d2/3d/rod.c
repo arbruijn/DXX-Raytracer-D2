@@ -101,6 +101,7 @@ int calc_rod_corners(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix
 
 //draw a polygon that is always facing you
 //returns 1 if off screen, 0 if drew
+// TODO(daniel): When is this used?
 bool g3_draw_rod_flat(g3s_point *bot_point,fix bot_width,g3s_point *top_point,fix top_width)
 {
 	if (calc_rod_corners(bot_point,bot_width,top_point,top_width))
@@ -129,7 +130,7 @@ bool g3_draw_rod_tmap(grs_bitmap *bitmap,g3s_point *bot_point,fix bot_width,g3s_
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 #endif
 
-#ifndef OGL
+#if !defined(OGL) && !defined(RT_DX12)
 //draws a bitmap with the specified 3d width & height 
 //returns 1 if off screen, 0 if drew
 bool g3_draw_bitmap(vms_vector *pos,fix width,fix height,grs_bitmap *bm)

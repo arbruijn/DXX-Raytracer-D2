@@ -53,6 +53,17 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "rle.h"
 
+#ifdef EDITOR
+#include "editor/texpage.h"
+#endif
+
+#ifdef RT_DX12
+#include "Core/MiniMath.h"
+#include "Core/Arena.h"
+#include "dx12.h"
+#include "RTmaterials.h"
+#endif
+
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
@@ -148,6 +159,13 @@ int gamedata_init()
 				Error("Cannot open ham file\n");
 
 	piggy_read_sounds();
+
+#ifdef RT_DX12
+	RT_InitAllPolyModels();
+    RT_InitAllBitmaps();
+    RT_InitglTFModels();
+    RT_RaytraceSetSkyColors((RT_Vec3){ 0.0f,0.0f,0.000f }, (RT_Vec3){ 0.0f,0.0f,0.000f });
+#endif
 
 	return 0;
 }
@@ -589,7 +607,8 @@ int load_exit_models()
 void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 {
 	ubyte *buf;
-	int i, x, y, color, count;
+	int i, x, y, color;
+	int count = 0;
 	fix t_rgb[3] = { 0, 0, 0 };
 
 	rgb[0] = rgb[1] = rgb[2] = 0;

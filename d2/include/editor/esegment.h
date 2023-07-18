@@ -1,5 +1,7 @@
-#pragma once
+#ifndef _ESEGMENT_H
+#define _ESEGMENT_H
 #include "segment.h"
+#include <editor.h>
 
 extern	segment  *Cursegp;				// Pointer to current segment in the mine, the one to which things happen.
 #define Curseg2p s2s2(Cursegp)          // Pointer to segment2 for Cursegp
@@ -77,3 +79,4 @@ extern	int med_delete_segment(segment *sp);
 //  2 = Rotation causes degeneracy, such as self-intersecting segment.
 extern	int med_rotate_segment(segment *seg, vms_matrix *rotmat);
 extern	int med_rotate_segment_ang(segment *seg, vms_angvec *ang);
+#endif

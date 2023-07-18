@@ -233,7 +233,17 @@ static int con_handler(window *wind, d_event *event)
 			if (con_state == CON_STATE_CLOSED && wind)
 				window_close(wind);
 
+#ifdef RT_DX12
+				RT_BeginFrame();
+			RT_StartImGuiFrame();
+#endif
+
 			con_draw();
+
+#ifdef RT_DX12
+			RT_EndImguiFrame();
+			RT_EndFrame();
+#endif
 			break;
 		case EVENT_WINDOW_CLOSE:
 			break;

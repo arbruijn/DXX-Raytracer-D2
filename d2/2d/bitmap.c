@@ -65,6 +65,9 @@ void gr_init_bitmap( grs_bitmap *bm, int mode, int x, int y, int w, int h, int b
 	bm->bm_rowsize = bytesperline;
 
 	bm->bm_data = NULL;
+#ifdef RT_DX12
+	bm->bm_parent = NULL; bm->dxtexture = NULL;
+#endif
 #ifdef OGL
 	bm->bm_parent=NULL;bm->gltexture=NULL;
 #endif
@@ -83,6 +86,9 @@ void gr_init_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 {
 	bm->bm_data = NULL;
 	bm->bm_parent=NULL;
+#ifdef RT_DX12
+	bm->dxtexture = NULL;
+#endif
 #ifdef OGL
 	bm->gltexture=NULL;
 #endif
@@ -134,6 +140,9 @@ void gr_init_sub_bitmap (grs_bitmap *bm, grs_bitmap *bmParent, int x, int y, int
 	bm->bm_type = bmParent->bm_type;
 	bm->bm_rowsize = bmParent->bm_rowsize;
 
+#ifdef RT_DX12
+	bm->dxtexture = bmParent->dxtexture;
+#endif
 #ifdef OGL
 	bm->gltexture=bmParent->gltexture;
 #endif

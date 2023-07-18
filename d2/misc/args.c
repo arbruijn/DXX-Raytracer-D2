@@ -203,9 +203,12 @@ void ReadCmdArgs(void)
 
 	// Debug Options
 
-	if (FindArg("-debug"))		GameArg.DbgVerbose = CON_DEBUG;
-	else if (FindArg("-verbose"))	GameArg.DbgVerbose = CON_VERBOSE;
-	else				GameArg.DbgVerbose = CON_NORMAL;
+	if (FindArg("-debug"))
+		GameArg.DbgVerbose = RT_LOGSERVERITY_INFO;
+	else if (FindArg("-verbose"))
+		GameArg.DbgVerbose = RT_LOGSERVERITY_MINOR;
+	else
+		GameArg.DbgVerbose = RT_LOGSERVERITY_MEDIUM;
 
 	GameArg.DbgSafelog 		= FindArg("-safelog");
 	GameArg.DbgNoRun 		= FindArg("-norun");

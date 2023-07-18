@@ -255,6 +255,7 @@ void draw_object_blob(object *obj,bitmap_index bmi)
 }
 
 //draw an object that is a texture-mapped rod
+#ifndef RT_DX12
 void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 {
 	grs_bitmap * bitmap = &GameBitmaps[bitmapi.index];
@@ -286,6 +287,7 @@ void draw_object_tmap_rod(object *obj,bitmap_index bitmapi,int lighted)
 
 	g3_draw_rod_tmap(bitmap,&bot_p,obj->size,&top_p,obj->size,light);
 }
+#endif
 
 int	Linear_tmap_polygon_objects = 1;
 
@@ -387,7 +389,8 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 		new_light.b = fixmul(light.b,light_scale);
 		save_glow = glow[0];
 		glow[0] = fixmul(glow[0],light_scale);
-		draw_polygon_model(&obj->pos,
+		draw_polygon_model(_RT_DRAW_POLY_SEND 
+			&obj->pos,
 				   &obj->orient,
 				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
@@ -400,7 +403,8 @@ void draw_cloaked_object(object *obj,g3s_lrgb light,fix *glow,fix64 cloak_start_
 		gr_settransblend(cloak_value, GR_BLEND_NORMAL);
 		gr_setcolor(BM_XRGB(0,0,0));	//set to black (matters for s3)
 		g3_set_special_render(draw_tmap_flat,NULL,NULL);		//use special flat drawer
-		draw_polygon_model(&obj->pos,
+		draw_polygon_model(_RT_DRAW_POLY_SEND 
+			&obj->pos,
 				   &obj->orient,
 				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,obj->rtype.pobj_info.subobj_flags,
@@ -497,7 +501,8 @@ void draw_polygon_object(object *obj)
 		for (i=0;i<12;i++)		//fill whole array, in case simple model needs more
 			bm_ptrs[i] = Textures[obj->rtype.pobj_info.tmap_override];
 
-		draw_polygon_model(&obj->pos,
+		draw_polygon_model(_RT_DRAW_POLY_SEND 
+			&obj->pos,
 				   &obj->orient,
 				   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
 				   obj->rtype.pobj_info.model_num,
@@ -507,7 +512,6 @@ void draw_polygon_object(object *obj)
 				   bm_ptrs);
 	}
 	else {
-
 		if (obj->type==OBJ_PLAYER && (Players[obj->id].flags&PLAYER_FLAGS_CLOAKED))
 			draw_cloaked_object(obj,light,engine_glow_value,Players[obj->id].cloak_time,Players[obj->id].cloak_time+CLOAK_TIME_MAX);
 		else if ((obj->type == OBJ_ROBOT) && (obj->ctype.ai_info.CLOAKED)) {
@@ -533,11 +537,16 @@ void draw_polygon_object(object *obj)
 				}
 			}
 
-			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
+			bool is_laser_with_inner_model = obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 );
+
+			if (is_laser_with_inner_model) 
+			{
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);
 				if (dist_to_eye < Simple_model_threshhold_scale * F1_0*2)
-					draw_polygon_model(&obj->pos,
+				{
+					draw_polygon_model(_RT_DRAW_POLY_SEND 
+						&obj->pos,
 							   &obj->orient,
 							   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,
 							   Weapon_info[obj->id].model_num_inner,
@@ -545,9 +554,23 @@ void draw_polygon_object(object *obj)
 							   light,
 							   engine_glow_value,
 							   alt_textures);
+				}
 			}
-			
-			draw_polygon_model(&obj->pos,
+
+			uint32_t old_flags;
+
+#ifdef RT_DX12
+			if (is_laser_with_inner_model)
+			{
+				// NOTE(daniel): I don't love this kind of code that pushes and pops stuff
+				// for later down the call stack, but I also don't love massively uprooting
+				// this code.
+				old_flags = RT_RaytraceSetRenderFlagsOverride(RT_RenderMeshFlags_ReverseCulling);
+			}
+#endif
+
+			draw_polygon_model(_RT_DRAW_POLY_SEND 
+				&obj->pos,
 					   &obj->orient,
 					   (vms_angvec *)&obj->rtype.pobj_info.anim_angles,obj->rtype.pobj_info.model_num,
 					   obj->rtype.pobj_info.subobj_flags,
@@ -555,7 +578,16 @@ void draw_polygon_object(object *obj)
 					   engine_glow_value,
 					   alt_textures);
 
-#ifndef OGL // in software rendering must draw inner model last
+#ifdef RT_DX12
+			if (is_laser_with_inner_model)
+			{
+				RT_RaytraceSetRenderFlagsOverride(old_flags);
+			}
+#endif
+
+#if !defined(OGL) || !defined(RT_DX12) // in software rendering must draw inner model last
+
+#else
 			if (obj->type == OBJ_WEAPON && (Weapon_info[obj->id].model_num_inner > -1 )) {
 				fix dist_to_eye = vm_vec_dist_quick(&Viewer->pos, &obj->pos);
 				gr_settransblend(GR_FADE_OFF, GR_BLEND_ADDITIVE_A);

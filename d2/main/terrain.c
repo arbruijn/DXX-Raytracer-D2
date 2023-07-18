@@ -35,6 +35,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fireball.h"
 #include "render.h"
 
+#ifdef RT_DX12
+#include "RTutil.h"
+#include "Core/Arena.h"
+#include "Core/MiniMath.h"
+#endif
+
 #define GRID_MAX_SIZE   64
 #define GRID_SCALE      i2f(2*20)
 #define HEIGHT_SCALE    f1_0
@@ -69,10 +75,13 @@ int org_i,org_j;
 
 int mine_tiles_drawn;    //flags to tell if all 4 tiles under mine have drawn
 
-
 // LINT: adding function prototypes
 void build_light_table(void);
 void free_light_table(void);
+
+#ifdef RT_DX12
+RT_ResourceHandle RT_TerrainMesh;
+#endif
 
 // ------------------------------------------------------------------------
 void draw_cell(int i,int j,const g3s_point *p0,const g3s_point *p1,const g3s_point *p2,const g3s_point *p3)
@@ -170,6 +179,42 @@ int im=1;
 
 void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 {
+#ifdef RT_DX12
+	//start_point = org_point + ((-(org_i-low_i)*grid_scale) * rvec) + ((-(org_j - low_j)*grid_scale) * fvec)
+	org_i = org_2dy; int low_i = 0;
+	org_j = org_2dx; int low_j = 0;
+	vms_vector tv;
+	vms_vector delta_i, delta_j;
+
+	// todo: can remove?
+	vm_vec_copy_scale(&tv, &surface_orient.rvec, GRID_SCALE);
+	g3_rotate_delta_vec(&delta_i, &tv);
+	vm_vec_copy_scale(&tv, &surface_orient.fvec, GRID_SCALE);
+	g3_rotate_delta_vec(&delta_j, &tv);
+
+	// Calculate translation
+	vm_vec_scale_add(&start_point, org_point, &surface_orient.rvec, -(org_i - low_i) * GRID_SCALE);
+	vm_vec_scale_add2(&start_point, &surface_orient.fvec, -(org_j - low_j) * GRID_SCALE);
+	const RT_Vec3 origin_point = RT_Vec3Fromvms_vector(&start_point);
+
+	// Make it matrices
+    const RT_Mat4 trans = RT_Mat4FromTranslation(origin_point);
+	const RT_Mat4 rotat = RT_Mat4Fromvms_matrix(&surface_orient);
+	const RT_Mat4 id = RT_Mat4Mul(trans, rotat);
+
+	// Render the mesh
+	// todo: use the other function instead of helper
+	RT_RenderMeshParams params = {
+	    .mesh_handle = RT_TerrainMesh,
+	    .transform = &id,
+	    .prev_transform = &id,
+	    .color = 0xFFFFFFFF,
+	    .material_override = 0,
+	    .flags = 0
+	};
+	RT_RaytraceMeshEx(&params);
+#else
+    // Declare local variables
 	vms_vector delta_i,delta_j;		//delta_y;
 	g3s_point p,last_p,save_p_low,save_p_high;
 	g3s_point last_p2;
@@ -326,6 +371,7 @@ void render_terrain(vms_vector *org_point,int org_2dx,int org_2dy)
 		vm_vec_negate(&delta_j);		//restore sign of j
 
 	}
+#endif
 
 }
 
@@ -381,6 +427,95 @@ void load_terrain(char *filename)
 	terrain_bm = terrain_bitmap;
 
 	build_light_table();
+#ifdef RT_DX12
+    //printf("this is where the terrain gets generated\n");
+    RT_ArenaMemoryScope(&g_thread_arena) {
+        RT_Vec3* vertex_positions = RT_ArenaAllocArray(&g_thread_arena, grid_h * grid_w, RT_Vec3);
+        RT_Vec2* vertex_uvs = RT_ArenaAllocArray(&g_thread_arena, grid_h * grid_w, RT_Vec2);
+        RT_Triangle* triangles = RT_ArenaAllocArray(&g_thread_arena, (grid_w - 1) * (grid_w - 1) * 2, RT_Triangle);
+        size_t n_triangles = 0;
+        float grid_scale = f2fl(GRID_SCALE);
+        float height_scale = f2fl(HEIGHT_SCALE);
+
+        // Generate vertices
+        for (int y = 0; y < grid_h; ++y) {
+            for (int x = 0; x < grid_w; ++x) {
+                // Generate vertex position 
+                vertex_positions[x + y * grid_w].x = x * grid_scale;
+                vertex_positions[x + y * grid_w].y = ((float)height_array[y + x * grid_w]) * height_scale;
+                vertex_positions[x + y * grid_w].z = y * grid_scale;
+
+                // Generate UVs
+                vertex_uvs[x + y * grid_w].x = (float)x / 4.0f;
+                vertex_uvs[x + y * grid_w].y = (float)y / 4.0f;
+            }
+        }
+
+        // Generate triangles
+        for (int y = 0; y < grid_h-1; ++y) {
+            for (int x = 0; x < grid_w-1; ++x) {
+                // Get top left, top right, bottom left, bottom right
+                RT_Vertex v00, v01, v10, v11;
+
+                // Fetch UVs
+                v00.uv = vertex_uvs[(x + 0) + (y + 0) * grid_w];
+                v01.uv = vertex_uvs[(x + 1) + (y + 0) * grid_w];
+                v10.uv = vertex_uvs[(x + 0) + (y + 1) * grid_w];
+                v11.uv = vertex_uvs[(x + 1) + (y + 1) * grid_w];
+
+                // Fetch positions
+                v00.pos = vertex_positions[(x + 0) + (y + 0) * grid_w];
+                v01.pos = vertex_positions[(x + 1) + (y + 0) * grid_w];
+                v10.pos = vertex_positions[(x + 0) + (y + 1) * grid_w];
+                v11.pos = vertex_positions[(x + 1) + (y + 1) * grid_w];
+
+                // Generate normals - todo: is this the correct winding order?
+                const RT_Vec3 v00_v10 = RT_Vec3Normalize(RT_Vec3Sub(v10.pos, v00.pos));
+                const RT_Vec3 v00_v11 = RT_Vec3Normalize(RT_Vec3Sub(v11.pos, v00.pos));
+                const RT_Vec3 v00_v01 = RT_Vec3Normalize(RT_Vec3Sub(v01.pos, v00.pos));
+                const RT_Vec3 normal1 = RT_Vec3Normalize(RT_Vec3Cross(v00_v10, v00_v11));
+                const RT_Vec3 normal2 = RT_Vec3Normalize(RT_Vec3Cross(v00_v11, v00_v01));
+
+                // Create triangle 1
+                triangles[n_triangles].pos0 = v00.pos;
+                triangles[n_triangles].pos1 = v10.pos;
+                triangles[n_triangles].pos2 = v11.pos;
+                triangles[n_triangles].uv0 = v00.uv;
+                triangles[n_triangles].uv1 = v10.uv;
+                triangles[n_triangles].uv2 = v11.uv;
+                triangles[n_triangles].normal0 = normal1;
+                triangles[n_triangles].normal1 = normal1;
+                triangles[n_triangles].normal2 = normal1;
+                triangles[n_triangles].color = 0xFFFFFFFF;
+                triangles[n_triangles].material_edge_index = RT_MATERIAL_ENDLEVEL_TERRAIN;
+                n_triangles++;
+
+                // Create triangle 2
+                triangles[n_triangles].pos0 = v00.pos;
+                triangles[n_triangles].pos1 = v11.pos;
+                triangles[n_triangles].pos2 = v01.pos;
+                triangles[n_triangles].uv0 = v00.uv;
+                triangles[n_triangles].uv1 = v11.uv;
+                triangles[n_triangles].uv2 = v01.uv;
+                triangles[n_triangles].normal0 = normal2;
+                triangles[n_triangles].normal1 = normal2;
+                triangles[n_triangles].normal2 = normal2;
+				triangles[n_triangles].color = 0xFFFFFFFF;
+                triangles[n_triangles].material_edge_index = RT_MATERIAL_ENDLEVEL_TERRAIN;
+                n_triangles++;
+            }
+        }
+        RT_GenerateTangents(triangles, n_triangles);
+
+        // Upload mesh
+        const RT_UploadMeshParams mesh_params = {
+            .triangle_count = (grid_w - 1) * (grid_w - 1) * 2,
+            .name = "Heightmapped terrain",
+            .triangles = triangles,
+        };
+        RT_TerrainMesh = RT_UploadMesh(&mesh_params);
+    }
+#endif
 }
 
 

@@ -70,8 +70,12 @@ int window_close(window *wind)
 		WINDOW_SEND_EVENT(wind, EVENT_WINDOW_DEACTIVATED);	// Deactivate first
 
 	event.type = EVENT_WINDOW_CLOSE;
+
+	#ifdef RT_WINDOW_LOG
 	con_printf(CON_DEBUG,	"Sending event EVENT_WINDOW_CLOSE to window of dimensions %dx%d\n",
 			   (wind)->w_canv.cv_bitmap.bm_w, (wind)->w_canv.cv_bitmap.bm_h);
+	#endif // RT_WINDOW_LOG
+
 	if (window_send_event(wind, &event))
 	{
 		// User 'handled' the event, cancelling close

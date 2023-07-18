@@ -10,6 +10,9 @@
 #include "pstypes.h"
 #include "fix.h"
 
+// Uncomment this line to enable mouse logging.
+//#define RT_MOUSE_LOG 
+
 struct d_event;
 struct window;
 

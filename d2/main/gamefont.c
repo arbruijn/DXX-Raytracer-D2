@@ -114,6 +114,8 @@ void gamefont_choose_game_font(int scrx,int scry){
 #ifdef OGL
 	if (!GameArg.OglFixedFont)
 	{
+#endif
+#if defined (OGL) || defined (RT_DX12)
 		// if there's no texture filtering, scale by int
 		if (!GameCfg.TexFilt)
 		{
@@ -131,6 +133,8 @@ void gamefont_choose_game_font(int scrx,int scry){
 			FNTScaleX = FNTScaleY;
 		else if (FNTScaleX*100 < FNTScaleY*100)
 			FNTScaleY = FNTScaleX;
+#endif
+#ifdef OGL
 	}
 #endif
 		gamefont_loadfont(gf,m);
@@ -177,6 +181,7 @@ void gamefont_init()
 		addfontconf(i,320,200,Gamefont_filenames_l[i]);
 	}
 
+	// TODO: grd_curscreen size might not match renderer yet.
 	gamefont_choose_game_font(grd_curscreen->sc_canvas.cv_bitmap.bm_w,grd_curscreen->sc_canvas.cv_bitmap.bm_h);
 }
 

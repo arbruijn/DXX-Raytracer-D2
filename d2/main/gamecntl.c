@@ -96,6 +96,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif
+
 #include <SDL/SDL.h>
 
 extern void object_goto_prev_viewer(void);
@@ -396,6 +400,8 @@ int pause_handler(window *wind, d_event *event, char *msg)
 
 int do_game_pause()
 {
+	return RT_DoRealPause();
+
 	char *msg;
 	char total_time[9],level_time[9];
 
@@ -794,6 +800,35 @@ int HandleSystemKey(int key)
 
 	switch (key)
 	{
+
+#ifdef RT_DX12
+		case KEY_SHIFTED + KEY_ALTED + KEY_F1:
+		{
+			g_rt_enable_debug_menu = !g_rt_enable_debug_menu;
+		} break;
+
+		case KEY_SHIFTED + KEY_ALTED + KEY_F2:
+		{
+			RT_GetRendererIO()->debug_line_depth_enabled = !RT_GetRendererIO()->debug_line_depth_enabled;
+		} break;
+
+		case KEY_ALTED + KEY_ENTER:
+		{
+			gr_toggle_fullscreen();
+		} break;
+
+		case KEY_SHIFTED + KEY_ALTED + KEY_F:
+		{
+			if (!g_rt_free_cam_info.g_free_cam_enabled) {
+				RT_EnableFreeCam();
+			}
+			else {
+				RT_DisableFreeCam();
+			}
+			break;
+		}
+#endif
+
 		KEY_MAC( case KEY_COMMAND+KEY_P: )
 		case KEY_PAUSE:
 			do_game_pause();	break;
@@ -839,6 +874,10 @@ int HandleSystemKey(int key)
 		case KEY_F3:
 			if (!Player_is_dead && Viewer->type==OBJ_PLAYER) //if (!(Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow))
 			{
+#ifdef RT_DX12
+				if (g_rt_free_cam_info.g_free_cam_enabled)
+					break;
+#endif
 				toggle_cockpit();
 			}
 			break;
@@ -1913,6 +1952,11 @@ int ReadControls(d_event *event)
 			}
 		}
 
+#ifdef RT_DX12
+		if (g_rt_free_cam_info.g_free_cam_enabled) {
+			return;
+		}
+#endif
 		do_weapon_n_item_stuff();
 	}
 

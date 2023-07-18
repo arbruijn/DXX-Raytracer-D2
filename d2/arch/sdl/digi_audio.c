@@ -151,7 +151,10 @@ static void audio_mixcallback(void *userdata, Uint8 *stream, int len)
 					}
 					sldata = sl->samples;
 				}
-				v = *(sldata++) - 0x80;
+                // set to volatile because otherwise the compiler will work magic and sound effects will sound deepfried
+                volatile int8_t sldata32 = *sldata++;
+                sldata32 -= 0x80;
+                v = sldata32;
 				s = *sp;
 				*(sp++) = mix8[ s + fixmul(v, vl) + 0x80 ];
 				s = *sp;

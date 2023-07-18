@@ -67,6 +67,8 @@ extern int Pigfile_initialized;
 void piggy_read_bitmap_data(grs_bitmap * bmp);
 void piggy_read_sound_data(digi_sound *snd);
 
+void piggy_get_bitmap_name( int i, char * name );
+
 void piggy_load_level_data();
 
 char* piggy_game_bitmap_name(grs_bitmap *bmp);

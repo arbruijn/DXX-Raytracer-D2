@@ -185,11 +185,11 @@ int gr_init(int mode)
 	if (GameArg.SysNoBorders)
 		sdl_video_flags|=SDL_NOFRAME;
 
-	if (GameArg.DbgSdlHWSurface)
-		sdl_video_flags|=SDL_HWSURFACE;
+	//if (GameArg.DbgSdlHWSurface)
+	//	sdl_video_flags|=SDL_HWSURFACE;
 
-	if (GameArg.DbgSdlASyncBlit)
-		sdl_video_flags|=SDL_ASYNCBLIT;
+	//if (GameArg.DbgSdlASyncBlit)
+	//	sdl_video_flags|=SDL_ASYNCBLIT;
 
 	// Set the mode.
 	if ((retcode=gr_set_mode(mode)))

@@ -52,6 +52,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#ifdef RT_DX12
+#include "RTgr.h"
+#include "dx12.h"
+#include "globvars.h"
+#include "Core/Arena.h"
+#include "Core/MiniMath.h"
+#include "ImageReadWrite.h"
+#endif
 
 extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords
 
@@ -117,8 +125,18 @@ int title_handler(window *wind, d_event *event, title_screen *ts)
 			break;
 
 		case EVENT_WINDOW_DRAW:
+#ifdef RT_DX12
+			RT_BeginFrame();
+			RT_StartImGuiFrame();
+#endif
+
 			gr_set_current_canvas( NULL );
 			show_fullscr(&ts->title_bm);
+
+#ifdef RT_DX12
+			RT_EndImguiFrame();
+			RT_EndFrame();
+#endif
 			break;
 
 		case EVENT_WINDOW_CLOSE:
@@ -179,6 +197,21 @@ int show_title_screen( char * filename, int allow_keys, int from_hog_only )
 }
 
 int intro_played = 0;
+
+static int load_the_palette_of_the_title_screen_like_a_fucking_psycho(char * filename)
+{
+	grs_bitmap bitmap;
+	gr_init_bitmap_data(&bitmap);
+
+	int pcx_error;
+
+	if ((pcx_error=pcx_read_bitmap( filename, &bitmap, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
+		RT_LOGF(RT_LOGSERVERITY_HIGH, "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
+	}
+
+	gr_palette_load(gr_palette);
+	gr_free_bitmap_data(&bitmap);
+}
 
 void show_titles(void)
 {
@@ -266,6 +299,9 @@ void show_titles(void)
 		}
 	}
 
+	if (PHYSFSX_exists("assets/splash-logo/buas.pcx", 1))
+		show_title_screen("assets/splash-logo/buas.pcx", 1, 0);
+
 	if (!song_playing)
 	{
 		con_printf( CON_DEBUG, "\nPlaying title song..." );
@@ -273,8 +309,27 @@ void show_titles(void)
 	}
 	con_printf( CON_DEBUG, "\nShowing logo screen..." );
 	strcpy(filename, HIRESMODE?"descentb.pcx":"descent.pcx");
+#if RT_DX12
+	if (PHYSFSX_exists("assets/splash-logo/LogoRaytraced.png", 1))
+	{
+		show_title_screen("assets/splash-logo/LogoRaytraced.png", 1, 0);
+		// FOR SOME REASON BEYOND HUMAN UNDERSTANDING WHEN THE TITLE SCREEN IS LOADED
+		// THE CODE ALSO READS OUT THE PALETTE FROM THE PCX FILE OF THE TITLE SCREEN
+		// AND THEN USES THAT AS THE PALETTE TO DECODE ALL THE OTHER GAME TEXTURES.
+		// YES, LOADING THE TITLE SCREEN IS MISSION CRITICAL TO THE GAME, AND IF YOU
+		// DON'T DO IT OR DO IT IN THE WRONG ORDER THE GAME TEXTURES GET ALL SCREWED
+		// UP. ARE YOU MAD.
+		load_the_palette_of_the_title_screen_like_a_fucking_psycho(filename, 1, 0);
+	}
+	else
+	{
+		if (PHYSFSX_exists(filename,1))
+			show_title_screen(filename, 1, 1);
+	}
+#else
 	if (PHYSFSX_exists(filename,1))
 		show_title_screen(filename, 1, 1);
+#endif
 }
 
 void show_order_form()
@@ -908,7 +963,7 @@ void show_animated_bitmap(briefing *br)
 {
 	grs_canvas  *curcanv_save, *bitmap_canv=0;
 	grs_bitmap	*bitmap_ptr;
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	float scale = 1.0;
 
 	if (((float)SWIDTH/320) < ((float)SHEIGHT/200))
@@ -924,7 +979,9 @@ void show_animated_bitmap(briefing *br)
 			bi = piggy_find_bitmap(br->bitmap_name);
 			bitmap_ptr = &GameBitmaps[bi.index];
 			PIGGY_PAGE_IN( bi );
-#ifdef OGL
+#ifdef RT_DX12
+			dx12_ubitmapm_cs(rescale_x(220), rescale_y(45), bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, bitmap_ptr, 255, F1_0);
+#elif OGL
 			ogl_ubitmapm_cs(rescale_x(220), rescale_y(45),bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,bitmap_ptr,255,F1_0);
 #else
 			gr_bitmapm(rescale_x(220), rescale_y(45), bitmap_ptr);
@@ -935,7 +992,6 @@ void show_animated_bitmap(briefing *br)
 	}
 
 	br->door_div_count = DOOR_DIV_INIT;
-
 	if (br->bitmap_name[0] != 0) {
 		char		*pound_signp;
 		int		num, dig1, dig2;
@@ -991,11 +1047,14 @@ void show_animated_bitmap(briefing *br)
 		bi = piggy_find_bitmap(br->bitmap_name);
 		bitmap_ptr = &GameBitmaps[bi.index];
 		PIGGY_PAGE_IN( bi );
-#ifdef OGL
+#ifdef RT_DX12
+		dx12_ubitmapm_cs(0, 0, bitmap_ptr->bm_w * scale, bitmap_ptr->bm_h * scale, bitmap_ptr, 255, F1_0);
+#elif OGL
 		ogl_ubitmapm_cs(0,0,bitmap_ptr->bm_w*scale,bitmap_ptr->bm_h*scale,bitmap_ptr,255,F1_0);
 #else
 		gr_bitmapm(0, 0, bitmap_ptr);
 #endif
+
 		grd_curcanv = curcanv_save;
 		d_free(bitmap_canv);
 
@@ -1019,7 +1078,7 @@ void show_animated_bitmap(briefing *br)
 void show_briefing_bitmap(grs_bitmap *bmp)
 {
 	grs_canvas	*curcanv_save, *bitmap_canv;
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	float scale = 1.0;
 #endif
 
@@ -1027,12 +1086,16 @@ void show_briefing_bitmap(grs_bitmap *bmp)
 	curcanv_save = grd_curcanv;
 	gr_set_current_canvas(bitmap_canv);
 
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	if (((float)SWIDTH/(HIRESMODE ? 640 : 320)) < ((float)SHEIGHT/(HIRESMODE ? 480 : 200)))
 		scale = ((float)SWIDTH/(HIRESMODE ? 640 : 320));
 	else
 		scale = ((float)SHEIGHT/(HIRESMODE ? 480 : 200));
+#endif
 
+#ifdef RT_DX12
+	dx12_ubitmapm_cs(0, 0, bmp->bm_w * scale, bmp->bm_h * scale, bmp, 255, F1_0);
+#elif OGL
 	ogl_ubitmapm_cs(0,0,bmp->bm_w*scale,bmp->bm_h*scale,bmp,255,F1_0);
 #else
 	gr_bitmapm(0, 0, bmp);
@@ -1330,6 +1393,36 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 		}
 
 		case EVENT_WINDOW_DRAW:
+#ifdef RT_DX12
+			RT_Vec2 top_left_blit;
+			RT_Vec2 bottom_right_blit;
+			bool raytrace_enemy = br->robot_num != -1;
+
+			if (raytrace_enemy)
+			{
+				RT_BeginFrame();
+				RT_StartImGuiFrame();
+
+				top_left_blit = RT_Vec2Make((float)br->robot_canv->cv_bitmap.bm_x, (float)br->robot_canv->cv_bitmap.bm_y);
+				bottom_right_blit = RT_Vec2Make((float)br->robot_canv->cv_bitmap.bm_x + (float)br->robot_canv->cv_bitmap.bm_w, (float)br->robot_canv->cv_bitmap.bm_y + (float)br->robot_canv->cv_bitmap.bm_h);
+
+				RT_SceneSettings scene_settings = { 0 };
+				scene_settings.camera = RT_ArenaAllocStruct(&g_thread_arena, RT_Camera);
+				scene_settings.camera->position = RT_Vec3Fromvms_vector(&View_position);
+				scene_settings.camera->right = RT_Vec3Fromvms_vector(&View_matrix.rvec);
+				scene_settings.camera->up = RT_Vec3Fromvms_vector(&View_matrix.uvec);
+				scene_settings.camera->forward = RT_Vec3Fromvms_vector(&View_matrix.fvec);
+				scene_settings.camera->vfov = 60.0f;
+				scene_settings.camera->near_plane = 0.1f;
+				scene_settings.camera->far_plane = 10000.0f;
+				scene_settings.render_blit = true;
+
+				RT_BeginScene(&scene_settings);
+				RT_Light light = RT_MakeSphericalLight(RT_Vec3Make(100.0f, 100.0f, 100.0f), RT_Vec3Make(70.0f, 70.0f, -5.0f), 20.0f);
+				RT_RaytraceSubmitLight(light);
+			}
+#endif
+
 			gr_set_current_canvas(NULL);
 
 			timer_delay2(50);
@@ -1364,6 +1457,20 @@ int briefing_handler(window *wind, d_event *event, briefing *br)
 				flash_cursor(br, br->flashing_cursor);
 			else if (br->flashing_cursor)
 				gr_printf(br->text_x, br->text_y, "_");
+
+#ifdef RT_DX12
+			if (raytrace_enemy)
+			{
+				RT_UpdateMaterialEdges();
+				RT_UpdateMaterialIndices();
+
+				RT_EndScene();
+				RT_RasterBlitScene(&top_left_blit, &bottom_right_blit, true);
+
+				RT_EndImguiFrame();
+				RT_EndFrame();
+			}
+#endif
 			break;
 
 		case EVENT_WINDOW_CLOSE:

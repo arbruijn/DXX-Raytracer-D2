@@ -56,6 +56,14 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
+#ifdef RT_DX12
+#include "Core/Arena.h"
+#include "Game/Lights.h"
+#include "RTmaterials.h"
+#include "RTgr.h"
+#include "dx12.h"
+#endif
+
 #define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)
 
 #ifdef EDITOR
@@ -189,6 +197,21 @@ void flash_frame()
 	}
 
 
+#ifdef RT_DX12
+	g_light_multiplier = f2fl(flash_scale);
+	g_pending_light_update = true;
+
+	//Creating different sincos for emissive
+	fix flash_scale_em = 0;
+	fix flash_offset = fl2f(0.90f);
+	fix_fastsincos(flash_ang + flash_offset, &flash_scale_em, NULL);
+	flash_scale_em = (flash_scale_em + f1_0) / 2;
+
+	int lightTexture = PCSharePig ? 774 : 997;
+	RT_Material* material = &g_rt_materials[lightTexture];
+	material->emissive_strength = f2fl(flash_scale_em) * 3.5f;
+	RT_UpdateMaterial(lightTexture, material);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -808,7 +831,9 @@ void render_segment(int segnum, int window_num)
 {
 	segment		*seg = &Segments[segnum];
 	g3s_codes 	cc;
+#ifndef RT_DX12
 	int			sn;
+#endif
 
 	Assert(segnum!=-1 && segnum<=Highest_segment_index);
 
@@ -819,8 +844,10 @@ void render_segment(int segnum, int window_num)
       if (Viewer->type!=OBJ_ROBOT)
   	   	Automap_visited[segnum]=1;
 
+#ifndef RT_DX12
 		for (sn=0; sn<MAX_SIDES_PER_SEGMENT; sn++)
 			render_side(seg, sn);
+#endif
 	}
 
 	//draw any objects that happen to be in this segment
@@ -828,14 +855,13 @@ void render_segment(int segnum, int window_num)
 	//sort objects!
 	//object_sort_segment_objects( seg );
 		
-	#ifndef NDEBUG
+#ifndef NDEBUG && RT_DX12
 	if (!migrate_objects) {
 		int objnum;
 		for (objnum=seg->objects;objnum!=-1;objnum=Objects[objnum].next)
 			do_render_object(objnum, window_num);
 	}
-	#endif
-
+#endif
 }
 
 // ----- This used to be called when Show_only_curside was set.
@@ -1472,7 +1498,7 @@ void build_object_lists(int n_segs)
 				int new_segnum,list_pos;
 
 				obj = &Objects[objnum];
-				
+
 				if (obj->type == OBJ_NONE)
 					continue;
 
@@ -1628,10 +1654,29 @@ void start_lighting_frame(object *viewer);
 #ifdef JOHN_ZOOM
 fix Zoom_factor=F1_0;
 #endif
+#ifdef RT_DX12
+#include "Renderer.h"
+#include "Core/MiniMath.h"
+#include "Game/Level.h"
+#include "rle.h"
+
+static inline RT_Vec3 RT_Vec3FromVmsVector(vms_vector vec)
+{
+	RT_Vec3 result;
+	result.x = f2fl(vec.x);
+	result.y = f2fl(vec.y);
+	result.z = f2fl(vec.z);
+	return result;
+}
+#endif //RT_DX12
+
+#include "globvars.h"
+
 //renders onto current canvas
 void render_frame(fix eye_offset, int window_num)
 {
 	int start_seg_num;
+
 
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
@@ -1689,8 +1734,18 @@ void render_frame(fix eye_offset, int window_num)
 		}
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,fixdiv(Render_zoom,Zoom_factor));
 #else
+#ifdef RT_DX12
+		if (!g_rt_free_cam_info.g_free_cam_enabled) {
+			g3_set_view_matrix(&Viewer_eye, &Viewer->orient, Render_zoom);
+		}
+		else {
+			g3_set_view_matrix(&Viewer_eye, &Objects[g_rt_free_cam_info.g_free_cam_obj].orient, Render_zoom);
+		}
+#else
 		g3_set_view_matrix(&Viewer_eye,&Viewer->orient,Render_zoom);
 #endif
+	#endif
+
 	}
 
 	if (Clear_window == 1) {
@@ -1703,13 +1758,127 @@ void render_frame(fix eye_offset, int window_num)
 		gr_clear_canvas(Clear_window_color);
 	#endif
 
+#ifdef RT_DX12
+
+	RT_SceneSettings scene_settings = { 0 };
+	RT_Vec3 object_pos;
+
+	if (!g_rt_free_cam_info.g_free_cam_enabled) {
+		//Setup main camera
+		object_pos = RT_Vec3FromVmsVector(Viewer->pos);
+		g_cam.position = object_pos;
+		
+		//We just take the real view matrix and not the viewer's one. Since the view matrix gets properly used and changed.
+		g_cam.up = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.uvec));
+		g_cam.forward = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.fvec));
+		g_cam.right = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.rvec));
+		
+		//We still keep this code incase anything breaks due to the camera.
+		//g_cam.up = RT_Vec3FromVmsVector(Viewer->orient.uvec);
+		//g_cam.forward = RT_Vec3FromVmsVector(Viewer->orient.fvec);
+		//g_cam.right = RT_Vec3FromVmsVector(Viewer->orient.rvec);
+
+		scene_settings.camera = &g_cam;
+	}
+	else {
+		//Setup free cam	
+		object_pos = RT_Vec3FromVmsVector(Objects[g_rt_free_cam_info.g_free_cam_obj].pos);
+		g_free_cam.position = object_pos;
+
+		g_free_cam.up = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.uvec));
+		g_free_cam.forward = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.fvec));
+		g_free_cam.right = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.rvec));
+		scene_settings.camera = &g_free_cam;
+	}
+
+	scene_settings.render_width_override = Screen_3d_window.cv_bitmap.bm_w;
+	scene_settings.render_height_override = Screen_3d_window.cv_bitmap.bm_h;
+	RT_BeginScene(&scene_settings);
+
+	// Player light
+	{
+		// NOTE(daniel): These would be great tweakables for an ImGui menu.
+		float pos_offset_horz = 3.0f;
+		float pos_offset_vert = -2.0f;
+		float skew_horz = 0.12f;
+		float skew_vert = 0.06f;
+		RT_Vec3  light_pos_left = RT_Vec3Add3(object_pos, RT_Vec3Muls(g_cam.right, -pos_offset_horz), RT_Vec3Muls(g_cam.up, pos_offset_vert));
+		RT_Vec3  light_pos_right = RT_Vec3Add3(object_pos, RT_Vec3Muls(g_cam.right, +pos_offset_horz), RT_Vec3Muls(g_cam.up, pos_offset_vert));
+		RT_Vec3  light_dir_left = RT_Vec3Normalize(RT_Vec3Add3(g_cam.forward, RT_Vec3Muls(g_cam.right, +0.1f), RT_Vec3Muls(g_cam.up, skew_vert)));
+		RT_Vec3  light_dir_right = RT_Vec3Normalize(RT_Vec3Add3(g_cam.forward, RT_Vec3Muls(g_cam.right, -0.1f), RT_Vec3Muls(g_cam.up, skew_vert)));
+		RT_Vec3  light_emission = RT_Vec3FromScalar(1.5f);
+		float    light_radius = 0.05f;
+		float    light_spot_angle = 0.05f;
+		float    light_spot_softness = 0.05f;
+		RT_RaytraceSubmitLight(RT_MakeSphericalSpotlight(light_emission, light_pos_left, light_dir_left, light_radius,
+			light_spot_angle, light_spot_softness, 0.6f));
+		RT_RaytraceSubmitLight(RT_MakeSphericalSpotlight(light_emission, light_pos_right, light_dir_right, light_radius,
+			light_spot_angle, light_spot_softness, 0.6f));
+	}
+
+	RT_RenderPolyModelViewer();
+	RT_RenderMaterialViewer();
+#endif //RT_DX12
+
 	render_mine(start_seg_num, eye_offset, window_num);
+
+#ifdef RT_DX12 // Separated because render_mine submits dynamic lights, which impacts how many level lights we want to send
+
+	RT_RenderLevel(object_pos);
+#endif
 
 	g3_end_frame();
 
    //RenderingType=0;
 
+#ifdef RT_DX12
+	// Draw cockpit mesh
+	if (PlayerCfg.CockpitMode[0] == CM_MODEL_3D) {
+
+		static RT_Mat4 prev_matrix = { .e = {
+			{1.f, 0.f, 0.f, 0.f},
+			{0.f, 1.f, 0.f, 0.f},
+			{0.f, 0.f, 1.f, 0.f},
+			{0.f, 0.f, 0.f, 1.f}
+		} };
+		{
+			// Create model matrix
+			RT_Mat4 mat = RT_Mat4Identity();
+
+			// Apply translation
+			RT_Vec3 position = RT_Vec3Fromvms_vector(&Viewer->pos);
+			mat = RT_Mat4Mul(mat, RT_Mat4FromTranslation(position));
+
+			// Apply rotation
+			RT_Mat4 rot = RT_Mat4Fromvms_matrix(&Viewer->orient);
+			mat = RT_Mat4Mul(mat, RT_Mat4Fromvms_matrix(&Viewer->orient));
+
+			// Apply offset for the cockpit
+			if (Rear_view) {
+				mat = RT_Mat4Mul(mat, RT_Mat4FromXRotation(g_rt_cockpit_settings.back_cockpit_rotation.x));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromYRotation(g_rt_cockpit_settings.back_cockpit_rotation.y));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromZRotation(g_rt_cockpit_settings.back_cockpit_rotation.z));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromTranslation(g_rt_cockpit_settings.back_cockpit_offset));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromScale(g_rt_cockpit_settings.back_cockpit_scale));
+			} else {
+				mat = RT_Mat4Mul(mat, RT_Mat4FromXRotation(g_rt_cockpit_settings.front_cockpit_rotation.x));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromYRotation(g_rt_cockpit_settings.front_cockpit_rotation.y));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromZRotation(g_rt_cockpit_settings.front_cockpit_rotation.z));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromTranslation(g_rt_cockpit_settings.front_cockpit_offset));
+				mat = RT_Mat4Mul(mat, RT_Mat4FromScale(g_rt_cockpit_settings.front_cockpit_scale));
+			}
+
+			// Render mesh
+			RT_DrawGLTF(g_rt_cockpit_settings.cockpit_gltf, mat, prev_matrix);
+			prev_matrix = mat;
+		}
+	}
+
+	RT_EndScene();
+
 	// -- Moved from here by MK, 05/17/95, wrong if multiple renders/frame! FrameCount++;		//we have rendered a frame
+	g_rt_frame_index += 1;
+#endif //RT_DX12
 }
 
 int first_terminal_seg;
@@ -2083,6 +2252,8 @@ void render_mine(int start_seg_num,fix eye_offset, int window_num)
 				Window_clip_bot   = render_windows[nn].bot;
 			}
 
+			// Note(Justin): This will not render a segment in DX12
+			// but it will mark the automap segments as visited
 			render_segment(segnum, window_num);
 			visited[segnum]=255;
 

@@ -33,6 +33,11 @@ void gr_urect(int left,int top,int right,int bot)
 		ogl_urect(left,top,right,bot);
 		return;
 	}
+#elif RT_DX12
+	if (TYPE == BM_OGL) {
+		dx12_urect(left, top, right, bot);
+		return;
+	}
 #else
 	int i;
 
@@ -48,6 +53,11 @@ void gr_rect(int left,int top,int right,int bot)
 #ifdef OGL
 	if (TYPE == BM_OGL) {
 		ogl_urect(left,top,right,bot);
+		return;
+	}
+#elif RT_DX12
+	if (TYPE == BM_OGL) {
+		dx12_urect(left, top, right, bot);
 		return;
 	}
 #endif

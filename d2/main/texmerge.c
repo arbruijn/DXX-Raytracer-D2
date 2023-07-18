@@ -108,6 +108,8 @@ void texmerge_close()
 
 grs_bitmap * texmerge_get_cached_bitmap( int tmap_bottom, int tmap_top )
 {
+	//RT_LOGF(RT_LOGSERVERITY_INFO,"Merging textures: %i and %i", tmap_bottom, tmap_top);
+
 	grs_bitmap *bitmap_top, *bitmap_bottom;
 	int i, orient;
 	int lowest_time_used;

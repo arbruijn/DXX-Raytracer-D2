@@ -804,7 +804,17 @@ int automap_handler(window *wind, d_event *event, automap *am)
 		}
 			
 		case EVENT_WINDOW_DRAW:
+#ifdef RT_DX12
+			RT_BeginFrame();
+			RT_StartImGuiFrame();
+#endif
+
 			draw_automap(am);
+
+#ifdef RT_DX12
+			RT_EndImguiFrame();
+			RT_EndFrame();
+#endif
 			break;
 			
 		case EVENT_WINDOW_CLOSE:

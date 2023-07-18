@@ -425,7 +425,7 @@ int read_player_d2x(char *filename)
 				d_strupr(word);
 			}
 			if (v1 == 0 && v2 == 56 && v3 == 0) // was 0.56.0
-				if (DXX_VERSION_MAJORi != v1 || DXX_VERSION_MINORi != v2 || DXX_VERSION_MICROi != v3) // newer (presumably)
+				if (DXX_VERSION_MAJORi != v1 || DXX_VERSION_MINORi != v2 || D1X_RAYTRACER_VERSION_MICROi != v3) // newer (presumably)
 				{
 					// reset joystick/mouse cycling fields
 					PlayerCfg.KeySettings[2][28] = 255;

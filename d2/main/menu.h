@@ -20,6 +20,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifndef _MENU_H
 #define _MENU_H
 
+extern int do_new_game_menu(void);
 extern int hide_menus(void);
 extern void show_menus(void);
 
@@ -38,8 +39,16 @@ extern int select_demo(void);
 #define MENU_PCX_FULL (HIRESMODE?"menub.pcx":"menu.pcx")
 
 // name of background bitmap
-#define Menu_pcx_name (PHYSFSX_exists(MENU_PCX_FULL,1)?MENU_PCX_FULL:(PHYSFSX_exists(MENU_PCX_OEM,1)?MENU_PCX_OEM:PHYSFSX_exists(MENU_PCX_SHAREWARE,1)?MENU_PCX_SHAREWARE:MENU_PCX_MAC_SHARE))
+#define Menu_pcx_name_org (PHYSFSX_exists(MENU_PCX_FULL,1)?MENU_PCX_FULL:(PHYSFSX_exists(MENU_PCX_OEM,1)?MENU_PCX_OEM:PHYSFSX_exists(MENU_PCX_SHAREWARE,1)?MENU_PCX_SHAREWARE:MENU_PCX_MAC_SHARE))
 #define STARS_BACKGROUND ((HIRESMODE && PHYSFSX_exists("starsb.pcx",1))?"starsb.pcx":PHYSFSX_exists("stars.pcx",1)?"stars.pcx":"starsb.pcx")
+
+#if RT_DX12
+#define Menu_pcx_name (PHYSFSX_exists("assets/splash-logo/MenuRaytraced.png", 1) ? \
+	"assets/splash-logo/MenuRaytraced.png" : \
+	Menu_pcx_name_org
+#else
+#define Menu_pcx_name Menu_pcx_name_org
+#endif
 
 extern char *menu_difficulty_text[];
 extern int Escort_view_enabled;

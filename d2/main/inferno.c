@@ -71,6 +71,7 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "playsave.h"
 #include "collide.h"
 #include "newdemo.h"
+#include "mission.h"
 #include "joy.h"
 #include "../texmap/scanline.h" //for select_tmap -MM
 #include "event.h"
@@ -86,6 +87,10 @@ char copyright[] = "DESCENT II  COPYRIGHT (C) 1994-1996 PARALLAX SOFTWARE CORPOR
 #include "vers_id.h"
 #ifdef USE_UDP
 #include "net_udp.h"
+#endif
+
+#if defined(RT_DX12)
+#include "Core/Arena.h"
 #endif
 
 //Current version number
@@ -303,18 +308,20 @@ int main(int argc, char *argv[])
 #ifdef __LINUX__
 	error_init(NULL);
 #else
-	error_init(msgbox_error);
-	set_warn_func(msgbox_warning);
+	//error_init(msgbox_error);
+	//set_warn_func(msgbox_warning);
 #endif
 	PHYSFSX_init(argc, argv);
+	RT_LOG_INIT(RT_FILTERFLAG_ALL);
 	con_init();  // Initialise the console
 
 	setbuf(stdout, NULL); // unbuffered output via printf
+#ifndef SHIPPING_BUILD
 #ifdef _WIN32
 	freopen( "CON", "w", stdout );
 	freopen( "CON", "w", stderr );
 #endif
-
+#endif //SHIPPING_BUILD
 	if (GameArg.SysShowCmdHelp) {
 		print_commandline_help();
 
@@ -334,7 +341,7 @@ int main(int argc, char *argv[])
 #define DXX_HOGFILE_NAMES	"descent2.hog or d2demo.hog"
 #if defined(__unix__) && !defined(__APPLE__)
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
-			      "\t$HOME/.d" DXX_NAME_NUMBER "x-rebirth\n"	\
+			      "\t$HOME/.d" DXX_NAME_NUMBER "x-raytracer\n"	\
 			      "\t" SHAREPATH "\n"
 #else
 #define DXX_HOGFILE_PROGRAM_DATA_DIRECTORY	\
@@ -391,8 +398,9 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "Initializing movie libraries...\n" );
 	init_movies();		//init movie libraries
 
+#ifndef QUICK_START
 	show_titles();
-
+#endif
 	set_screen_mode(SCREEN_MENU);
 
 	con_printf( CON_DEBUG, "\nDoing gamedata_init..." );
@@ -465,6 +473,10 @@ int main(int argc, char *argv[])
 		Game_mode = GM_GAME_OVER;
 		DoMenu();
 	}
+
+#ifdef QUICK_START
+	select_mission(0, "New Game\n\nSelect mission", do_new_game_menu);
+#endif //QUICK_START
 
 	setjmp(LeaveEvents);
 	while (window_get_front())

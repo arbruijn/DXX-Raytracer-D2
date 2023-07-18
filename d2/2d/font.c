@@ -771,7 +771,12 @@ int ogl_internal_string(int x, int y, const char *s )
 }
 
 int gr_internal_color_string(int x, int y, const char *s ){
+#ifdef RT_DX12
+	return dx12_internal_string(x, y, s);
+#endif
+#ifdef OGL
 	return ogl_internal_string(x,y,s);
+#endif
 }
 #endif //OGL
 
@@ -813,6 +818,10 @@ int gr_string(int x, int y, const char *s )
 	}
 
 	// Partially clipped...
+#ifdef RT_DX12
+	if (TYPE == BM_OGL)
+		return dx12_internal_string(x, y, s);
+#endif
 #ifdef OGL
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
@@ -829,6 +838,10 @@ int gr_string(int x, int y, const char *s )
 
 int gr_ustring(int x, int y, const char *s )
 {
+#ifdef RT_DX12
+	if (TYPE==BM_OGL)
+		return dx12_internal_string(x, y, s);
+#endif
 #ifdef OGL
 	if (TYPE==BM_OGL)
 		return ogl_internal_string(x,y,s);
@@ -1009,6 +1022,7 @@ grs_font * gr_init_font( const char * fontname )
 		first_time=0;
 	}
 
+
 	//find free font slot
 	for (fontnum=0;fontnum<MAX_OPEN_FONTS && open_font[fontnum].ptr!=NULL;fontnum++);
 	Assert(fontnum<MAX_OPEN_FONTS);	//did we find one?
@@ -1021,7 +1035,6 @@ grs_font * gr_init_font( const char * fontname )
 		con_printf(CON_VERBOSE, "Can't open font file %s\n", fontname);
 		return NULL;
 	}
-
 	PHYSFS_read(fontfile, file_id, 4, 1);
 	if (memcmp( file_id, "PSFN", 4 )) {
 		con_printf(CON_NORMAL, "File %s is not a font file\n", fontname);
@@ -1093,6 +1106,9 @@ grs_font * gr_init_font( const char * fontname )
 	grd_curcanv->cv_font_fg_color    = 0;
 	grd_curcanv->cv_font_bg_color    = 0;
 
+#ifdef RT_DX12
+	dx12_init_font(font);
+#endif
 #ifdef OGL
 	ogl_init_font(font);
 #endif

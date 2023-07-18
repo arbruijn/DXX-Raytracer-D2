@@ -24,6 +24,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "dxxerror.h"
 #include "byteswap.h"
+
+#ifdef RT_DX12
+#include "dx12.h"
+#endif
+
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -365,6 +370,11 @@ void gr_bm_ubitblt(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * sr
 	}
 #endif
 
+#ifdef RT_DX12
+	dx12_ubitblt(w, h, dx, dy, w, h, sx, sy, src, dest, 0);
+	return;
+#endif
+
 	if ( (src->bm_flags & BM_FLAG_RLE ) && (src->bm_type == BM_LINEAR) )	{
 		gr_bm_ubitblt0x_rle(w, h, dx, dy, sx, sy, src, dest);
 	 	return;
@@ -602,14 +612,16 @@ void show_fullscr(grs_bitmap *bm)
 {
 	grs_bitmap * const scr = &grd_curcanv->cv_bitmap;
 
-#ifdef OGL
+#ifdef RT_DX12
+	dx12_ubitmapm_cs(0, 0, -1, -1, bm, -1, F1_0);
+#elif OGL
 	if(bm->bm_type == BM_LINEAR && scr->bm_type == BM_OGL &&
 		bm->bm_w <= grd_curscreen->sc_w && bm->bm_h <= grd_curscreen->sc_h) // only scale with OGL if bitmap is not bigger than screen size
 	{
 		ogl_ubitmapm_cs(0,0,-1,-1,bm,-1,F1_0);//use opengl to scale, faster and saves ram. -MPM
 		return;
 	}
-#endif
+#elif
 	if(scr->bm_type != BM_LINEAR) {
 		grs_bitmap *tmp = gr_create_bitmap(scr->bm_w, scr->bm_h);
 		gr_bitmap_scale_to(bm, tmp);
@@ -618,6 +630,7 @@ void show_fullscr(grs_bitmap *bm)
 		return;
 	}
 	gr_bitmap_scale_to(bm, scr);
+#endif
 }
 
 // Find transparent area in bitmap

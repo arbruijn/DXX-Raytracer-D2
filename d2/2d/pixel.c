@@ -33,6 +33,10 @@ void gr_upixel( int x, int y )
 	case BM_OGL:
 		ogl_upixelc(x,y,COLOR);
 		return;
+#elif RT_DX12
+	case BM_OGL:
+		dx12_upixelc(x, y, COLOR);
+		return;
 #endif
 	case BM_LINEAR:
 		DATA[ ROWSIZE*y+x ] = COLOR;
@@ -53,6 +57,10 @@ static inline void gr_bm_upixel( grs_bitmap * bm, int x, int y, unsigned char co
 #ifdef OGL
 	case BM_OGL:
 		ogl_upixelc(bm->bm_x+x,bm->bm_y+y,color);
+		return;
+#elif RT_DX12
+	case BM_OGL:
+		dx12_upixelc(bm->bm_x + x, bm->bm_y + y, color);
 		return;
 #endif
 	case BM_LINEAR:

@@ -328,12 +328,17 @@ void morph_start(object *obj)
 
 }
 
-void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb light,morph_data *md)
+void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 {
 	int i,mn;
 	int facing;
 	int sort_list[MAX_SUBMODELS],sort_n;
+	polymodel* pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 
+#ifdef RT_DX12
+	RT_DrawPolyModelTree(obj->rtype.pobj_info.model_num, obj->signature, obj->type, &obj->pos, &obj->orient, &obj->rtype.pobj_info.anim_angles);
+	return;
+#endif //RT_DX12
 
 	//first, sort the submodels
 
@@ -372,6 +377,7 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb 
 
 		mn = sort_list[i];
 
+		// note(lily): the first item in the submodel is the one that will be drawn, the rest is all submodels of that first model...
 		if (mn == submodel_num) {
  			int i;
 
@@ -394,18 +400,19 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb 
 			// Make sure that they can all fit in memory.
 			Assert( piggy_page_flushed == 0 );
 
-			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]],texture_list,anim_angles,light,&md->morph_vecs[md->submodel_startpoints[submodel_num]]);
+			g3_draw_morphing_model(&pm->model_data[pm->submodel_ptrs[submodel_num]], texture_list, obj->rtype.pobj_info.anim_angles, light, &md->morph_vecs[md->submodel_startpoints[submodel_num]]);
 
 		}
+		//...which we recursively render here, applying its local matrix recursively as well
 		else {
 
 			vms_matrix orient;
 
-			vm_angles_2_matrix(&orient,&anim_angles[mn]);
+			vm_angles_2_matrix(&orient, &obj->rtype.pobj_info.anim_angles[mn]);
 
 			g3_start_instance_matrix(&pm->submodel_offsets[mn],&orient);
 
-			draw_model(pm,mn,anim_angles,light,md);
+			draw_model(obj, mn, light, md);
 
 			g3_done_instance();
 
@@ -417,7 +424,6 @@ void draw_model(polymodel *pm,int submodel_num,vms_angvec *anim_angles,g3s_lrgb 
 void draw_morph_object(object *obj)
 {
 //	int save_light;
-	polymodel *po;
 	g3s_lrgb light;
 	morph_data *md;
 
@@ -426,14 +432,12 @@ void draw_morph_object(object *obj)
 
 	Assert(obj->rtype.pobj_info.model_num < N_polygon_models);
 
-	po=&Polygon_models[obj->rtype.pobj_info.model_num];
-
 	light = compute_object_light(obj,NULL);
 
 	g3_start_instance_matrix(&obj->pos,&obj->orient);
 	g3_set_interp_points(robot_points);
 
-	draw_model(po,0,obj->rtype.pobj_info.anim_angles,light,md);
+	draw_model(obj,0,light,md);
 
 	g3_done_instance();
 

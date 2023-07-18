@@ -43,6 +43,11 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "ogl_init.h"
 #endif
 
+#ifdef RT_DX12
+#include "RTgr.h"
+#include "RTmaterials.h"
+#endif //RT_DX12
+
 polymodel Polygon_models[MAX_POLYGON_MODELS];	// = {&bot11,&bot17,&robot_s2,&robot_b2,&bot11,&bot17,&robot_s2,&robot_b2};
 
 int N_polygon_models = 0;
@@ -509,7 +514,7 @@ bitmap_index texture_list_index[MAX_POLYOBJ_TEXTURES];
 
 //draw a polygon model
 
-void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,fix *glow_values,bitmap_index alt_textures[])
+void draw_polygon_model(_RT_DRAW_POLY vms_vector* pos, vms_matrix* orient, vms_angvec* anim_angles, int model_num, int flags, g3s_lrgb light, fix* glow_values, bitmap_index alt_textures[])
 {
 	polymodel *po;
 	int i;
@@ -539,6 +544,7 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 
 	if (alt_textures)
    {
+		// TODO(daniel): When do these alt textures get used? Our renderer doesn't currently support anything like this.
 		for (i=0;i<po->n_textures;i++)	{
 			texture_list_index[i] = alt_textures[i];
 			texture_list[i] = &GameBitmaps[alt_textures[i].index];
@@ -571,9 +577,15 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 	g3_set_interp_points(robot_points);
 
 	if (flags == 0)		//draw entire object
-
+	{
+#ifndef RT_DX12
 		g3_draw_polygon_model(po->model_data,texture_list,anim_angles,light,glow_values);
+#else
+		//RT_DrawPolyModel(model_num, objNum, object_type, pos, orient);
 
+		RT_DrawPolyModelTree(model_num, signature, object_type, pos, orient, anim_angles);
+#endif //RT_DX12
+	}
 	else {
 		int i;
 	
@@ -589,7 +601,31 @@ void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angl
 				vm_vec_negate(&ofs);
 				g3_start_instance_matrix(&ofs,NULL);
 	
+#ifndef RT_DX12
 				g3_draw_polygon_model(&po->model_data[po->submodel_ptrs[i]],texture_list,anim_angles,light,glow_values);
+#else
+				// Get matrix from local position offset
+				const vms_vector offset_vms = *pos;
+				const RT_Vec3 offset_vec3 = RT_Vec3Fromvms_vector(&offset_vms);
+				RT_Mat4 offset_mat4 = RT_Mat4FromTranslation(offset_vec3);
+
+				// Get matrix from rotation offset
+				RT_Mat4 rotation_mat4 = RT_Mat4Fromvms_matrix(orient);
+
+				// Combine them into one big matrix
+				RT_Mat4 combined_matrix = RT_Mat4Mul(offset_mat4, rotation_mat4);
+				// RT_Mat4 prev_transform = g_rt_prev_submodel_transforms[objNum].transforms[i];
+
+				RT_RenderKey key =
+				{
+					.signature      = signature,
+					.submodel_index = i,
+				};
+
+				RT_DrawSubPolyModel(po->submodel[i], &combined_matrix, key);
+
+				// g_rt_prev_submodel_transforms[objNum].transforms[i] = combined_matrix;
+#endif //RT_DX12
 	
 				g3_done_instance();
 			}	
@@ -735,13 +771,25 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	g3_start_frame();
 	g3_set_view_matrix(&temp_pos,&temp_orient,0x9000);
 
+#ifndef RT_DX12
 	if (Polygon_models[mn].rad != 0)
 		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST,Polygon_models[mn].rad,BASE_MODEL_SIZE);
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	vm_angles_2_matrix(&temp_orient, orient_angles);
-	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
+	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL,OBJ_NONE);
+#else
+
+
+	if (Polygon_models[mn].rad != 0)
+		temp_pos.z = fixmuldiv(DEFAULT_VIEW_DIST, Polygon_models[mn].rad, BASE_MODEL_SIZE);
+	else
+		temp_pos.z = DEFAULT_VIEW_DIST;
+	vm_angles_2_matrix(&temp_orient, orient_angles);
+	draw_polygon_model(0, 2, &temp_pos, &temp_orient, NULL, mn, 0, lrgb, NULL, NULL, OBJ_NONE);
+#endif //RT_DX12
+
 	g3_end_frame();
 }
 

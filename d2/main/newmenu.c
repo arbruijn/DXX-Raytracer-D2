@@ -1505,6 +1505,8 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 
 	switch (event->type)
 	{
+		int state = 0;
+
 		case EVENT_WINDOW_ACTIVATED:
 			game_flush_inputs();
 			event_toggle_focus(0);
@@ -1536,7 +1538,18 @@ int newmenu_handler(window *wind, d_event *event, newmenu *menu)
 			break;
 
 		case EVENT_WINDOW_DRAW:
-			return newmenu_draw(wind, menu);
+#ifdef RT_DX12
+			RT_BeginFrame();
+			RT_StartImGuiFrame();
+#endif
+
+			state = newmenu_draw(wind, menu);
+
+#ifdef RT_DX12
+			RT_EndImguiFrame();
+			RT_EndFrame();
+#endif
+			return state;
 			break;
 
 		case EVENT_WINDOW_CLOSE:

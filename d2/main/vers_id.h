@@ -6,15 +6,13 @@
 #define __stringize2(X)	#X
 #define __stringize(X)	__stringize2(X)
 
-#define RH_VERSION "1.4.X3"
-
-#define D2XMAJOR __stringize(DXX_VERSION_MAJORi)
-#define D2XMINOR __stringize(DXX_VERSION_MINORi)
-#define D2XMICRO __stringize(DXX_VERSION_MICROi)
+#define D1X_RAYTRACER_VERSION_MAJOR __stringize(D1X_RAYTRACER_VERSION_MAJORi)
+#define D1X_RAYTRACER_VERSION_MINOR __stringize(D1X_RAYTRACER_VERSION_MINORi)
+#define D1X_RAYTRACER_VERSION_MICRO __stringize(D1X_RAYTRACER_VERSION_MICROi)
 
 #define BASED_VERSION "Full Version v1.2"
-#define VERSION D2XMAJOR "." D2XMINOR "." D2XMICRO
-#define DESCENT_VERSION "D2X Retro " RH_VERSION 
+#define VERSION D1X_RAYTRACER_VERSION_MAJOR "." D1X_RAYTRACER_VERSION_MINOR "." D1X_RAYTRACER_VERSION_MICRO
+#define DESCENT_VERSION "D1X Raytracer " VERSION
 
 extern const char g_descent_version[40];
 extern const char g_descent_build_datetime[21];

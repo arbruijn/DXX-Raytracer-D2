@@ -36,7 +36,7 @@ void g3_set_special_render(tmap_drawer_type tmap_drawer,flat_drawer_type flat_dr
 	flat_drawer_ptr = (flat_drawer)?flat_drawer:gr_upoly_tmap;
 	line_drawer_ptr = (line_drawer)?line_drawer:gr_line;
 }
-#ifndef OGL
+#if !defined(OGL) && !defined(RT_DX12)
 //deal with a clipped line
 bool must_clip_line(g3s_point *p0,g3s_point *p1,ubyte codes_or)
 {
@@ -335,7 +335,7 @@ free_points:
 int checkmuldiv(fix *r,fix a,fix b,fix c);
 #endif
 
-#ifndef OGL
+#if !defined(OGL) && !defined(RT_DX12)
 //draw a sortof sphere - i.e., the 2d radius is proportional to the 3d
 //radius, but not to the distance from the eye
 int g3_draw_sphere(g3s_point *pnt,fix rad)

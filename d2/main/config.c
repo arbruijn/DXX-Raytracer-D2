@@ -102,23 +102,25 @@ int ReadConfigFile()
 	GameCfg.GammaLevel = 0;
 	memset(GameCfg.LastPlayer,0,CALLSIGN_LEN+1);
 	memset(GameCfg.LastMission,0,MISSION_NAME_LEN+1);
-	GameCfg.ResolutionX = 640;
-	GameCfg.ResolutionY = 480;
-	GameCfg.AspectX = 3;
-	GameCfg.AspectY = 4;
-	GameCfg.WindowMode = 0;
+	GameCfg.ResolutionX = BASE_SCREEN_SIZE_X;
+	GameCfg.ResolutionY = BASE_SCREEN_SIZE_Y;
+	GameCfg.AspectX = BASE_SCREEN_ASPECT_X;
+	GameCfg.AspectY = BASE_SCREEN_ASPECT_Y;
+	GameCfg.WindowMode = BASE_SCREEN_WINDOWED;
 	GameCfg.TexFilt = 0;
 	GameCfg.MovieTexFilt = 0;
 	GameCfg.MovieSubtitles = 0;
 	GameCfg.VSync = 0;
 	GameCfg.Multisample = 0;
-	GameCfg.FPSIndicator = 0;
+	GameCfg.FPSIndicator = BASE_FPS_INDICATOR;
 	GameCfg.Grabinput = 1;
 
 
 	infile = PHYSFSX_openReadBuffered("descent.cfg");
 
 	if (infile == NULL) {
+		if (GameCfg.ResolutionX >= 320 && GameCfg.ResolutionY >= 200)
+			Game_screen_mode = SM(GameCfg.ResolutionX, GameCfg.ResolutionY);
 		return 1;
 	}
 

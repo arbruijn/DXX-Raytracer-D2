@@ -898,7 +898,13 @@ int state_save_all_sub(char *filename, char *desc)
 
 		gr_set_current_canvas( cnv );
 
+#ifdef RT_DX12
+		// Note(Justin): Commented this out temporarily since this crashes a save game (sometimes)
+		// due to race conditions between CPU and GPU (EndScene constant buffer data setting)
+		//render_frame(0, 0);
+#else
 		render_frame(0, 0);
+#endif
 
 #if defined(OGL)
 		buf = d_malloc(THUMBNAIL_W * THUMBNAIL_H * 4);

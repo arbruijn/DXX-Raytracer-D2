@@ -25,6 +25,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fix.h"
 #include "event.h"
 
+// Uncomment this line to enable key logging.
+//#define RT_KEY_LOG 
+
 #define KEY_BUFFER_SIZE 16
 #define KEY_REPEAT_DELAY 400
 #define KEY_REPEAT_INTERVAL 50

@@ -142,7 +142,12 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 					songs_set_volume(curvol);
 				}
 			}
-			
+
+#ifdef RT_DX12
+			RT_BeginFrame();
+			RT_StartImGuiFrame();
+#endif
+
 			y = cr->first_line_offset - cr->row;
 			show_fullscr(&cr->backdrop);
 			for (j=0; j<NUM_LINES; j++ )	{
@@ -176,6 +181,12 @@ int credits_handler(window *wind, d_event *event, credits *cr)
 			cr->row += SHEIGHT/200;
 			if (cr->row >= ROW_SPACING)
 				cr->row = 0;
+
+#ifdef RT_DX12
+			RT_EndImguiFrame();
+			RT_EndFrame();
+#endif
+
 			break;
 
 		case EVENT_WINDOW_CLOSE:

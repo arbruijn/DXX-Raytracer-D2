@@ -101,6 +101,12 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "editor/esegment.h"
 #endif
 
+#ifdef RT_DX12
+#include "polymodel_viewer.h"
+#include "globvars.h"
+#include "Game/Lights.h"
+#endif
+
 
 #ifndef NDEBUG
 int	Mark_count = 0;                 // number of debugging marks set
@@ -180,8 +186,98 @@ void reset_palette_add()
 
 u_int32_t Game_screen_mode = SM(640,480);
 
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif
+
+// Takes the input, and transforms it from range [i1, i2] to [o1, o2]
+float remap(const float input, const float i1, const float i2, const float o1, const float o2) {
+    const float input_ratio = (input - i1) / (i2 - i1);
+    const float output = (input_ratio * (o2 - o1)) + o1;
+    return output;
+}
+
 //initialize the various canvases on the game screen
 //called every time the screen mode or cockpit changes
+#ifdef RT_DX12
+void init_cockpit()
+{
+    //Initialize the on-screen canvases
+
+    if (Screen_mode != SCREEN_GAME)
+        return;
+
+    if (Screen_mode == SCREEN_EDITOR)
+        PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
+
+    RT_RendererIO* t_IO = RT_GetRendererIO();
+    t_IO->scene_transition = true;
+	t_IO->debug_line_depth_enabled = true;
+
+    gr_set_current_canvas(NULL);
+
+    switch (PlayerCfg.CockpitMode[1]) {
+    case CM_FULL_COCKPIT:
+    {
+        float height = (SHEIGHT * 2) / 3;
+        height = -remap(height / 2.0f, 0.0f, SHEIGHT, -0.5f, +0.5f);
+        RT_RaytraceSetVerticalOffset(height); // Apply the offset
+        game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT); // But render the entire screen still
+        break;
+    }
+
+    case CM_REAR_VIEW:
+    {
+        int x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT * 2) / 3;
+        grs_bitmap* bm;
+
+        float height = ((y2 / (float)SHEIGHT) * 2.0f - 1.0f); // This will convert it to an offset relative to the center in normalized space
+        height = -remap(height / 2.0f, 0.0f, SHEIGHT, -0.5f, +0.5f);
+		RT_RaytraceSetVerticalOffset(height); // Apply the offset
+        game_init_render_sub_buffers(0, 0, x2, SHEIGHT); // But render the entire screen still
+        break;
+    }
+    case CM_FULL_SCREEN:
+        game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
+		RT_RaytraceSetVerticalOffset(0.0f);
+        break;
+
+    case CM_STATUS_BAR:
+    {
+        float height = (HIRESMODE ? ((float)SHEIGHT * 2.0f) / 2.6f : ((float)SHEIGHT * 2.0f) / 2.72f); // Height of the viewport in pixels, straight copy-paste from the opengl version
+        height = -remap(height / 2.0f, 0.0f, SHEIGHT, -0.5f, +0.5f);
+		RT_RaytraceSetVerticalOffset(height); // Apply the offset
+        game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT); // But render the entire screen still
+        break;
+    }
+
+    case CM_LETTERBOX:
+    {
+        int x, y, w, h;
+
+        x = 0; w = SM_W(Game_screen_mode);
+        h = (SM_H(Game_screen_mode) * 3) / 4; // true letterbox size (16:9)
+        y = (SM_H(Game_screen_mode) - h) / 2;
+
+        gr_rect(x, 0, w, SM_H(Game_screen_mode) - h);
+        gr_rect(x, SM_H(Game_screen_mode) - h, w, SM_H(Game_screen_mode));
+
+        game_init_render_sub_buffers(x, y, w, h);
+		RT_RaytraceSetVerticalOffset(0.0f);
+        break;
+    }
+    case CM_MODEL_3D:
+        game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
+        float height = (SHEIGHT * 2) / 3;
+        height = -remap(height / 2.0f, 0.0f, SHEIGHT, -0.5f, +0.5f);
+		RT_RaytraceSetVerticalOffset(height); // Apply the offset
+        game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT); // But render the entire screen still
+        break;
+    }
+
+    gr_set_current_canvas(NULL);
+}
+#else
 void init_cockpit()
 {
 	//Initialize the on-screen canvases
@@ -192,7 +288,7 @@ void init_cockpit()
 	if ( Screen_mode == SCREEN_EDITOR )
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 
-#ifndef OGL
+#if !defined(OGL) && !defined(RT_DX12)
 	if ( Game_screen_mode != (GameArg.GfxHiresGFXAvailable? SM(640,480) : SM(320,200)) && PlayerCfg.CockpitMode[1] != CM_LETTERBOX) {
 		PlayerCfg.CockpitMode[1] = CM_FULL_SCREEN;
 	}
@@ -237,10 +333,14 @@ void init_cockpit()
 			game_init_render_sub_buffers( x, y, w, h );
 			break;
 		}
+        case CM_MODEL_3D:
+            game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT);
+            break;
 	}
 
 	gr_set_current_canvas(NULL);
 }
+#endif
 
 //selects a given cockpit (or lack of one).  See types in game.h
 void select_cockpit(int mode)
@@ -444,7 +544,7 @@ void move_player_2_segment(segment *seg,int side)
 void do_photos();
 void level_with_floor();
 
-#ifndef OGL
+#if !defined(OGL) && !defined(RT_DX12)
 void save_screen_shot(int automap_flag)
 {
 	grs_canvas *screen_canv=&grd_curscreen->sc_canvas;
@@ -484,7 +584,6 @@ void save_screen_shot(int automap_flag)
 
 	start_time();
 }
-
 #endif
 
 //initialize flying
@@ -1037,6 +1136,12 @@ window *game_setup(void)
 	init_gauges();
 	netplayerinfo_on = 0;
 
+#ifdef RT_DX12
+	g_light_multiplier = g_light_multiplier_default; //Needs to be changed to RTconfig
+	g_pending_light_update = true;
+	RT_ResetLightEmission();
+#endif
+
 #ifdef EDITOR
 	if (!Cursegp)
 	{
@@ -1095,7 +1200,7 @@ int game_handler(window *wind, d_event *event, void *data)
 
 			if (!((Game_mode & GM_MULTI) && (Newdemo_state != ND_STATE_PLAYBACK)))
 				palette_restore();
-			
+
 			reset_cockpit();
 			break;
 
@@ -1131,6 +1236,11 @@ int game_handler(window *wind, d_event *event, void *data)
 				GameProcessFrame();
 			}
 
+#ifdef RT_DX12
+			RT_BeginFrame();
+			RT_StartImGuiFrame();
+#endif
+
 			if (!Automap_active)		// efficiency hack
 			{
 				if (force_cockpit_redraw) {			//screen need redrawing?
@@ -1139,11 +1249,21 @@ int game_handler(window *wind, d_event *event, void *data)
 				}
 				game_render_frame();
 			}
+
+#ifdef RT_DX12
+			RT_EndImguiFrame();
+			RT_EndFrame();
+#endif
 			break;
 
 		case EVENT_WINDOW_CLOSE:
 			digi_stop_digi_sounds();
+#ifdef RT_DX12
+			g_rt_enable_debug_menu = false;
 
+			if (g_rt_free_cam_info.g_free_cam_enabled)
+				RT_DisableFreeCam();
+#endif
 			if ( (Newdemo_state == ND_STATE_RECORDING) || (Newdemo_state == ND_STATE_PAUSED) )
 				newdemo_stop_recording();
 
@@ -1269,6 +1389,13 @@ void GameProcessFrame(void)
 {
 	fix player_shields = Players[Player_num].shields;
 	int player_was_dead = Player_is_dead;
+
+#ifdef RT_DX12
+	if (g_rt_free_cam_info.g_free_cam_enabled) {
+		object_move_one(&Objects[g_rt_free_cam_info.g_free_cam_obj]);
+		return;
+	}
+#endif
 
 	update_player_stats();
 	diminish_palette_towards_normal();		//	Should leave palette effect up for as long as possible by putting right before render.

@@ -106,8 +106,11 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 	event.type = (mbe->state == SDL_PRESSED) ? EVENT_MOUSE_BUTTON_DOWN : EVENT_MOUSE_BUTTON_UP;
 	event.button = button;
 	
+	#ifdef RT_MOUSE_LOG
 	con_printf(CON_DEBUG, "Sending event %s, button %d, coords %d,%d,%d\n",
 			   (mbe->state == SDL_PRESSED) ? "EVENT_MOUSE_BUTTON_DOWN" : "EVENT_MOUSE_BUTTON_UP", event.button, Mouse.x, Mouse.y, Mouse.z);
+	#endif // RT_MOUSE_LOG
+
 	event_send((d_event *)&event);
 	
 	//Double-click support
@@ -117,8 +120,11 @@ void mouse_button_handler(SDL_MouseButtonEvent *mbe)
 		{
 			event.type = EVENT_MOUSE_DOUBLE_CLICKED;
 			//event.button = button; // already set the button
+			#ifdef RT_MOUSE_LOG
 			con_printf(CON_DEBUG, "Sending event EVENT_MOUSE_DOUBLE_CLICKED, button %d, coords %d,%d\n",
 					   event.button, Mouse.x, Mouse.y);
+			#endif // RT_MOUSE_LOG
+
 			event_send((d_event *)&event);
 		}
 
@@ -243,6 +249,9 @@ void mouse_toggle_cursor(int activate)
 		SDL_ShowCursor(SDL_DISABLE);
 }
 
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif RT_DX12
 // If we want to display/hide cursor, do so if not already and also hide it automatically after some time.
 void mouse_cursor_autohide()
 {
@@ -259,6 +268,12 @@ void mouse_cursor_autohide()
 			hidden_time = timer_query();
 		}
 	}
+#ifdef RT_DX12
+	else if(g_rt_enable_debug_menu)
+	{
+		SDL_ShowCursor(SDL_ENABLE);
+	}
+#endif RT_DX12
 	else
 	{
 		if (show)

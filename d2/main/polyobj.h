@@ -24,24 +24,56 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "vecmat.h"
 #include "gr.h"
 #include "3d.h"
+#include "rtext.h"
 
 #ifndef DRIVE
 #include "robot.h"
 #endif
 #include "piggy.h"
 
+#ifdef RT_DX12
+// This was including RTgr.h which includes cimgui.h (why!)... Don't do that, especially if you don't need it.
+// Even Renderer.h is superfluous. Only for RT_UploadMeshParams, that hacky array didn't need to be declared
+// in this header. Be mindful of header pollution!
+#include "Renderer.h"
+#endif
+
 #define MAX_POLYGON_MODELS 200
+
+#ifndef DRIVE
+#define MAX_POLYGON_MODELS 85
+#define MAX_SUBMODELS 10
+#else
+#define MAX_POLYGON_MODELS 300
+>>>>>>> theirs
 #define MAX_SUBMODELS 10
 
 //for each model, a model number for dying & dead variants, or -1 if none
 extern int Dying_modelnums[MAX_POLYGON_MODELS];
 extern int Dead_modelnums[MAX_POLYGON_MODELS];
 
+#ifdef RT_DX12
+ // todo(lily): HACK HACK HACK we should 100% delete this once we have raytraced briefing models
+RT_UploadMeshParams meshVerticesRawHack[MAX_POLYGON_MODELS];
+
+typedef struct RT_ModelTree 
+{ // used in submodel rendering
+	int parent_index;
+	int child_indices[10];
+	int n_children;
+} RT_ModelTree;
+
+#endif
+
 //used to describe a polygon model
 typedef struct polymodel {
 	int     n_models;
 	int     model_data_size;
 	ubyte   *model_data;
+#ifdef RT_DX12
+	RT_ResourceHandle submodel[MAX_SUBMODELS];
+	RT_ModelTree model_tree[10]; // used in submodel rendering
+#endif 
 	int     submodel_ptrs[MAX_SUBMODELS];
 	vms_vector submodel_offsets[MAX_SUBMODELS];
 	vms_vector submodel_norms[MAX_SUBMODELS];   // norm for sep plane
@@ -77,7 +109,7 @@ int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures);
 #endif
 
 // draw a polygon model
-void draw_polygon_model(vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb lrgb,fix *glow_values,bitmap_index alt_textures[]);
+void draw_polygon_model(_RT_DRAW_POLY vms_vector *pos,vms_matrix *orient,vms_angvec *anim_angles,int model_num,int flags,g3s_lrgb light,fix *glow_values,bitmap_index alt_textures[]);
 
 // fills in arrays gun_points & gun_dirs, returns the number of guns read
 int read_model_guns(char *filename,vms_vector *gun_points, vms_vector *gun_dirs, int *gun_submodels);
@@ -111,5 +143,6 @@ extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp);
  * routine which allocates, reads, and inits a polymodel's model_data
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
+void polygon_model_data_commit(polymodel* pm);
 
 #endif /* _POLYOBJ_H */

@@ -15,6 +15,9 @@
 #include "gr.h"
 #include "console.h"
 
+// Uncomment this line to enable window logging.
+//#define RT_WINDOW_LOG 
+
 typedef struct window window;
 
 extern window *window_create(grs_canvas *src, int x, int y, int w, int h, int (*event_callback)(window *wind, d_event *event, void *data), void *data);
@@ -33,11 +36,20 @@ extern int window_send_event(window *wind, d_event *event);
 extern void window_set_modal(window *wind, int modal);
 extern int window_is_modal(window *wind);
 
+#ifdef RT_WINDOW_LOG
 #define WINDOW_SEND_EVENT(w, e)	\
 do {	\
 	con_printf(CON_DEBUG, "Sending event %s to window of dimensions %dx%d\n", #e, window_get_canvas(w)->cv_bitmap.bm_w, window_get_canvas(w)->cv_bitmap.bm_h);	\
 	event.type = e;	\
 	window_send_event(w, &event);	\
 } while (0)
+#else
+#define WINDOW_SEND_EVENT(w, e)                                                                                                                                            \
+	do                                                                                                                                                                     \
+	{                                                                                                                                                                      \
+		event.type = e;                                                                                                                                                    \
+		window_send_event(w, &event);                                                                                                                                      \
+	} while (0)
+#endif
 
 #endif

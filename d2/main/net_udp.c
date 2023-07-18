@@ -10,10 +10,12 @@
 
 #define PATCH12
 
+typedef long long ssize_t;
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <sys/time.h>
+#include <time.h>
 
 #include "pstypes.h"
 #include "window.h"
@@ -60,7 +62,35 @@
 #ifdef _WIN32
 #include <Windows.h>
 #include <wincrypt.h>
+#include <WinSock2.h>
 #endif
+
+//// MSVC defines this in winsock2.h!?
+//typedef struct timeval {
+//	long tv_sec;
+//	long tv_usec;
+//} timeval;
+
+int gettimeofday(struct timeval* tp, struct timezone* tzp)
+{
+	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
+	// This magic number is the number of 100 nanosecond intervals since January 1, 1601 (UTC)
+	// until 00:00:00 January 1, 1970 
+	static const uint64_t EPOCH = ((uint64_t)116444736000000000ULL);
+
+	SYSTEMTIME  system_time;
+	FILETIME    file_time;
+	uint64_t    time;
+
+	GetSystemTime(&system_time);
+	SystemTimeToFileTime(&system_time, &file_time);
+	time = ((uint64_t)file_time.dwLowDateTime);
+	time += ((uint64_t)file_time.dwHighDateTime) << 32;
+
+	tp->tv_sec = (long)((time - EPOCH) / 10000000L);
+	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
+	return 0;
+}
 
 // Prototypes
 void net_udp_init();
@@ -588,7 +618,7 @@ int udp_tracker_unregister()
 {
 	// Variables
 	int iLen = 5;
-	ubyte pBuf[iLen];
+	ubyte* pBuf = _alloca(iLen * sizeof(ubyte));
 	
 	// Put the opcode
 	pBuf[0] = TRACKER_PKT_UNREGISTER;
@@ -605,7 +635,7 @@ int udp_tracker_register()
 {
 	// Variables
 	int iLen = 15;
-	ubyte pBuf[iLen];
+	ubyte* pBuf = _alloca(iLen * sizeof(ubyte));
 	
 	// Reset the last tracker message
 	iTrackerVerified = 0;
@@ -626,10 +656,12 @@ int udp_tracker_register()
 	PUT_INTEL_INT( pBuf+5, Netgame.protocol.udp.GameID );
 	
 	// Now, put the game version
-	PUT_INTEL_SHORT( pBuf+9, DXX_VERSION_MAJORi );
-	PUT_INTEL_SHORT( pBuf+11, DXX_VERSION_MINORi );
-	PUT_INTEL_SHORT( pBuf+13, DXX_VERSION_MICROi );
+	PUT_INTEL_SHORT( pBuf+9, D1X_RAYTRACER_VERSION_MAJORi);
+	PUT_INTEL_SHORT( pBuf+11, D1X_RAYTRACER_VERSION_MINORi);
+	PUT_INTEL_SHORT( pBuf+13, D1X_RAYTRACER_VERSION_MICROi);
 	
+
+
 	// Send it off
 	return dxx_sendto( UDP_Socket[2], pBuf, iLen, 0, (struct sockaddr *)&TrackerSocket, sizeof( TrackerSocket ) );
 }
@@ -639,7 +671,7 @@ int udp_tracker_reqgames()
 {
 	// Variables
 	int iLen = 3;
-	ubyte pBuf[iLen];
+	ubyte* pBuf = _malloca(iLen * sizeof(ubyte));
 	
 	// Put the opcode
 	pBuf[0] = TRACKER_PKT_GAMELIST;
@@ -2666,9 +2698,9 @@ void net_udp_send_version_deny(struct _sockaddr sender_addr)
 	ubyte buf[UPID_VERSION_DENY_SIZE];
 	
 	buf[0] = UPID_VERSION_DENY;
-	PUT_INTEL_SHORT(buf + 1, DXX_VERSION_MAJORi);
-	PUT_INTEL_SHORT(buf + 3, DXX_VERSION_MINORi);
-	PUT_INTEL_SHORT(buf + 5, DXX_VERSION_MICROi);
+	PUT_INTEL_SHORT(buf + 1, D1X_RAYTRACER_VERSION_MAJORi);
+	PUT_INTEL_SHORT(buf + 3, D1X_RAYTRACER_VERSION_MINORi);
+	PUT_INTEL_SHORT(buf + 5, D1X_RAYTRACER_VERSION_MICROi);
 	PUT_INTEL_SHORT(buf + 7, MULTI_PROTO_VERSION);
 	
 	dxx_sendto (UDP_Socket[0], buf, sizeof(buf), 0, (struct sockaddr *)&sender_addr, sizeof(struct _sockaddr));
@@ -2689,9 +2721,9 @@ void net_udp_request_game_info(struct _sockaddr game_addr, int lite)
 	
 	buf[0] = (lite?UPID_GAME_INFO_LITE_REQ:UPID_GAME_INFO_REQ);
 	memcpy(&(buf[1]), UDP_REQ_ID, 4);
-	PUT_INTEL_SHORT(buf + 5, DXX_VERSION_MAJORi);
-	PUT_INTEL_SHORT(buf + 7, DXX_VERSION_MINORi);
-	PUT_INTEL_SHORT(buf + 9, DXX_VERSION_MICROi);
+	PUT_INTEL_SHORT(buf + 5, D1X_RAYTRACER_VERSION_MAJORi);
+	PUT_INTEL_SHORT(buf + 7, D1X_RAYTRACER_VERSION_MINORi);
+	PUT_INTEL_SHORT(buf + 9, D1X_RAYTRACER_VERSION_MICROi);
 	if (!lite)
 		PUT_INTEL_SHORT(buf + 11, MULTI_PROTO_VERSION);
 	
@@ -2714,7 +2746,7 @@ int net_udp_check_game_info_request(ubyte *data, int lite)
 	if (memcmp(&sender_id, UDP_REQ_ID, 4))
 		return 0;
 	
-	if ((sender_iver[0] != DXX_VERSION_MAJORi) || (sender_iver[1] != DXX_VERSION_MINORi) || (sender_iver[2] != DXX_VERSION_MICROi) || (!lite && sender_iver[3] != MULTI_PROTO_VERSION))
+	if ((sender_iver[0] != D1X_RAYTRACER_VERSION_MAJORi) || (sender_iver[1] != D1X_RAYTRACER_VERSION_MINORi) || (sender_iver[2] != D1X_RAYTRACER_VERSION_MICROi) || (!lite && sender_iver[3] != MULTI_PROTO_VERSION))
 		return -1;
 		
 	return 1;
@@ -2748,9 +2780,9 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		memset(buf, 0, sizeof(buf));
 		
 		buf[0] = info_upid;								len++;				// 1
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;			// 3
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;			// 5
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;			// 7
+		PUT_INTEL_SHORT(buf + len, D1X_RAYTRACER_VERSION_MAJORi); 						len += 2;			// 3
+		PUT_INTEL_SHORT(buf + len, D1X_RAYTRACER_VERSION_MINORi); 						len += 2;			// 5
+		PUT_INTEL_SHORT(buf + len, D1X_RAYTRACER_VERSION_MICROi); 						len += 2;			// 7
 		PUT_INTEL_INT(buf + len, Netgame.protocol.udp.GameID);				len += 4;			// 11
 		memcpy(&(buf[len]), Netgame.game_name, NETGAME_NAME_LEN+1);			len += (NETGAME_NAME_LEN+1);	
 		memcpy(&(buf[len]), Netgame.mission_title, MISSION_NAME_LEN+1);			len += (MISSION_NAME_LEN+1);
@@ -2784,9 +2816,9 @@ void net_udp_send_game_info(struct _sockaddr sender_addr, ubyte info_upid)
 		memset(buf, 0, sizeof(buf));
 
 		buf[0] = info_upid;								len++;
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MAJORi); 						len += 2;
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MINORi); 						len += 2;
-		PUT_INTEL_SHORT(buf + len, DXX_VERSION_MICROi); 						len += 2;
+		PUT_INTEL_SHORT(buf + len, D1X_RAYTRACER_VERSION_MAJORi); 						len += 2;
+		PUT_INTEL_SHORT(buf + len, D1X_RAYTRACER_VERSION_MINORi); 						len += 2;
+		PUT_INTEL_SHORT(buf + len, D1X_RAYTRACER_VERSION_MICROi); 						len += 2;
 		int to_player = -1; 
 		for (i = 0; i < MAX_PLAYERS+4; i++)
 		{
@@ -2963,7 +2995,7 @@ int net_udp_process_game_info(ubyte *data, int data_len, struct _sockaddr game_a
 		recv_game.program_iver[1] = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		recv_game.program_iver[2] = GET_INTEL_SHORT(&(data[len]));			len += 2;
 		
-		if ((recv_game.program_iver[0] != DXX_VERSION_MAJORi) || (recv_game.program_iver[1] != DXX_VERSION_MINORi) || (recv_game.program_iver[2] != DXX_VERSION_MICROi))
+		if ((recv_game.program_iver[0] != D1X_RAYTRACER_VERSION_MAJORi) || (recv_game.program_iver[1] != D1X_RAYTRACER_VERSION_MINORi) || (recv_game.program_iver[2] != D1X_RAYTRACER_VERSION_MICROi))
 			return 0;
 
 		recv_game.GameID = GET_INTEL_INT(&(data[len]));					len += 4;
@@ -6227,7 +6259,7 @@ void net_udp_send_to_player_proxy(ubyte* data, int data_len, int to_player, int 
 	// Only proxy through direct connections; drop the packet if we try something else
 	if(connection_statuses[through_player].type != DIRECT) { return; }
 
-	ubyte buf[data_len + UPID_PROXY_HEADER_SIZE]; 
+	ubyte* buf = _alloca((data_len + UPID_PROXY_HEADER_SIZE) * sizeof(ubyte));
 	int len = 0;
 
 	buf[len] = UPID_PROXY; len++; 

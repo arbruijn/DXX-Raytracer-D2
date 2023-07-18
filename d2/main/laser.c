@@ -209,11 +209,14 @@ int laser_are_related( int o1, int o2 )
 	return 1;
 }
 
-void do_muzzle_stuff(int segnum, vms_vector *pos)
+void do_muzzle_stuff(int segnum, vms_vector *pos, vms_vector* color)
 {
 	Muzzle_data[Muzzle_queue_index].create_time = timer_query();
 	Muzzle_data[Muzzle_queue_index].segnum = segnum;
 	Muzzle_data[Muzzle_queue_index].pos = *pos;
+#ifdef RT_DX12
+	Muzzle_data[Muzzle_queue_index].RT_muzzleColor = *color;
+#endif RT_DX12
 	Muzzle_queue_index++;
 	if (Muzzle_queue_index >= MUZZLE_QUEUE_MAX)
 		Muzzle_queue_index = 0;
@@ -615,9 +618,11 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 	if ( (weapon_type<0) || (weapon_type>=N_weapon_types) )
 		weapon_type = 0;
 
+#ifndef RT_DX12
 	//	Don't let homing blobs make muzzle flash.
 	if (Objects[parent].type == OBJ_ROBOT)
 		do_muzzle_stuff(segnum, position);
+#endif
 
 	objnum = create_weapon_object(weapon_type,segnum,position);
 
@@ -820,6 +825,31 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	if ((obj->type == OBJ_WEAPON) && (obj->id == FLARE_ID))
 		obj->lifeleft += (d_rand()-16384) << 2;		//	add in -2..2 seconds
+
+
+
+	//	Don't let homing blobs make muzzle flash.
+	if (Objects[parent].type == OBJ_ROBOT || Objects[parent].type == OBJ_PLAYER)
+	{
+		vms_vector lasercolor = {0};
+		polymodel* polyModel = &Polygon_models[obj->rtype.pobj_info.model_num];
+
+			polymodel* po = &Polygon_models[obj->rtype.pobj_info.model_num];
+			if (po->n_textures <= 0)
+			{
+				int color = g3_poly_get_color(po->model_data);
+				if (color)
+				{
+					lasercolor.x = gr_current_pal[color * 3] * 500;
+					lasercolor.y = gr_current_pal[color * 3 + 1] * 500;
+					lasercolor.z = gr_current_pal[color * 3 + 2] * 500;
+				}
+			}
+
+		do_muzzle_stuff(segnum, position, &lasercolor);
+	}
+		
+	
 
 	return objnum;
 }

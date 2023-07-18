@@ -46,6 +46,59 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "rle.h"
 #include "wall.h"
 
+#ifdef RT_DX12
+#include "RTgr.h"
+#include "Game/Lights.h"
+RT_DynamicLightInfo g_rt_dynamic_light_info =
+{
+	.explosionLights = true,
+	.explosionBrightMod = 50.0f,
+	.explosionRadiusMod = 1.0f,
+	.explosionTypeBias = 1.0f,
+
+	.weaponFlareLights = true,
+	.weaponBrightMod = 30.0f,
+	.weaponRadiusMod = 1.0f,
+
+	.muzzleLights = true,
+	.muzzleBrightMod = 250.0f,
+	.muzzleRadiusMod = 1.0f,
+};
+
+//weapon_type_t enum size. We are wasting 8 spaces on this array, 8 * 8 unused memory?
+#define RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET (CONCUSSION_ID)
+RT_WeaponLightAdjusts rt_light_adjusts[RT_LIGHT_ADJUST_ARRAY_SIZE] =
+{
+	{ "CONCUSSION MISSILE", 1.f, 1.f },				//CONCUSSION_ID
+	{ "FLARE", 10.f, 2.f },						//FLARE_ID
+	{ "LASER", 1.f, 1.f },							//LASER_ID
+	{ "VULCAN GUN", 0.1f, 0.1f },					//VULCAN_ID
+	{ "XSPREADFIRE_NOT_USED", 0.8f, 0.8f },			//XSPREADFIRE_ID
+	{ "PLASMA", 1.5f, 1.5f },						//PLASMA_ID
+	{ "FUSION", 2.f, 2.f },							//FUSION_ID
+	{ "HOMING MISSILE", 1.f, 1.f },					//HOMING_ID
+	{ "PROXIMITY MINE", 1.f, 1.f },					//PROXIMITY_ID
+	{ "SMART MISSILE", 1.f, 1.f },					//SMART_ID
+	{ "MEGA MISSILE", 3.f, 3.f },					//MEGA_ID
+	{ "SMART MISSILE PLASMA", 1.f, 1.f },			//PLAYER_SMART_HOMING_ID
+	{ "SPREADFIRE", 0.8f, 0.8f },					//SPREADFIRE_ID
+};
+
+//old way that didn't work, compiler thought rt_light_adjusts was an interger.
+//rt_light_adjusts[CONCUSSION_ID] = { 3.f, 3.f };
+//rt_light_adjusts[FLARE_ID] = { 10.f, 10.f };
+//rt_light_adjusts[LASER_ID] = { 1.f, 1.f };
+//rt_light_adjusts[VULCAN_ID] = { 0.7f, 0.7f };
+//rt_light_adjusts[XSPREADFIRE_ID] = { 0.8f, 0.8f };
+//rt_light_adjusts[PLASMA_ID] = { 1.5f, 1.5f };
+//rt_light_adjusts[FUSION_ID] = { 2.f, 2.f };
+//rt_light_adjusts[HOMING_ID] = { 3.f, 3.f };
+//rt_light_adjusts[PROXIMITY_ID] = { 3.f, 3.f };
+//rt_light_adjusts[SMART_ID] = { 5.f, 5.f };
+//rt_light_adjusts[MEGA_ID] = { 10.f, 10.f };
+
+#endif
+
 int	Do_dynamic_light=1;
 int use_fcd_lighting = 0;
 g3s_lrgb Dynamic_light[MAX_VERTICES];
@@ -197,7 +250,11 @@ void apply_light(g3s_lrgb obj_light_emission, int obj_seg, vms_vector *obj_pos, 
 #define FLASH_SCALE             (3*F1_0/FLASH_LEN_FIXED_SECONDS)
 
 // ----------------------------------------------------------------------------------------------
+#ifndef RT_DX12
 void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, int *vert_segnum_list)
+#else
+void cast_muzzle_flash_light()
+#endif
 {
 	fix64 current_time;
 	int i;
@@ -214,7 +271,23 @@ void cast_muzzle_flash_light(int n_render_vertices, int *render_vertices, int *v
 			{
 				g3s_lrgb ml;
 				ml.r = ml.g = ml.b = ((FLASH_LEN_FIXED_SECONDS - time_since_flash) * FLASH_SCALE);
+#ifndef RT_DX12
 				apply_light(ml, Muzzle_data[i].segnum, &Muzzle_data[i].pos, n_render_vertices, render_vertices, vert_segnum_list, -1);
+#else
+				if (g_rt_dynamic_light_info.muzzleLights)
+				{
+					//we already scale the emmission on line 399
+					RT_Vec3 emission = RT_Vec3Make(
+						g_rt_dynamic_light_info.muzzleBrightMod * f2fl(Muzzle_data[i].RT_muzzleColor.x),
+						g_rt_dynamic_light_info.muzzleBrightMod * f2fl(Muzzle_data[i].RT_muzzleColor.y), 
+						g_rt_dynamic_light_info.muzzleBrightMod * f2fl(Muzzle_data[i].RT_muzzleColor.z));
+					RT_Light enemy_flash = RT_MakeSphericalLight(
+						RT_Vec3Divs(emission, RT_LIGHT_SCALE), // NOTE(daniel): I rescaled lighting because RGBE has limited range, it now gets multiplied by 1000 in the shader.
+						RT_Vec3Fromvms_vector(&Muzzle_data[i].pos),
+						10.f * g_rt_dynamic_light_info.muzzleRadiusMod);
+					RT_RaytraceSubmitLight(enemy_flash);
+				}
+#endif
 			}
 			else
 			{
@@ -327,16 +400,23 @@ g3s_lrgb compute_light_emission(int objnum)
 
 	lemission.r = lemission.g = lemission.b = light_intensity;
 
+	//Note (SAM): yes we allow all pretty colors
+#ifndef RT_DX12
+
 	if (!PlayerCfg.DynLightColor) // colored lights not desired so use intensity only OR no intensity (== no light == no color) at all
 		return lemission;
 
 	if(Game_mode & GM_MULTI && ! Netgame.AllowColoredLighting)
 		return lemission;
 
+#endif //RTDX12
+
 	switch (obj->type) // find out if given object should cast colored light and compute if so
 	{
 		case OBJ_FIREBALL:
+			compute_color = 1;
 		case OBJ_WEAPON:
+			compute_color = 1;
 		case OBJ_FLARE:
 		case OBJ_MARKER:
 			compute_color = 1;
@@ -447,6 +527,73 @@ g3s_lrgb compute_light_emission(int objnum)
 		lemission.b = obj_color.b * cscale;
 	}
 
+	//Note (SAM): Intercept! maybe we can do this in a better way, but we do not want all lights.
+#ifdef RT_DX12
+
+		if (obj->type == OBJ_FLARE ||
+			obj->type == OBJ_FIREBALL ||
+			obj->type == OBJ_WEAPON)
+			//obj->type == OBJ_POWERUP) //Note (SAM): Getting lights for powerups is a great way to crash the renderer on specific levels due to having too many levels.
+		{
+			float brightness = 0;
+			float radius = 0;
+			switch (obj->type)
+			{
+			case OBJ_FIREBALL:
+				if (!g_rt_dynamic_light_info.explosionLights)
+					return lemission;
+				brightness = g_rt_dynamic_light_info.explosionBrightMod;
+				radius = g_rt_dynamic_light_info.explosionRadiusMod;
+				//NOTE (sam) I only do this for explosions since weapons can be adjusted by the player.
+				float generalBrightMod = (f2fl(light_intensity) * 0.25f) * g_rt_dynamic_light_info.explosionTypeBias;
+				brightness = brightness * (generalBrightMod * 3);
+				radius = radius * (generalBrightMod * 0.10f);
+				break;
+			case OBJ_WEAPON:
+				if (!g_rt_dynamic_light_info.weaponFlareLights)
+					return lemission;
+
+				brightness = g_rt_dynamic_light_info.weaponBrightMod;
+				radius = g_rt_dynamic_light_info.weaponRadiusMod;
+
+				//LASER_ID is not for lasers, ID 0-7 for weapons is for the level of the laser.
+				//So make an exception for that.
+				if (obj->id < CONCUSSION_ID)
+				{
+					brightness = brightness * rt_light_adjusts[LASER_ID - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].brightMul;
+					radius = radius * rt_light_adjusts[LASER_ID - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].radiusMul;
+				}
+
+				if (obj->id >= CONCUSSION_ID && obj->id <= SPREADFIRE_ID)
+				{
+					brightness = brightness * rt_light_adjusts[obj->id - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].brightMul;
+					radius = radius * rt_light_adjusts[obj->id - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].radiusMul;
+				}
+				break;
+			default:
+				//Some default values
+				brightness = 25.f;
+				radius = 5.f;
+				break;
+			}
+			
+			// radius = f2fl(light_intensity) * radius;
+
+			RT_Vec3 pos = RT_Vec3Fromvms_vector(&obj->pos);
+
+			// And I want to prevent it clipping into the wall too much.
+			RT_Vec3 forward = RT_Vec3Fromvms_vector(&obj->orient.fvec);
+			pos = RT_Vec3MulsAdd(pos, forward, -1.f);
+
+			// NOTE(daniel): I rescaled lighting because the emission is now encoded in RGBE which has limited range compared to float.
+			brightness /= RT_LIGHT_SCALE;
+
+			//we already scale the emmission on line 399
+			RT_Vec3 emission = RT_Vec3Make(brightness * f2fl(lemission.r), brightness * f2fl(lemission.g), brightness * f2fl(lemission.b));
+			RT_Light flare = RT_MakeSphericalLight(emission, pos, radius);
+			RT_RaytraceSubmitLight(flare);
+	}
+#endif
 	return lemission;
 }
 
@@ -467,6 +614,7 @@ void set_dynamic_light(void)
 	if (!Do_dynamic_light)
 		return;
 
+#ifndef RT_DX12
 	light_time += FrameTime;
 	if (light_time < (F1_0/60)) // it's enough to stress the CPU 60 times per second
 		return;
@@ -505,6 +653,9 @@ void set_dynamic_light(void)
 	}
 
 	cast_muzzle_flash_light(n_render_vertices, render_vertices, vert_segnum_list);
+#else
+	cast_muzzle_flash_light();
+#endif
 
 	for (objnum=0; objnum<=Highest_object_index; objnum++)
 	{
@@ -514,8 +665,10 @@ void set_dynamic_light(void)
 
 		obj_light_emission = compute_light_emission(objnum);
 
+#ifndef RT_DX12
 		if (((obj_light_emission.r+obj_light_emission.g+obj_light_emission.b)/3) > 0)
 			apply_light(obj_light_emission, obj->segnum, objpos, n_render_vertices, render_vertices, vert_segnum_list, objnum);
+#endif
 	}
 }
 

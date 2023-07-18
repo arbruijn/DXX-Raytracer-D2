@@ -414,6 +414,7 @@ void key_handler(SDL_KeyboardEvent *kevent)
 		// because there are still input loops without associated windows
 		event.type = key_state?EVENT_KEY_COMMAND:EVENT_KEY_RELEASE;
 		event.keycode = keycode;
+		#ifdef RT_KEY_LOG
 		con_printf(CON_DEBUG, "Sending event %s: %s %s %s %s %s %s\n",
 				(key_state)                  ? "EVENT_KEY_COMMAND": "EVENT_KEY_RELEASE",
 				(keycode & KEY_METAED)	? "META" : "",
@@ -421,8 +422,8 @@ void key_handler(SDL_KeyboardEvent *kevent)
 				(keycode & KEY_CTRLED)	? "CTRL" : "",
 				(keycode & KEY_ALTED)	? "ALT" : "",
 				(keycode & KEY_SHIFTED)	? "SHIFT" : "",
-				key_properties[keycode & 0xff].key_text
-				);
+			   key_properties[keycode & 0xff].key_text);
+		#endif // RT_KEY_LOG
 		event_send((d_event *)&event);
 	}
 }
