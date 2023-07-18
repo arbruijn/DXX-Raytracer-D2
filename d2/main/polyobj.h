@@ -39,13 +39,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 
 #define MAX_POLYGON_MODELS 200
-
-#ifndef DRIVE
-#define MAX_POLYGON_MODELS 85
-#define MAX_SUBMODELS 10
-#else
-#define MAX_POLYGON_MODELS 300
->>>>>>> theirs
 #define MAX_SUBMODELS 10
 
 //for each model, a model number for dying & dead variants, or -1 if none
