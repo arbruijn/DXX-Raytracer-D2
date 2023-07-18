@@ -1939,6 +1939,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	if (PlayerCfg.CockpitMode[1] != CM_MODEL_3D) {
 	gr_setcolor(BM_XRGB(0,0,0));
 	gr_rect(HUD_SCALE_X(box->left),HUD_SCALE_Y(box->top),HUD_SCALE_X(box->right),HUD_SCALE_Y(box->bot+1));
+	}
 
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
 		&& HIRESMODE)
@@ -1983,6 +1984,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 void draw_weapon_info(int weapon_type,int weapon_num,int laser_level)
 {
 	int info_index;
+	int x,y;
 
 	if (weapon_type == 0) {
 		info_index = Primary_weapon_to_weapon_info[weapon_num];
@@ -2123,7 +2125,7 @@ void draw_weapon_box_hud_3d_cockpit(int weapon_type, int weapon_num)
 	}
 	else
 	{
-		draw_weapon_info(weapon_type,weapon_num);
+		draw_weapon_info(weapon_type,weapon_num,Players[Player_num].laser_level);
 		old_weapon[weapon_type] = weapon_num;
 	}
 }

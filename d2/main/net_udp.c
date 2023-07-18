@@ -71,6 +71,7 @@ typedef long long ssize_t;
 //	long tv_usec;
 //} timeval;
 
+#if 0
 int gettimeofday(struct timeval* tp, struct timezone* tzp)
 {
 	// Note: some broken versions only have 8 trailing zero's, the correct epoch has 9 trailing zero's
@@ -91,6 +92,7 @@ int gettimeofday(struct timeval* tp, struct timezone* tzp)
 	tp->tv_usec = (long)(system_time.wMilliseconds * 1000);
 	return 0;
 }
+#endif
 
 // Prototypes
 void net_udp_init();

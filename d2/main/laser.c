@@ -51,6 +51,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "multi.h"
 #include "playsave.h"
 #include "hudmsg.h"
+#include "palette.h"
 
 #define NEWHOMER
 
@@ -617,12 +618,6 @@ int Laser_create_new( vms_vector * direction, vms_vector * position, int segnum,
 
 	if ( (weapon_type<0) || (weapon_type>=N_weapon_types) )
 		weapon_type = 0;
-
-#ifndef RT_DX12
-	//	Don't let homing blobs make muzzle flash.
-	if (Objects[parent].type == OBJ_ROBOT)
-		do_muzzle_stuff(segnum, position);
-#endif
 
 	objnum = create_weapon_object(weapon_type,segnum,position);
 

@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
 	//set_warn_func(msgbox_warning);
 #endif
 	PHYSFSX_init(argc, argv);
-	RT_LOG_INIT(RT_FILTERFLAG_ALL);
+	//RT_LOG_INIT(RT_FILTERFLAG_ALL);
 	con_init();  // Initialise the console
 
 	setbuf(stdout, NULL); // unbuffered output via printf
