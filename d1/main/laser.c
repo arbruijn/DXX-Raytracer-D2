@@ -47,6 +47,7 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "physics.h"
 #include "hudmsg.h"
 #include "playsave.h"
+#include "palette.h"
 
 #define NEWHOMER
 

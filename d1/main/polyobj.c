@@ -766,7 +766,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 		temp_pos.z = DEFAULT_VIEW_DIST;
 
 	vm_angles_2_matrix(&temp_orient, orient_angles);
-	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL,OBJ_NONE);
+	draw_polygon_model(&temp_pos,&temp_orient,NULL,mn,0,lrgb,NULL,NULL);
 #else
 
 

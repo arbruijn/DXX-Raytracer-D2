@@ -197,7 +197,7 @@ static int load_the_palette_of_the_title_screen_like_a_fucking_psycho(char * fil
 	int pcx_error;
 
 	if ((pcx_error=pcx_read_bitmap( filename, &bitmap, BM_LINEAR, gr_palette ))!=PCX_ERROR_NONE) {
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
+		Error("Error loading briefing screen <%s>, PCX load error: %s (%i)\n",filename, pcx_errormsg(pcx_error), pcx_error);
 	}
 
 	gr_palette_load(gr_palette);
