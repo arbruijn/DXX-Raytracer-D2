@@ -5,10 +5,11 @@ cmake_minimum_required (VERSION 3.13)
 project(descent1)
 add_compile_definitions(PUBLIC  
 HAVE_STRUCT_TIMEVAL
-IPv6
+#IPv6
 NETWORK
 NO_ASM
 WINDOWS_IGNORE_PACKING_MISMATCH 
+USE_UDP
 USE_TRACKER)
 
 if(${GRAPHICS_API} STREQUAL "DirectX12")
@@ -104,6 +105,7 @@ target_sources(descent1 PRIVATE
 	"arch/sdl/window.c"
 	"arch/sdl/digi.c"
 	"arch/sdl/digi_audio.c"
+	"arch/win32/messagebox.c"
 	"iff/iff.c"
 	"main/ai.c"
 	"main/aipath.c"

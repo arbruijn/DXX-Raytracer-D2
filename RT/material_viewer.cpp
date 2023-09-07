@@ -13,6 +13,7 @@ extern "C"
 	#include "piggy.h"
 	#include "3d.h"
 	#include "globvars.h"
+	#undef bool
 };
 
 #include "material_viewer.h"

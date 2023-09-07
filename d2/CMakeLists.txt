@@ -4,14 +4,15 @@
 cmake_minimum_required (VERSION 3.13)
 project(descent2)
 add_compile_definitions(PUBLIC  
-HAVE_STRUCT_TIMEVAL
-HAVE_STRUCT_TIMESPEC
-IPv6
+#HAVE_STRUCT_TIMEVAL
+#HAVE_STRUCT_TIMESPEC
+#IPv6
 NETWORK
 NO_ASM
 WINDOWS_IGNORE_PACKING_MISMATCH 
 USE_UDP
-USE_TRACKER)
+USE_TRACKER
+D2)
 
 # start temp copy
 add_compile_definitions(PUBLIC  
@@ -263,8 +264,8 @@ $ENV{RT_EXT_CODE_DIR}
 )
 
 target_link_libraries(descent2 
-physfs #-static
-mingw32
+physfs-static
+#mingw32
 sdlmain
 sdl
 dxguid
@@ -281,66 +282,95 @@ install(TARGETS descent2
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(${GRAPHICS_API} STREQUAL "DirectX12")
+add_custom_command(TARGET descent2 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$<TARGET_FILE_DIR:descent1>/Renderer.dll"
+        $<TARGET_FILE_DIR:descent2>
+		COMMENT "copying Renderer.dll to output d2 folder")
+
+add_custom_command(TARGET descent2 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$<TARGET_FILE_DIR:descent1>/Renderer.pdb"
+        $<TARGET_FILE_DIR:descent2>
+		COMMENT "copying Renderer.pdb to output d2 folder")
+
+add_custom_command(TARGET descent2 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$<TARGET_FILE_DIR:descent1>/dxcompiler.dll"
+        $<TARGET_FILE_DIR:descent2>)
+
+add_custom_command(TARGET descent2 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "$<TARGET_FILE_DIR:descent1>/dxil.dll"
+        $<TARGET_FILE_DIR:descent2>)
+
 #copy shaders when a change happened.
-add_custom_target(game_copy_shaders ALL
+add_custom_target(game_copy_shaders_d2 ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/RT/Renderer/Backend/DX12/assets/shaders"
     ${PROJECT_BINARY_DIR}/assets/shaders
-    COMMENT "Copying DX12 asset folder to output d1 folder")
+    COMMENT "Copying DX12 asset folder to output d2 folder")
 
-add_dependencies(descent2 game_copy_shaders)
+add_dependencies(descent2 game_copy_shaders_d2)
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/RT/Renderer/Backend/DX12/assets/shaders" DESTINATION "${CMAKE_INSTALL_BINDIR}/assets")
 
 
-add_custom_target(game_copy_textures ALL
+add_custom_target(game_copy_textures_d2 ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/RT/Renderer/Backend/DX12/assets/textures"
     ${PROJECT_BINARY_DIR}/assets/textures
-    COMMENT "Copying DX12 asset folder to output d1 folder")
+    COMMENT "Copying DX12 asset folder to output d2 folder")
 
-add_dependencies(descent2 game_copy_textures)
+add_dependencies(descent2 game_copy_textures_d2)
 
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/RT/Renderer/Backend/DX12/assets/textures" DESTINATION "${CMAKE_INSTALL_BINDIR}/assets")
 
 #copy assets when a change happened.
-add_custom_target(game_copy_custom_assets ALL
+add_custom_target(game_copy_custom_assets_d2 ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${PROJECT_SOURCE_DIR}/assets"
     ${PROJECT_BINARY_DIR}/assets
-    COMMENT "Copying Descent custom assets folder to output d1 folder")
+    COMMENT "Copying Descent custom assets folder to output d2 folder")
 
-add_dependencies(descent2 game_copy_custom_assets)
+add_dependencies(descent2 game_copy_custom_assets_d2)
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/d1/assets" DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/d2/assets" DESTINATION ${CMAKE_INSTALL_BINDIR})
 else()
 
 #copy only the splash screens for OpenGL.
-add_custom_target(game_copy_splash_logo ALL
+add_custom_target(game_copy_splash_logo_d2 ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${PROJECT_SOURCE_DIR}/assets/splash-logo"
     ${PROJECT_BINARY_DIR}/assets/splash-logo
-    COMMENT "Copying Descent custom assets folder to output d1 folder")
+    COMMENT "Copying Descent custom assets folder to output d2 folder")
 
 	
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/d1/assets/splash-logo" DESTINATION ${CMAKE_INSTALL_BINDIR}/assets/splash-logo)
 
-add_dependencies(descent2 game_copy_splash_logo)
+#add_dependencies(descent2 game_copy_splash_logo_d2)
 endif()
 
 
 
-if(EXISTS "${CMAKE_SOURCE_DIR}/descent.hog")
+if(EXISTS "${CMAKE_SOURCE_DIR}/d2demo.ham")
 add_custom_command(TARGET descent2 POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-        "${CMAKE_SOURCE_DIR}/descent.hog"
+        "${CMAKE_SOURCE_DIR}/d2demo.ham"
         $<TARGET_FILE_DIR:descent2>
-		COMMENT "copying descent.hog to output d1 folder")
+		COMMENT "copying d2demo.ham to output d2 folder")
 endif()
-if(EXISTS "${CMAKE_SOURCE_DIR}/descent.pig")
+if(EXISTS "${CMAKE_SOURCE_DIR}/d2demo.hog")
 add_custom_command(TARGET descent2 POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-        "${CMAKE_SOURCE_DIR}/descent.pig"
+        "${CMAKE_SOURCE_DIR}/d2demo.hog"
         $<TARGET_FILE_DIR:descent2>
-		COMMENT "copying descent.pig to output d1 folder")
+		COMMENT "copying d2demo.hog to output d2 folder")
+endif()
+if(EXISTS "${CMAKE_SOURCE_DIR}/d2demo.pig")
+add_custom_command(TARGET descent2 POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy
+        "${CMAKE_SOURCE_DIR}/d2demo.pig"
+        $<TARGET_FILE_DIR:descent2>
+		COMMENT "copying d2demo.pig to output d2 folder")
 endif()

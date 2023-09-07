@@ -87,10 +87,10 @@ void RT_ExtractLightsFromSide(side *side, RT_Vertex *vertices, RT_Vec3 normal, i
 			int num_x = max((int)(uv.x / light_size.x),1);
 			int num_y = max((int)(uv.y / light_size.y),1);
 
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Creating lights in the following directions. {X: %i, Y: %i}", num_x, num_y);
+			con_printf(CON_DEBUG, "Creating lights in the following directions. {X: %i, Y: %i}", num_x, num_y);
 			if(num_x > 1 && num_y > 1)
 			{
-				RT_LOGF(RT_LOGSERVERITY_INFO, "Multiple lights created!");
+				con_printf(CON_DEBUG, "Multiple lights created!");
 				multiple_lights = true;
 			}
 		}
@@ -204,9 +204,9 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 			.triangles      = triangles,
 		};
 
-		RT_LOGF(RT_LOGSERVERITY_INFO, "UPLOADING MESH >>\n");
+		con_printf(CON_DEBUG, "UPLOADING MESH >>\n");
 		level_handle = RT_UploadMesh(&params);
-		RT_LOGF(RT_LOGSERVERITY_INFO, "UPLOADING MESH OK\n");
+		con_printf(CON_DEBUG, "UPLOADING MESH OK\n");
 	}
 
 	return level_handle;

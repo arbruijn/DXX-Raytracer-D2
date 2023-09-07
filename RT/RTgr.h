@@ -41,7 +41,11 @@ typedef struct RT_WeaponLightAdjusts
 	float brightMul;
 	float radiusMul;
 } RT_WeaponLightAdjusts;
+#ifdef D2
+#define RT_LIGHT_ADJUST_ARRAY_SIZE (PLAYER_SMART_HOMING_ID - CONCUSSION_ID + 1)
+#else
 #define RT_LIGHT_ADJUST_ARRAY_SIZE (SPREADFIRE_ID - CONCUSSION_ID + 1)
+#endif
 
 typedef struct RT_FreeCamInfo {
 	int g_free_cam_obj;

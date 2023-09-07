@@ -57,6 +57,11 @@ typedef unsigned int uint;
 #define PATH_MAX 4096
 #endif
 
+#ifdef __cplusplus
+#define bool psbool
+ typedef ubyte bool;
+#endif
+
 #ifndef bool
 //define a boolean
 typedef ubyte bool;

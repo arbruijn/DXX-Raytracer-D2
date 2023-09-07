@@ -3370,6 +3370,7 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	int w,h,dx;
 
 	box = NULL;
+	return; // doesn't work currently with dx12 renderer
 
 	if (viewer == NULL) {								//this user is done
 

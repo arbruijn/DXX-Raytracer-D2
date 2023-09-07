@@ -5,6 +5,7 @@
 #include "gr.h"
 #include "RTgr.h"
 #include "RTmaterials.h"
+#include "console.h"
 
 float g_light_multiplier = 1.0;
 float g_light_multiplier_default = 1.0;
@@ -164,7 +165,7 @@ int RT_IsLight(int tmap)
 		if (sSize > 127)
 		{
 			sSize = 127;
-			RT_LOG(RT_LOGSERVERITY_ASSERT, "Hashtable search has a string that is bigger then 127 bytes.");
+			con_printf(CON_URGENT, "Hashtable search has a string that is bigger then 127 bytes.");
 		}
 
 		memcpy(lChar, g_light_definitions[i].name, sSize);

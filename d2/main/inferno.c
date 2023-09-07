@@ -308,8 +308,8 @@ int main(int argc, char *argv[])
 #ifdef __LINUX__
 	error_init(NULL);
 #else
-	//error_init(msgbox_error);
-	//set_warn_func(msgbox_warning);
+	error_init(msgbox_error);
+	set_warn_func(msgbox_warning);
 #endif
 	PHYSFSX_init(argc, argv);
 	//RT_LOG_INIT(RT_FILTERFLAG_ALL);

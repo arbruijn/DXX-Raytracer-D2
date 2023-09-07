@@ -1310,7 +1310,7 @@ void preset_selection()
 			config->last_modified_time = RT_GetHighResTime().value;
 
 			preset_changed = true;
-			RT_LOGF(RT_LOGSERVERITY_INFO, "Applied Preset: %s", *file_itterator);
+			con_printf(CON_DEBUG, "Applied Preset: %s", *file_itterator);
 			break;
 		}
 		index++;

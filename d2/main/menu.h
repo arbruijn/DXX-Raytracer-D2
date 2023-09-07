@@ -45,7 +45,7 @@ extern int select_demo(void);
 #if RT_DX12
 #define Menu_pcx_name (PHYSFSX_exists("assets/splash-logo/MenuRaytraced.png", 1) ? \
 	"assets/splash-logo/MenuRaytraced.png" : \
-	Menu_pcx_name_org
+	Menu_pcx_name_org)
 #else
 #define Menu_pcx_name Menu_pcx_name_org
 #endif

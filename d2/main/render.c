@@ -207,7 +207,7 @@ void flash_frame()
 	fix_fastsincos(flash_ang + flash_offset, &flash_scale_em, NULL);
 	flash_scale_em = (flash_scale_em + f1_0) / 2;
 
-	int lightTexture = PCSharePig ? 774 : 997;
+	int lightTexture = Piggy_hamfile_version < 3 ? 719 : 910;
 	RT_Material* material = &g_rt_materials[lightTexture];
 	material->emissive_strength = f2fl(flash_scale_em) * 3.5f;
 	RT_UpdateMaterial(lightTexture, material);

@@ -73,7 +73,7 @@ RT_WeaponLightAdjusts rt_light_adjusts[RT_LIGHT_ADJUST_ARRAY_SIZE] =
 	{ "FLARE", 10.f, 2.f },						//FLARE_ID
 	{ "LASER", 1.f, 1.f },							//LASER_ID
 	{ "VULCAN GUN", 0.1f, 0.1f },					//VULCAN_ID
-	{ "XSPREADFIRE_NOT_USED", 0.8f, 0.8f },			//XSPREADFIRE_ID
+	{ "SPREADFIRE", 0.8f, 0.8f },			//SPREADFIRE_ID
 	{ "PLASMA", 1.5f, 1.5f },						//PLASMA_ID
 	{ "FUSION", 2.f, 2.f },							//FUSION_ID
 	{ "HOMING MISSILE", 1.f, 1.f },					//HOMING_ID
@@ -81,7 +81,7 @@ RT_WeaponLightAdjusts rt_light_adjusts[RT_LIGHT_ADJUST_ARRAY_SIZE] =
 	{ "SMART MISSILE", 1.f, 1.f },					//SMART_ID
 	{ "MEGA MISSILE", 3.f, 3.f },					//MEGA_ID
 	{ "SMART MISSILE PLASMA", 1.f, 1.f },			//PLAYER_SMART_HOMING_ID
-	{ "SPREADFIRE", 0.8f, 0.8f },					//SPREADFIRE_ID
+	//{ "SPREADFIRE", 0.8f, 0.8f },					//SPREADFIRE_ID
 };
 
 //old way that didn't work, compiler thought rt_light_adjusts was an interger.

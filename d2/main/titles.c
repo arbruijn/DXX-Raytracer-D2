@@ -319,7 +319,8 @@ void show_titles(void)
 		// YES, LOADING THE TITLE SCREEN IS MISSION CRITICAL TO THE GAME, AND IF YOU
 		// DON'T DO IT OR DO IT IN THE WRONG ORDER THE GAME TEXTURES GET ALL SCREWED
 		// UP. ARE YOU MAD.
-		load_the_palette_of_the_title_screen_like_a_fucking_psycho(filename, 1, 0);
+		if (PHYSFSX_exists(filename, 1))
+			load_the_palette_of_the_title_screen_like_a_fucking_psycho(filename, 1, 0);
 	}
 	else
 	{

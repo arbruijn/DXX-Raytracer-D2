@@ -19,6 +19,7 @@ extern "C"
 {
 	#include "polyobj.h"
 	#include "globvars.h"
+	#undef bool
 }
 
 #include "polymodel_viewer.h"

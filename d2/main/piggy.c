@@ -214,6 +214,12 @@ char* piggy_game_bitmap_name(grs_bitmap *bmp)
 	return NULL;
 }
 
+void piggy_get_bitmap_name(int i, char* name)
+{
+	strncpy(name, AllBitmaps[i].name, 12);
+	name[12] = 0;
+}
+
 bitmap_index piggy_register_bitmap( grs_bitmap * bmp, char * name, int in_file )
 {
 	bitmap_index temp;

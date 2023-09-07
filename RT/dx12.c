@@ -9,6 +9,8 @@
 #include "gamefont.h"
 #include "grdef.h"
 #include "globvars.h"
+//#include "logger.h"
+#include "console.h"
 
 // ------------------------------------------------------------------
 
@@ -317,7 +319,7 @@ int get_font_total_width(grs_font* font) {
 		int i, w = 0, c = font->ft_minchar;
 		for (i = 0; c <= font->ft_maxchar; i++, c++) {
 			if (font->ft_widths[i] < 0)
-				RT_LOG(RT_LOGSERVERITY_HIGH, "heh?\n");
+				con_printf(CON_URGENT, "heh?\n");
 			w += font->ft_widths[i];
 		}
 		return w;
@@ -393,7 +395,7 @@ void dx12_font_choose_size(grs_font* font, int gap, int* rw, int* rh) {
 		}
 	}
 	if (smallr <= 0)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "couldn't fit font?\n");
+		con_printf(CON_URGENT, "couldn't fit font?\n");
 }
 
 void dx12_init_font(grs_font* font)
@@ -439,7 +441,7 @@ void dx12_init_font(grs_font* font)
 		}
 
 		if (cury + h > th)
-			RT_LOGF(RT_LOGSERVERITY_HIGH, "font doesn't really fit (%i/%i)?\n", i, nchars);
+			con_printf(CON_URGENT, "font doesn't really fit (%i/%i)?\n", i, nchars);
 
 		if (font->ft_flags & FT_COLOR)
 		{
@@ -799,7 +801,7 @@ int dx12_internal_string(int x, int y, const char* s)
 	yy = y;
 
 	if (grd_curscreen->sc_canvas.cv_bitmap.bm_type != BM_OGL)
-		RT_LOG(RT_LOGSERVERITY_HIGH, "carp.\n");
+		con_printf(CON_URGENT, "carp.\n");
 	while (next_row != NULL)
 	{
 		text_ptr1 = next_row;
@@ -856,7 +858,7 @@ int dx12_internal_string(int x, int y, const char* s)
 				if (grd_curcanv->cv_bitmap.bm_type == BM_OGL)
 					dx12_ubitmapm_cs(xx, yy, ft_w * (FONTSCALE_X(grd_curcanv->cv_font->ft_w) / grd_curcanv->cv_font->ft_w), FONTSCALE_Y(grd_curcanv->cv_font->ft_h), &grd_curcanv->cv_font->ft_bitmaps[letter], grd_curcanv->cv_font_fg_color, F1_0);
 				else
-					RT_LOG(RT_LOGSERVERITY_HIGH, "ogl_internal_string: non-color string to non-ogl dest\n");
+					con_printf(CON_URGENT, "ogl_internal_string: non-color string to non-ogl dest\n");
 			}
 
 			xx += spacing;

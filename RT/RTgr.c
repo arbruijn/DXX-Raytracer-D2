@@ -10,7 +10,7 @@
 #include "maths.h"
 #include "dxxerror.h"
 #include "polyobj.h"
-#include "logger.h"
+//#include "logger.h"
 #include "maths.h"
 #include "hudmsg.h"
 #include "text.h"
@@ -171,7 +171,7 @@ int gr_set_mode(u_int32_t mode)
 
 	if (!gr_check_mode(mode))
 	{
-		RT_LOGF(RT_LOGSERVERITY_HIGH, "Cannot set %ix%i. Fallback to 640x480\n", w, h);
+		con_printf(CON_URGENT, "Cannot set %ix%i. Fallback to 640x480\n", w, h);
 		w = 640;
 		h = 480;
 		Game_screen_mode = mode = SM(w, h);
@@ -379,13 +379,13 @@ int gr_toggle_fullscreen(void)
 void gr_upoly_tmap(int nverts, int* vert) 
 {
 	//never call this, maybe log this like DXX-Retro does in arch/ogl.c?
-	RT_LOG(RT_LOGSERVERITY_HIGH, "gr_upoly_tmap: unhandled");
+	con_printf(CON_URGENT, "gr_upoly_tmap: unhandled");
 }
 
 void draw_tmap_flat(grs_bitmap* bm, int nv, g3s_point** vertlist) 
 {
 	//never call this, maybe log this like DXX-Retro does in arch/ogl.c?
-	RT_LOG(RT_LOGSERVERITY_HIGH, "draw_tmap_flat: unhandled");
+	con_printf(CON_URGENT, "draw_tmap_flat: unhandled");
 }
 
 int gr_init(int mode)
@@ -584,6 +584,7 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 
 				bool should_be_emissive = false;
 
+#ifndef D2
 				if (PCSharePig)
 				{
 					// pointy melee guy
@@ -622,6 +623,7 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 						should_be_emissive = true;
 					}
 				}
+#endif
 
 				if (should_be_emissive)
 				{
@@ -1087,7 +1089,11 @@ void RT_DisableFreeCam()
 
 void RT_ResetLightEmission()
 {
+#ifdef D2
+	int lightTexture = Piggy_hamfile_version < 3 ? 719 : 910;
+#else
 	int lightTexture = PCSharePig ? 774 : 997;
+#endif
 	RT_Material* material = &g_rt_materials[lightTexture];
 	material->emissive_strength = 3.5f;
 	RT_UpdateMaterial(lightTexture, material);
