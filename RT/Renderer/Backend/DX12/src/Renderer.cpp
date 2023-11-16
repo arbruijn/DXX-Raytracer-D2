@@ -74,6 +74,11 @@ RT_ResourceHandle RT_UploadTexture(const RT_UploadTextureParams* params)
 	return RenderBackend::UploadTexture(*params);
 }
 
+RT_ResourceHandle RT_UploadTextureDDS(const RT_UploadTextureParamsDDS* params)
+{
+	return RenderBackend::UploadTextureDDS(*params);
+}
+
 void RT_UploadTextureData(const RT_ResourceHandle texture_handle, const RT_UploadTextureParams* params)
 {
 	RenderBackend::UploadTextureData(texture_handle, *params);
