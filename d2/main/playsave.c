@@ -382,8 +382,8 @@ int read_player_d2x(char *filename)
 				if(!strcmp(word,"MAXFPS")) {
 					PlayerCfg.maxFps = atoi(line);	
 					if(PlayerCfg.maxFps < 25) { PlayerCfg.maxFps = 25; }
-					if(PlayerCfg.maxFps > 200) { PlayerCfg.maxFps = 200; }
-				}				
+					if(PlayerCfg.maxFps > 999) { PlayerCfg.maxFps = 999; }
+				}
 				d_free(word);
 				PHYSFSX_fgets(line,50,f);
 				word=splitword(line,'=');
