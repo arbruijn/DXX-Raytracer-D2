@@ -4023,7 +4023,8 @@ void RenderBackend::RaytraceRender()
 	CreateRenderTargetUAV(RenderTarget_bloom5, D3D12GlobalDescriptors_UAV_bloom5);
 	CreateRenderTargetUAV(RenderTarget_bloom6, D3D12GlobalDescriptors_UAV_bloom6);
 	CreateRenderTargetUAV(RenderTarget_bloom7, D3D12GlobalDescriptors_UAV_bloom7);
-	CreateRenderTargetUAV(RenderTarget_scene, D3D12GlobalDescriptors_UAV_scene);
+	CreateRenderTargetUAV(RenderTarget_postfx, D3D12GlobalDescriptors_UAV_postfx);
+	CreateRenderTargetUAV(RenderTarget_resolve, D3D12GlobalDescriptors_UAV_resolve);
 	CreateRenderTargetUAV(RenderTarget_color_reference, D3D12GlobalDescriptors_UAV_color_reference);
 	CreateRenderTargetUAV(RenderTarget_color_final, D3D12GlobalDescriptors_UAV_color_final);
 	CreateRenderTargetUAV(RenderTarget_debug, D3D12GlobalDescriptors_UAV_debug);
@@ -4047,7 +4048,7 @@ void RenderBackend::RaytraceRender()
 	CreateRenderTargetSRV(RenderTarget_bloom5, D3D12GlobalDescriptors_SRV_bloom5);
 	CreateRenderTargetSRV(RenderTarget_bloom6, D3D12GlobalDescriptors_SRV_bloom6);
 	CreateRenderTargetSRV(RenderTarget_bloom7, D3D12GlobalDescriptors_SRV_bloom7);
-	ResourceTransition(command_list, g_d3d.rt.scene, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	ResourceTransition(command_list, g_d3d.rt.resolve, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	// ------------------------------------------------------------------
 	// Create unordered access view for the pixel debug buffer
@@ -4640,11 +4641,11 @@ void RenderBackend::RaytraceRender()
 	command_list->SetPipelineState(g_d3d.cs.resolve_final_color.pso);
 	command_list->Dispatch(output_dispatch_w, output_dispatch_h, 1);
 
-	UAVBarrier(command_list, g_d3d.rt.scene);
+	UAVBarrier(command_list, g_d3d.rt.resolve);
 
 	if (!g_d3d.scene.render_blit)
 	{
-		CopyResource(command_list, g_d3d.rt.color_final, g_d3d.rt.scene);
+		CopyResource(command_list, g_d3d.rt.color_final, g_d3d.rt.resolve);
 	}
 
 	GPUProfiler::EndTimestampQuery(command_list, GPUProfiler::GPUTimer_FrameTime);
@@ -4919,7 +4920,7 @@ void RenderBackend::RasterBlitScene(const RT_Vec2* top_left, const RT_Vec2* bott
 	FlushRingBuffer(&g_d3d.resource_upload_ring_buffer);
 
 	CommandList& command_list = g_d3d.command_queue_direct->GetCommandList();
-	ResourceTransition(command_list, g_d3d.rt.scene, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	ResourceTransition(command_list, g_d3d.rt.resolve, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	ResourceTransition(command_list, g_d3d.rt.color_final, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	FrameData* frame = CurrentFrameData();
@@ -4929,7 +4930,7 @@ void RenderBackend::RasterBlitScene(const RT_Vec2* top_left, const RT_Vec2* bott
 			(descriptor >= D3D12GlobalDescriptors_SRV_RT_START && descriptor < D3D12GlobalDescriptors_COUNT));
 		CreateTextureSRV(g_d3d.render_targets[rt], frame->descriptors.GetCPUDescriptor(descriptor), g_d3d.render_target_formats[rt]);
 	};
-	CreateRenderTargetSRV(RenderTarget_scene, D3D12GlobalDescriptors_SRV_scene);
+	CreateRenderTargetSRV(RenderTarget_resolve, D3D12GlobalDescriptors_SRV_resolve);
 
 	ID3D12DescriptorHeap* heaps[] = { g_d3d.cbv_srv_uav.GetHeap() };
 	command_list->SetDescriptorHeaps(1, heaps);
@@ -4950,7 +4951,7 @@ void RenderBackend::RasterBlitScene(const RT_Vec2* top_left, const RT_Vec2* bott
 	command_list->SetGraphicsRoot32BitConstant(0, (UINT)viewport.Width, 2);
 	command_list->SetGraphicsRoot32BitConstant(0, (UINT)viewport.Height, 3);
 	command_list->SetGraphicsRoot32BitConstant(0, (UINT)blit_blend, 4);
-	command_list->SetGraphicsRootDescriptorTable(1, frame->descriptors.GetGPUDescriptor(D3D12GlobalDescriptors_SRV_scene));
+	command_list->SetGraphicsRootDescriptorTable(1, frame->descriptors.GetGPUDescriptor(D3D12GlobalDescriptors_SRV_resolve));
 	command_list->DrawInstanced(6, 1, 0, 0);
 
 	g_d3d.command_queue_direct->ExecuteCommandList(command_list);
@@ -4964,7 +4965,7 @@ void RenderBackend::RasterBlit(RT_ResourceHandle src, const RT_Vec2* top_left, c
 	if (ALWAYS(src_texture))
 	{
 		CommandList& command_list = g_d3d.command_queue_direct->GetCommandList();
-		ResourceTransition(command_list, g_d3d.rt.scene, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		ResourceTransition(command_list, g_d3d.rt.resolve, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 		ResourceTransition(command_list, g_d3d.rt.color_final, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 		ID3D12DescriptorHeap* heaps[] = { g_d3d.cbv_srv_uav.GetHeap() };
