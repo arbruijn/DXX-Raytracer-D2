@@ -1353,6 +1353,8 @@ void raytrace_config()
 	newmenu_item m[30];
 	int nitems = 0;
 
+	int opt_gr_vsync = 0;
+
 	// Pathtracing ops
 	int opt_gr_enable_pathtracing = 0, opt_gr_enable_pbr, opt_gr_important_sample_brdf, opt_gr_lighting_quality;
 
@@ -1376,6 +1378,11 @@ void raytrace_config()
 	preset_changed = false;
 	opt_gr_change_preset = nitems;
 	m[nitems].type = NM_TYPE_MENU; m[nitems].text = " Use Preset"; nitems++;
+
+	// --- VSync ---
+	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
+	opt_gr_vsync = nitems;
+	m[nitems].type = NM_TYPE_CHECK; m[nitems].text = "VSync";  m[nitems].value = RT_GetIntFromConfig(config, RT_StringLiteral("vsync")); nitems++;
 
 	// --- PATHTRACING ---
 	m[nitems].type = NM_TYPE_TEXT; m[nitems].text = ""; nitems++;
@@ -1454,6 +1461,8 @@ void raytrace_config()
 	RT_SaveHeadLightSettings();
 
 	if (!preset_changed){
+		RT_ConfigWriteInt(config, RT_StringLiteral("vsync"), m[opt_gr_vsync].value);
+
 		RT_ConfigWriteInt(config, RT_StringLiteral("enable_pathtracing"), m[opt_gr_enable_pathtracing].value);
 		RT_ConfigWriteInt(config, RT_StringLiteral("enable_pbr"), m[opt_gr_enable_pbr].value);
 		for(int i = 0; i < 3; i++){
