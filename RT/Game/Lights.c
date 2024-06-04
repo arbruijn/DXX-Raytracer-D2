@@ -148,7 +148,7 @@ RT_LightDefinition g_light_definitions[] =
 	{
 		.name = "ceil029",
 		.kind = RT_LightKind_Area_Rect,
-		.emission = {4.f,4.f,4.f},
+		.emission = {8.f,8.f,8.f},
 		.radius = 0.8f,
 		.spot_angle = 0.3f,
 		.spot_softness = 0.2f,
@@ -156,7 +156,7 @@ RT_LightDefinition g_light_definitions[] =
 	{
 		.name = "ceil030",
 		.kind = RT_LightKind_Area_Rect,
-		.emission = {4.f,4.f,4.f},
+		.emission = {8.f,8.f,8.f},
 		.radius = 0.8f,
 		.spot_angle = 0.3f,
 		.spot_softness = 0.2f,
@@ -164,7 +164,7 @@ RT_LightDefinition g_light_definitions[] =
 	{
 		.name = "ceil031",
 		.kind = RT_LightKind_Area_Rect,
-		.emission = {4.f,4.f,4.f},
+		.emission = {8.f,8.f,8.f},
 		.radius = 0.8f,
 		.spot_angle = 0.3f,
 		.spot_softness = 0.2f,
@@ -172,7 +172,7 @@ RT_LightDefinition g_light_definitions[] =
 	{
 		.name = "ceil034",
 		.kind = RT_LightKind_Area_Rect,
-		.emission = {2.f,2.f,2.f},
+		.emission = {4.f,4.f,4.f},
 		.radius = 0.8f,
 		.spot_angle = 0.3f,
 		.spot_softness = 0.2f,
@@ -201,6 +201,7 @@ RT_LightDefinition g_light_definitions[] =
 		.spot_angle = 0.3f,
 		.spot_softness = 0.2f,
 	},
+	// Blue lights on metl material.
 	{
 		.name = "metl078",
 		.kind = RT_LightKind_Area_Rect,
