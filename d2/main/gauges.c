@@ -288,8 +288,8 @@ const int pos_homing_text[2] = { 214, 13 };
 const RT_Vec2 pos_ship_center = { 227, 806 };
 const float scl_ship = 100;
 const float scl_shield = 144;
-const float scale_text_homing[2] = { 18, 18 };
-const float scale_text_misc[2] = { 8, 16 };
+const float scale_text_homing[2] = {9, 9}; //{ 18, 18 };
+const float scale_text_misc[2] = {4,8}; //{ 8, 16 };
 const float pos_shield_text[2] = { 226, 532 };
 const float pos_energy_text[2] = { 92, 40 };
 const float pos_text_weapon_primary[2] = { 549, 412 };
@@ -1958,7 +1958,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
 	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D) {
 #ifdef RT_DX12
-		render_ui_bitmap(Weapon_info[info_index].picture, pic_x, pic_y, pic_x + bm->bm_w * 6, pic_y + bm->bm_h * 6);
+		render_ui_bitmap(Weapon_info[info_index].picture, pic_x, pic_y, pic_x + bm->bm_w * 3, pic_y + bm->bm_h * 3);
 #endif
 	}
 	else
@@ -3217,8 +3217,8 @@ void render_gauges()
 		grd_curcanv->cv_bitmap.bm_h = 1024;
 		last_width = 1024;
 		last_height = 1024;
-		FNTScaleX = 6;
-		FNTScaleY = 6;
+		FNTScaleX = 3;
+		FNTScaleY = 3;
 		dx12_set_render_target(g_rt_cockpit_settings.cockpit_hud_texture);
 		RT_RasterSetViewport(0, 0, 1024, 1024);
 		draw_weapon_boxes();
