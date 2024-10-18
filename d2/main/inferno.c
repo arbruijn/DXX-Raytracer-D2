@@ -420,7 +420,11 @@ int main(int argc, char *argv[])
 	con_printf( CON_DEBUG, "\nInitializing texture caching system..." );
 	texmerge_init( 10 );		// 10 cache bitmaps
 
-	piggy_init_pigfile("groupa.pig");	//get correct pigfile
+	//piggy_init_pigfile("groupa.pig");	//get correct pigfile
+	load_palette("groupa.256", 1, 0);
+
+	void rt_init();
+	rt_init();
 
 	con_printf( CON_DEBUG, "\nRunning game...\n" );
 	init_game();

@@ -160,15 +160,18 @@ int gamedata_init()
 
 	piggy_read_sounds();
 
+	return 0;
+}
+
+void rt_init()
+{
 #ifdef RT_DX12
 	RT_InitAllPolyModels();
-    RT_InitAllBitmaps();
+	RT_InitAllBitmaps();
 	RT_InitLightStuff();
-    RT_InitglTFModels();
-    RT_RaytraceSetSkyColors((RT_Vec3){ 0.0f,0.0f,0.000f }, (RT_Vec3){ 0.0f,0.0f,0.000f });
+	RT_InitglTFModels();
+	RT_RaytraceSetSkyColors((RT_Vec3) { 0.0f, 0.0f, 0.000f }, (RT_Vec3) { 0.0f, 0.0f, 0.000f });
 #endif
-
-	return 0;
 }
 
 void bm_read_all(PHYSFS_file * fp)
