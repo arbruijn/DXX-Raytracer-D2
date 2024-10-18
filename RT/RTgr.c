@@ -625,11 +625,18 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 
 				short color = w(p + 28);
 
+#ifdef D2
+				ubyte r = ((color >> 10) & 31) * 33 / 4;
+				ubyte g = ((color >> 5) & 31) * 33 / 4;
+				ubyte b = (color & 31) * 33 / 4;
+				ubyte a = 255;
+#else
 				// NOTE(daniel): I hope the palette is initialized correctly!
 				ubyte r = gr_palette[color*3 + 0]*4;
 				ubyte g = gr_palette[color*3 + 1]*4;
 				ubyte b = gr_palette[color*3 + 2]*4;
 				ubyte a = 255;
+#endif
 
 				// RGBA!
 				uint32_t color_packed = (r << 0)|(g << 8)|(b << 16)|(a << 24);
