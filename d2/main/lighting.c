@@ -65,15 +65,19 @@ RT_DynamicLightInfo g_rt_dynamic_light_info =
 	.muzzleRadiusMod = 1.0f,
 };
 
-//weapon_type_t enum size. We are wasting 8 spaces on this array, 8 * 8 unused memory?
-#define RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET (CONCUSSION_ID)
-RT_WeaponLightAdjusts rt_light_adjusts[RT_LIGHT_ADJUST_ARRAY_SIZE] =
+#define RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET 0 //(CONCUSSION_ID)
+RT_WeaponLightAdjusts rt_light_adjusts[ROBOT_EARTHSHAKER_ID + 1] =
 {
+	{ "LASER1", 1.f, 1.f },							//LASER_ID_L1
+	{ "LASER2", 1.f, 1.f },							//LASER_ID_L2
+	{ "LASER3", 1.f, 1.f },							//LASER_ID_L3
+	{ "LASER4", 1.f, 1.f },							//LASER_ID_L4
+	{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },
 	{ "CONCUSSION MISSILE", 1.f, 1.f },				//CONCUSSION_ID
 	{ "FLARE", 10.f, 2.f },						//FLARE_ID
 	{ "LASER", 1.f, 1.f },							//LASER_ID
 	{ "VULCAN GUN", 0.1f, 0.1f },					//VULCAN_ID
-	{ "SPREADFIRE", 0.8f, 0.8f },			//SPREADFIRE_ID
+	{ "SPREADFIRE", 0.8f, 0.8f },				//SPREADFIRE_ID
 	{ "PLASMA", 1.5f, 1.5f },						//PLASMA_ID
 	{ "FUSION", 2.f, 2.f },							//FUSION_ID
 	{ "HOMING MISSILE", 1.f, 1.f },					//HOMING_ID
@@ -81,7 +85,34 @@ RT_WeaponLightAdjusts rt_light_adjusts[RT_LIGHT_ADJUST_ARRAY_SIZE] =
 	{ "SMART MISSILE", 1.f, 1.f },					//SMART_ID
 	{ "MEGA MISSILE", 3.f, 3.f },					//MEGA_ID
 	{ "SMART MISSILE PLASMA", 1.f, 1.f },			//PLAYER_SMART_HOMING_ID
-	//{ "SPREADFIRE", 0.8f, 0.8f },					//SPREADFIRE_ID
+	{ "SPREADFIRE", 0.8f, 0.8f },					//SPREADFIRE_ID
+	{ "SUPER_MECH_MISS", 1.f, 1.f },				//SUPER_MECH_MISS
+	{ "REGULAR_MECH_MISS", 1.f, 1.f },				//REGULAR_MECH_MISS
+	{ "SPREADFIRE", 0.8f, 0.8f },					//SILENT_SPREADFIRE_ID
+	{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },
+	{ "SMART MISSILE PLASMA", 1.f, 1.f },			//ROBOT_SMART_HOMING_ID
+	{ "LASER5", 1.f, 1.f },							//LASER_ID_L5
+	{ "LASER6", 1.f, 1.f },							//LASER_ID_L6
+	{ "GAUSS", 1.f, 1.f },						//GAUSS_ID
+	{ "HELIX", 0.8f, 0.8f },						//HELIX_ID
+	{ "PHOENIX", 1.5f, 1.5f },						//PHOENIX_ID
+	{ "OMEGA", 2.f, 2.f },							//OMEGA_ID
+	{ "FLASH", 1.f, 1.f },							//CONCUSSION_ID
+	{ "GUIDED", 1.f, 1.f },							//GUIDEDMISS_ID
+	{ "SMART PROXIMITY MINE", 1.f, 1.f },			//SUPERPROX_ID
+	{ "MERCURY MISSILE", 1.f, 1.f },				//MERCURY_ID
+	{ "EARTHSHAKER MISSILE", 3.f, 3.f },			//EARTHSHAKER_ID
+	{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },
+	{ "SMART PROX BLOB", 1.f, 1.f },				//SMART_MINE_HOMING_ID
+	{ NULL, 1.f, 1.f },
+	{ "SMART PROX BLOB", 1.f, 1.f },				//ROBOT_SMART_MINE_HOMING_ID
+	{ NULL, 1.f, 1.f },
+	{ "STATIC MINE", 1.f, 1.f },					//PMINE_ID
+	{ NULL, 1.f, 1.f },
+	{ "ROBOT SMART PROXIMITY MINE", 1.f, 1.f },		//ROBOT_SUPERPROX_ID
+	{ "EARTHSHAKER BLOB", 3.f, 3.f },				//EARTHSHAKER_MEGA_ID
+	{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },{ NULL, 1.f, 1.f },
+	{ "ROBOT EARTHSHAKER MISSILE", 3.f, 3.f },		//ROBOT_EARTHSHAKER_ID
 };
 
 //old way that didn't work, compiler thought rt_light_adjusts was an interger.
@@ -556,15 +587,7 @@ g3s_lrgb compute_light_emission(int objnum)
 				brightness = g_rt_dynamic_light_info.weaponBrightMod;
 				radius = g_rt_dynamic_light_info.weaponRadiusMod;
 
-				//LASER_ID is not for lasers, ID 0-7 for weapons is for the level of the laser.
-				//So make an exception for that.
-				if (obj->id < CONCUSSION_ID)
-				{
-					brightness = brightness * rt_light_adjusts[LASER_ID - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].brightMul;
-					radius = radius * rt_light_adjusts[LASER_ID - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].radiusMul;
-				}
-
-				if (obj->id >= CONCUSSION_ID && obj->id <= SPREADFIRE_ID)
+				if (obj->id <= SDL_arraysize(rt_light_adjusts))
 				{
 					brightness = brightness * rt_light_adjusts[obj->id - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].brightMul;
 					radius = radius * rt_light_adjusts[obj->id - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].radiusMul;
