@@ -374,18 +374,26 @@ void rle_expand_texture_sub( grs_bitmap * bmp, grs_bitmap * rle_temp_bitmap_1 )
 	unsigned char * sbits;
 	int i;
 
-	sbits = &bmp->bm_data[4 + bmp->bm_h];
 	dbits = rle_temp_bitmap_1->bm_data;
 
 	rle_temp_bitmap_1->bm_flags = bmp->bm_flags & (~BM_FLAG_RLE);
 
-	for (i=0; i < bmp->bm_h; i++ )    {
-		gr_rle_decode( sbits, dbits );
-		sbits += (int)bmp->bm_data[4+i];
-		dbits += bmp->bm_w;
+	if (bmp->bm_flags & BM_FLAG_RLE_BIG) {
+		sbits = &bmp->bm_data[4 + bmp->bm_h * 2];
+		for (i=0; i < bmp->bm_h; i++ )    {
+			gr_rle_decode( sbits, dbits );
+			sbits += bmp->bm_data[4+i*2]+(bmp->bm_data[4+i*2+1] << 8);
+			dbits += bmp->bm_w;
+		}
+	} else {
+		sbits = &bmp->bm_data[4 + bmp->bm_h];
+		for (i=0; i < bmp->bm_h; i++ )    {
+			gr_rle_decode( sbits, dbits );
+			sbits += (int)bmp->bm_data[4+i];
+			dbits += bmp->bm_w;
+		}
 	}
 }
-
 
 grs_bitmap * rle_expand_texture( grs_bitmap * bmp )
 {
