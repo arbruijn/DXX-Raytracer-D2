@@ -18,6 +18,7 @@
 #include "gamefont.h"
 #include "piggy.h"
 #include "playsave.h"
+#include "wall.h"
 
 #include "Core/Arena.h"
 #include "Core/MiniMath.h"
@@ -323,7 +324,7 @@ void RT_UpdateMaterialEdges(void)
 			int absolute_side_index = MAX_SIDES_PER_SEGMENT * segment_index + side_index;
 
 			RT_MaterialEdge* side_edge = &g_rt_material_edges[absolute_side_index];
-			side_edge->mat1 = sd->tmap_num;
+			side_edge->mat1 = sd->wall_num != -1 && (Walls[sd->wall_num].type == WALL_OPEN || Walls[sd->wall_num].flags & WALL_ILLUSION_OFF) ? 0 : sd->tmap_num;
 			side_edge->mat2 = sd->tmap_num2;
 		}
 	}
@@ -647,7 +648,9 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 
 				bool should_be_emissive = false;
 
-#ifndef D2
+#ifdef D2
+				should_be_emissive = color > 0;
+#else
 				if (PCSharePig)
 				{
 					// pointy melee guy

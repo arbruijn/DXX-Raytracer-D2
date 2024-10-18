@@ -440,3 +440,10 @@ void RT_FindAndSubmitNearbyLights(RT_Vec3 player_pos)
 	g_pending_light_update = false;
 	g_active_lights = total;
 }
+
+void RT_BlowUpLight(side *sd)
+{
+	for (int i = 0; i < m_light_count; ++i)
+		if (m_extracted_light_sides[i] == sd)
+			m_lights_seg_ids[i] = -1;
+}
