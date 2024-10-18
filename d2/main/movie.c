@@ -125,7 +125,7 @@ int PlayMovie(const char *filename, int must_have)
 	char name[FILENAME_LEN],*p;
 	int ret;
 
-	if (GameArg.SysNoMovies)
+	if (1) // GameArg.SysNoMovies) // no movies for now
 		return MOVIE_NOT_PLAYED;
 
 	strcpy(name,filename);
