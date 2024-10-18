@@ -1,14 +1,13 @@
-![scrn0003](https://github.com/BredaUniversityGames/DXX-Raytracer/assets/34250026/2acfa740-8f79-4e78-a977-02a4fc3d79b9)
+![scrn0004](d2/assets/scrn0004.png)
 
-# DXX Raytracer
-DXX Raytracer is a fork of the [DXX Retro](https://github.com/CDarrow/DXX-Retro) project for Windows. DXX Raytracer uses modern raytracing techniques to update the graphics of the beloved retro game known as Descent.
-
+# DXX Raytracer-D2
+DXX Raytracer-D2 is a fork of the [DXX Raytracer](https://github.com/BredaUniversityGames/DXX-Raytracer) project for Descent 1. It is in alpha state, it runs but has not been tweaked or tested. It might crash or become unplayable when playing the game.
 
 
 ## Installation
-[Download dxx_raytracer.zip here.](https://github.com/BredaUniversityGames/DXX-Raytracer/releases/latest) 
+[Download d2x_raytracer.zip here.](https://github.com/arbruijn/DXX-Raytracer-D2/releases/latest) 
 
-Extract the zip file to a location of your choosing, and just run descent1.exe to play! This build of the game uses the shareware assets. If you have bought the original version of Descent 1995, you can replace the descent.pig and descent.hog files with your versions to play the whole game.
+Extract the zip file to a location of your choosing, and add all the  .hog, .ham, .s22, .pig and .mvl files from your Descent 2 installation. Then run descent2.exe.
 
 ## Features
 - Physically-based rendering
@@ -18,9 +17,6 @@ Extract the zip file to a location of your choosing, and just run descent1.exe t
 - Temporal anti-aliasing
 - Motion blur
 - Post-processing (Vignette, tonemap, etc.)
-
-## Community discord
-You can join the community discord to make suggestions, report bugs, or just to hang around: https://discord.gg/vaEH5ryjvc
 
 ## Instructions
 - SHIFT + ALT + F1: Open debug menus, more on those below
@@ -37,13 +33,3 @@ You can join the community discord to make suggestions, report bugs, or just to 
 - Polymodel Viewer: Allows you to view a polymodel in the current scene.
 - Dynamic Lights: Allows for tweaking of dynamic lights, like weapons, explosions, and muzzle flashes.
 - Light Explorer: Allows for tweaking of individual lights, and adds ability to debug view lights in the level.
-
-## Team
-- [Sam Boots](https://github.com/samboots) - Lead Programmer/Graphics Programmer
-- [Justin Kujawa](https://jkujawa.com/) - Graphics Programmer
-- [Lyubomir Kostadinov](https://github.com/lyubokostadinov) - Graphics Programmer
-- [Daniël Cornelisse](https://github.com/TheSandvichMaker) - Graphics Programmer
-- [Stan Vogels](http://www.stanvogels.nl/) - Engine Programmer
-- [Wessel Frijters](https://www.wesselfrijters.com/) - Engine Programmer
-- [Kylian Dekker](https://www.kyliandekker.com/) - Engine Programmer/Audio Programmer
-- [Lily Haverlag](https://flannyh.github.io/portfolio/) - Engine Programmer
