@@ -142,6 +142,7 @@ void ReadCmdArgs(void)
 	GameArg.SysPilot 		= get_str_arg("-pilot", NULL);
 	GameArg.SysWindow 		= FindArg("-window");
 	GameArg.SysNoBorders 		= FindArg("-noborders");
+	GameArg.SysNoTitles			= FindArg("-notitles");
 	GameArg.SysNoMovies 		= FindArg("-nomovies");
 	GameArg.SysAutoDemo 		= FindArg("-autodemo");
 

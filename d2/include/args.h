@@ -49,6 +49,7 @@ typedef struct Arg
 	int SysWindow;
 	int SysNoBorders;
 	int SysAutoDemo;
+	int SysNoTitles;
 	int SysNoMovies;
 	int CtlNoCursor;
 	int CtlNoMouse;

@@ -399,7 +399,8 @@ int main(int argc, char *argv[])
 	init_movies();		//init movie libraries
 
 #ifndef QUICK_START
-	show_titles();
+	if (!GameArg.SysNoTitles)
+		show_titles();
 #endif
 	set_screen_mode(SCREEN_MENU);
 
