@@ -169,9 +169,8 @@ void d_splitpath(char *name, char *drive, char *path, char *base, char *ext)
 	s = strchr(p, ':');
 	if ( s != NULL ) {
 		if (drive) {
-			*s = '\0';
-			strcpy(drive, p);
-			*s = ':';
+			memcpy(drive, p, s - p);
+			drive[s - p] = '\0';
 		}
 		p = s+1;
 		if (!p)
@@ -182,12 +181,8 @@ void d_splitpath(char *name, char *drive, char *path, char *base, char *ext)
 	s = strrchr(p, '\\');
 	if ( s != NULL) {
 		if (path) {
-			char c;
-			
-			c = *(s+1);
-			*(s+1) = '\0';
-			strcpy(path, p);
-			*(s+1) = c;
+			memcpy(path, p, s - p + 1);
+			path[s - p + 1] = '\0';
 		}
 		p = s+1;
 		if (!p)
@@ -198,9 +193,8 @@ void d_splitpath(char *name, char *drive, char *path, char *base, char *ext)
 	s = strchr(p, '.');
 	if ( s != NULL) {
 		if (base) {
-			*s = '\0';
-			strcpy(base, p);
-			*s = '.';
+			memcpy(base, p, s - p);
+			base[s - p] = '\0';
 		}
 		p = s+1;
 		if (!p)
