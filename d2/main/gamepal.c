@@ -35,12 +35,20 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "piggy.h"
 #include "strutil.h"
 
+#ifdef RT_DX12
+#include "Core/MiniMath.h"
+#include "Core/Arena.h"
+#include "dx12.h"
+#include "RTmaterials.h"
+#endif
+
 char Current_level_palette[FILENAME_LEN];
 
 extern int Color_0_31_0;
 
 char last_palette_loaded[FILENAME_LEN]="";
 char last_palette_loaded_pig[FILENAME_LEN]="";
+char last_tex_palette[FILENAME_LEN]="";
 
 //load a palette by name. returns 1 if new palette loaded, else 0
 //if used_for_level is set, load pig, etc.
@@ -50,6 +58,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 {
 	char pigname[FILENAME_LEN];
 	ubyte old_pal[256*3];
+	int has_last;
 
 	//special hack to tell that palette system about a pig that's been loaded elsewhere
 	if (used_for_level == -2) {
@@ -75,6 +84,7 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 	if (d_stricmp(last_palette_loaded,name) != 0) {
 
 		memcpy(old_pal,gr_palette,sizeof(old_pal));
+		has_last = last_palette_loaded[0] != 0;
 
 		strncpy(last_palette_loaded,name,sizeof(last_palette_loaded));
 
@@ -91,6 +101,14 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		gr_remap_mono_fonts();
 
 		Color_0_31_0 = -1;		//for gauges
+
+		if (d_stricmp(last_tex_palette,name) != 0 && d_stricmp(name,MENU_PALETTE) != 0) {
+			if (last_tex_palette[0]) {
+				show_boxed_message("Updating palette...", 0);
+				RT_UpdateAllBitmaps();
+			}
+			strncpy(last_tex_palette,name,sizeof(last_tex_palette));
+		}
 	}
 
 

@@ -297,6 +297,7 @@ void RT_InitAllBitmaps(void)
                     .name   = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
                     .format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
                 });
+				material->flags |= RT_MaterialFlag_GameBitmap;
 
 #ifdef RT_DUMP_GAME_BITMAPS
 				{
@@ -312,6 +313,51 @@ void RT_InitAllBitmaps(void)
 	}
 	piggy_bitmap_page_out_all();
 
+	g_rt_last_texture_update_time = time(NULL);
+}
+
+void RT_UpdateAllBitmaps(void) 
+{
+	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
+	{
+		grs_bitmap *bitmap = &GameBitmaps[bm_index];
+
+		if (bitmap->bm_w == 0 ||
+			bitmap->bm_h == 0)
+		{
+			continue;
+		}
+
+		RT_Material *material = &g_rt_materials[bm_index];
+		if (!(material->flags & RT_MaterialFlag_GameBitmap))
+			continue;
+
+		PIGGY_PAGE_IN((bitmap_index){bm_index});
+
+
+		uint32_t *pixels = dx12_load_bitmap_pixel_data(&g_thread_arena, bitmap);
+		
+		#if 0
+		RT_UploadTextureData(material->albedo_texture, &(RT_UploadTextureParams) {
+				.width  = bitmap->bm_w,
+				.height = bitmap->bm_h,
+				.pixels = pixels,
+				.name   = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
+				.format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
+		});
+		#else
+		RT_ReleaseTexture(material->albedo_texture);
+		material->albedo_texture = RT_UploadTexture(&(RT_UploadTextureParams) {
+			.width  = bitmap->bm_w,
+				.height = bitmap->bm_h,
+				.pixels = pixels,
+				.name   = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
+				.format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
+		});
+		#endif
+
+		RT_UpdateMaterial(bm_index, material);
+	}
 	g_rt_last_texture_update_time = time(NULL);
 }
 

@@ -150,7 +150,8 @@ static char g_rt_texture_format_bpp[] =
 
 typedef enum RT_TextureFlag
 {
-	RT_TextureFlag_None
+	RT_TextureFlag_None,
+	RT_TextureFlag_IsGameBitmap = 2
 } RT_TextureFlag;
 
 typedef struct RT_UploadTextureParams
@@ -237,6 +238,7 @@ typedef enum RT_MaterialFlags
 	RT_MaterialFlag_BlackbodyRadiator = 0x1, // things like lava, basically just treats the albedo as an emissive map and skips all shading
 	RT_MaterialFlag_NoCastingShadow   = 0x2,
 	RT_MaterialFlag_Light             = 0x4,
+	RT_MaterialFlag_GameBitmap        = 0x8
 } RT_MaterialFlags;
 
 typedef enum RT_MaterialTextureSlot
@@ -310,6 +312,7 @@ RT_API uint16_t        *RT_GetMaterialIndicesArray(void);
 RT_API void RT_DoRendererDebugMenus(const RT_DoRendererDebugMenuParams *params);
 
 RT_API RT_ResourceHandle RT_UploadTexture(const RT_UploadTextureParams* params);
+RT_API void RT_UploadTextureData(const RT_ResourceHandle texture_handle, const RT_UploadTextureParams* params);
 // Updates the material on the GPU at the given index, so long as it is less than RT_MAX_MATERIALS.
 // Returns the material_index you passed in, or UINT16_MAX if it was out of bounds.
 RT_API uint16_t RT_UpdateMaterial(uint16_t material_index, const RT_Material *material);

@@ -3147,13 +3147,40 @@ RT_ResourceHandle RenderBackend::UploadTexture(const RT_UploadTextureParams& tex
 	resource.texture = RT_CreateTexture(Utf16FromUtf8(temp, texture_resource_name), format, D3D12_RESOURCE_FLAG_NONE, (size_t)texture_params.width, (uint32_t)texture_params.height,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, (uint16_t)num_mips);
 
-	UploadTextureData(resource.texture, bpp*texture_params.width, texture_params.height, texture_params.pixels);
+	::UploadTextureData(resource.texture, bpp*texture_params.width, texture_params.height, texture_params.pixels);
 	GenerateMips(&resource);
 
 	resource.descriptors = g_d3d.cbv_srv_uav.Allocate(1);
 	CreateTextureSRV(resource.texture, resource.descriptors.GetCPUDescriptor(0), format);
 
 	return g_texture_slotmap.Insert(resource);
+}
+
+void RenderBackend::UploadTextureData(const RT_ResourceHandle texture_handle, const RT_UploadTextureParams& texture_params)
+{
+	auto* resource = g_texture_slotmap.Find(texture_handle);
+	if (!resource)
+		return;
+
+	int bpp = 4;
+	DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	switch (texture_params.format)
+	{
+	case RT_TextureFormat_RGBA8:  format = DXGI_FORMAT_R8G8B8A8_UNORM;      bpp = 4; break;
+	case RT_TextureFormat_SRGBA8: format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; bpp = 4; break;
+	case RT_TextureFormat_R8:     format = DXGI_FORMAT_R8_UNORM;            bpp = 1; break;
+	}
+
+	uint32_t w = texture_params.width, h = texture_params.height, num_mips = 0;
+	while (w >= 1 && h >= 1)
+	{
+		num_mips++;
+		w /= 2;
+		h /= 2;
+	}
+
+	::UploadTextureData(resource->texture, bpp*texture_params.width, texture_params.height, texture_params.pixels);
+	GenerateMips(resource);
 }
 
 RT_ResourceHandle RenderBackend::UploadMesh(const RT_UploadMeshParams& mesh_params)

@@ -334,6 +334,10 @@ void RT_UpdateMaterialIndices(void)
 {
 	uint16_t* g_rt_material_indices = RT_GetMaterialIndicesArray();
 
+	//#undef MAX_TEXTURES
+	//#undef MAX_OBJ_BITMAPS
+	//#define MAX_TEXTURES 1200
+	//#define MAX_OBJ_BITMAPS     610
 	for (int texture_index = 0; texture_index < MAX_TEXTURES; texture_index++)
 	{
 		g_rt_material_indices[texture_index] = Textures[texture_index].index;
