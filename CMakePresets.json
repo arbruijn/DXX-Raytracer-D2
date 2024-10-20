@@ -32,6 +32,10 @@
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
         "GRAPHICS_API": "DirectX12"
+      },
+      "environment": {
+        "CFLAGS": "/fsanitize=address",
+        "CXXFLAGS": "/fsanitize=address"
       }
     },
     {
