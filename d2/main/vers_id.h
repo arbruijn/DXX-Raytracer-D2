@@ -14,7 +14,7 @@
 #define VERSION D1X_RAYTRACER_VERSION_MAJOR "." D1X_RAYTRACER_VERSION_MINOR "." D1X_RAYTRACER_VERSION_MICRO
 #define DESCENT_VERSION "D2X Raytracer " VERSION
 
-#define VERSION_EXTRA_MAIN_SCREEN " - based on D1X Raytracer 1.1.0 by Breda University"
+#define VERSION_EXTRA_MAIN_SCREEN " - based on D1X Raytracer 1.2.0 by Breda University"
 
 extern const char g_descent_version[40];
 extern const char g_descent_build_datetime[21];
