@@ -570,11 +570,11 @@ void RT_UpdateAllBitmaps(void)
 		#else
 		RT_ReleaseTexture(material->albedo_texture);
 		material->albedo_texture = RT_UploadTexture(&(RT_UploadTextureParams) {
-			.width  = bitmap->bm_w,
-				.height = bitmap->bm_h,
-				.pixels = pixels,
-				.name   = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
-				.format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
+			.image.width = bitmap->bm_w,
+				.image.height = bitmap->bm_h,
+				.image.pixels = pixels,
+				.image.format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
+				.name = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index)
 		});
 		#endif
 
@@ -759,8 +759,9 @@ void RT_SyncMaterialStates(void)
 							.image.height = bitmap->bm_h,
 							.image.pixels = pixels,
 							.image.format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
-							.name = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
+							.name = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index)
 					});
+					material->flags |= RT_MaterialFlag_GameBitmap;
 
 #ifdef RT_DUMP_GAME_BITMAPS
 					{

@@ -74,10 +74,12 @@ RT_ResourceHandle RT_UploadTexture(const RT_UploadTextureParams* params)
 	return RenderBackend::UploadTexture(*params);
 }
 
+#if 0
 void RT_UploadTextureData(const RT_ResourceHandle texture_handle, const RT_UploadTextureParams* params)
 {
-	RenderBackend::UploadTextureData(texture_handle, *params);
+	RenderBackend::BackendUploadTextureData(texture_handle, *params);
 }
+#endif
 
 RT_ResourceHandle RT_GetDefaultWhiteTexture(void)
 {

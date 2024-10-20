@@ -474,6 +474,7 @@ namespace
 #ifdef _DEBUG
 			DXC_ARG_DEBUG,
 			DXC_ARG_SKIP_OPTIMIZATIONS,
+			L"-D", L"IS_DEBUG",
 #endif
 		};
 
@@ -3481,7 +3482,7 @@ RT_ResourceHandle RenderBackend::UploadTexture(const RT_UploadTextureParams& tex
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, 
 		(uint16_t)resource_mip_count);
 
-	::UploadTextureData(resource.texture, image.width, image.height, bits_per_pixel, image.mips, upload_mip_count);
+	UploadTextureData(resource.texture, image.width, image.height, bits_per_pixel, image.mips, upload_mip_count);
 
 	if (generate_mips)
 	{
