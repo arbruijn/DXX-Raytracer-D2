@@ -20,11 +20,11 @@ add_compile_definitions(PUBLIC
 #This enum decides if we are in the shipping build or not, this is for the future.
 #SHIPPING_BUILD 
 
-D1X_RAYTRACER_NAME="D1X_RAYTRACER"
+D1X_RAYTRACER_NAME="D2X_RAYTRACER"
 
 D1X_RAYTRACER_VERSION_MAJORi=0
 D1X_RAYTRACER_VERSION_MINORi=0
-D1X_RAYTRACER_VERSION_MICROi=1
+D1X_RAYTRACER_VERSION_MICROi=2
 
 #DXX-Retro last used version
 DXX_VERSION_MAJORi=0 
