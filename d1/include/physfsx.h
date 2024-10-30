@@ -61,7 +61,7 @@ static inline void PHYSFSX_readAngleVecX(PHYSFS_file *file, vms_angvec *v, int s
 	v->h = PHYSFSX_readSXE16(file, swap);
 }
 
-static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)
+static inline size_t PHYSFSX_readString(PHYSFS_file *file, char *s)
 {
 	char *ptr = s;
 
@@ -75,7 +75,7 @@ static inline int PHYSFSX_readString(PHYSFS_file *file, char *s)
 	return strlen(s);
 }
 
-static inline int PHYSFSX_gets(PHYSFS_file *file, char *s)
+static inline size_t PHYSFSX_gets(PHYSFS_file *file, char *s)
 {
 	char *ptr = s;
 
@@ -126,7 +126,8 @@ static inline int PHYSFSX_fgetc(PHYSFS_file *const fp)
 
 static inline int PHYSFSX_fseek(PHYSFS_file *fp, long int offset, int where)
 {
-	int c, goal_position;
+	int c;
+	PHYSFS_sint64 goal_position;
 
 	switch(where)
 	{
