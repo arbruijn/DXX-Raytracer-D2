@@ -382,5 +382,7 @@ RT_API void RT_RenderImGui();
 
 RT_API void RT_QueueScreenshot(const char *file_name);
 
+RT_API void RT_Flush();
+
 // Don't forget to pop.
 #pragma pack(pop)

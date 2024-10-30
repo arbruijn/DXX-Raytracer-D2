@@ -718,7 +718,7 @@ namespace
         swapChainDesc.Stereo = FALSE;
         swapChainDesc.SampleDesc = { 1, 0 };
         swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        swapChainDesc.BufferCount = BACK_BUFFER_COUNT;
+        swapChainDesc.BufferCount = BACK_BUFFER_COUNT_SWAP;
         swapChainDesc.Scaling = DXGI_SCALING_STRETCH;
         swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
         swapChainDesc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
@@ -731,7 +731,7 @@ namespace
         DX_CALL(dxgiSwapChain1->QueryInterface(&g_d3d.dxgi_swapchain4));
         DX_CALL(dxgiFactory5->MakeWindowAssociation(hWnd, DXGI_MWA_NO_ALT_ENTER));
 
-		for (UINT i = 0; i < BACK_BUFFER_COUNT; ++i)
+		for (UINT i = 0; i < BACK_BUFFER_COUNT_SWAP; ++i)
 		{
 			DX_CALL(g_d3d.dxgi_swapchain4->GetBuffer(i, IID_PPV_ARGS(&g_d3d.back_buffers[i])));
 			RT_TRACK_RESOURCE(g_d3d.back_buffers[i], D3D12_RESOURCE_STATE_PRESENT);
@@ -2192,10 +2192,10 @@ namespace
 		D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC tlas_build_desc = {};
 		tlas_build_desc.Inputs = tlas_inputs;
 		tlas_build_desc.ScratchAccelerationStructureData = frame->top_level_as_scratch->GetGPUVirtualAddress();
-		tlas_build_desc.DestAccelerationStructureData = g_d3d.frame_data[g_d3d.current_back_buffer_index].top_level_as->GetGPUVirtualAddress();
+		tlas_build_desc.DestAccelerationStructureData = /*g_d3d.frame_data[g_d3d.current_back_buffer_index].*/frame->top_level_as->GetGPUVirtualAddress();
 
 		command_list->BuildRaytracingAccelerationStructure(&tlas_build_desc, 0, nullptr);
-		UAVBarrier(command_list, g_d3d.frame_data[g_d3d.current_back_buffer_index].top_level_as);
+		UAVBarrier(command_list, /*g_d3d.frame_data[g_d3d.current_back_buffer_index].*/frame->top_level_as);
 	}
 
 	void LoadBlueNoiseTextures()
@@ -3376,7 +3376,7 @@ void RenderBackend::OnWindowResize(uint32_t width, uint32_t height)
 		g_d3d.render_height = height;
 	}
 	
-	for (size_t i = 0; i < BACK_BUFFER_COUNT; ++i)
+	for (size_t i = 0; i < BACK_BUFFER_COUNT_SWAP; ++i)
 	{
 		RT_RELEASE_RESOURCE(g_d3d.back_buffers[i]);
 		g_d3d.frame_data[i].fence_value = g_d3d.frame_data[g_d3d.current_back_buffer_index].fence_value;
@@ -3384,10 +3384,10 @@ void RenderBackend::OnWindowResize(uint32_t width, uint32_t height)
 
 	DXGI_SWAP_CHAIN_DESC swap_chain_desc = {};
 	DX_CALL(g_d3d.dxgi_swapchain4->GetDesc(&swap_chain_desc));
-	DX_CALL(g_d3d.dxgi_swapchain4->ResizeBuffers(BACK_BUFFER_COUNT, g_d3d.output_width, g_d3d.output_height,
+	DX_CALL(g_d3d.dxgi_swapchain4->ResizeBuffers(BACK_BUFFER_COUNT_SWAP, g_d3d.output_width, g_d3d.output_height,
 		swap_chain_desc.BufferDesc.Format, swap_chain_desc.Flags));
 
-	for (UINT i = 0; i < BACK_BUFFER_COUNT; ++i)
+	for (UINT i = 0; i < BACK_BUFFER_COUNT_SWAP; ++i)
 	{
 		DX_CALL(g_d3d.dxgi_swapchain4->GetBuffer(i, IID_PPV_ARGS(&g_d3d.back_buffers[i])));
 		RT_TRACK_RESOURCE(g_d3d.back_buffers[i], D3D12_RESOURCE_STATE_PRESENT);

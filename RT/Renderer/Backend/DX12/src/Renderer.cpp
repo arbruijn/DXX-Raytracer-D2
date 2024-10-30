@@ -360,3 +360,8 @@ void RT_QueueScreenshot(const char *file_name)
 {
 	RenderBackend::QueueScreenshot(file_name);
 }
+
+void RT_Flush()
+{
+	RenderBackend::Flush();
+}

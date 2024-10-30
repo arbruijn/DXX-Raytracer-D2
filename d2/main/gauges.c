@@ -3375,7 +3375,6 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 	int w,h,dx;
 
 	box = NULL;
-	return; // doesn't work currently with dx12 renderer
 
 	if (viewer == NULL) {								//this user is done
 
@@ -3430,7 +3429,17 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 	gr_set_current_canvas(&window_canv);
 
+#ifdef RT_DX12
+	RT_Flush();
+#endif
+
 	render_frame(0, win+1);
+
+#ifdef RT_DX12
+	RT_Vec2 top_left_blit = RT_Vec2Make((float)window_canv.cv_bitmap.bm_x, (float)window_canv.cv_bitmap.bm_y);
+	RT_Vec2 bottom_right_blit = RT_Vec2Make((float)window_canv.cv_bitmap.bm_x + (float)window_canv.cv_bitmap.bm_w, (float)window_canv.cv_bitmap.bm_y + (float)window_canv.cv_bitmap.bm_h);
+	RT_RasterBlitScene(&top_left_blit, &bottom_right_blit, true);
+#endif
 
 	//	HACK! If guided missile, wake up robots as necessary.
 	if (viewer->type == OBJ_WEAPON) {
