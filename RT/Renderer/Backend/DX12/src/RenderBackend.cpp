@@ -1941,7 +1941,7 @@ namespace
 
 		for (uint32_t src_mip = 0; src_mip < ((uint32_t)resource->texture->GetDesc().MipLevels - 1);)
 		{
-			uint64_t src_width = resource->texture->GetDesc().Width >> src_mip;
+			uint32_t src_width = (uint32_t)resource->texture->GetDesc().Width >> src_mip;
 			uint32_t src_height = resource->texture->GetDesc().Height >> src_mip;
 			uint32_t dst_width = uint32_t(src_width >> 1);
 			uint32_t dst_height = src_height >> 1;
