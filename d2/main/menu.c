@@ -1350,7 +1350,7 @@ int raytrace_config_menuset(newmenu *menu, d_event *event, void *userdata)
 
 void raytrace_config()
 {
-	newmenu_item m[30];
+	newmenu_item m[31];
 	int nitems = 0;
 
 	int opt_gr_vsync = 0;
