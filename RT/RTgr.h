@@ -42,7 +42,7 @@ typedef struct RT_WeaponLightAdjusts
 	float radiusMul;
 } RT_WeaponLightAdjusts;
 #ifdef D2
-#define RT_LIGHT_ADJUST_ARRAY_SIZE (PLAYER_SMART_HOMING_ID - CONCUSSION_ID + 1)
+#define RT_LIGHT_ADJUST_ARRAY_SIZE (ROBOT_EARTHSHAKER_ID + 1) //(PLAYER_SMART_HOMING_ID - CONCUSSION_ID + 1)
 #else
 #define RT_LIGHT_ADJUST_ARRAY_SIZE (SPREADFIRE_ID - CONCUSSION_ID + 1)
 #endif

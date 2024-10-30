@@ -1209,7 +1209,7 @@ static void RT_DoDynamicLightEditorMenus(void)
 		for (size_t i = 0; i < RT_LIGHT_ADJUST_ARRAY_SIZE; i++)
 		{
 			RT_WeaponLightAdjusts* adj = &rt_light_adjusts[i];
-			if (igTreeNode_Str(adj->weapon_name))
+			if (adj->weapon_name && igTreeNode_Str(adj->weapon_name))
 			{
 				igSliderFloat("Brightness", &adj->brightMul, 0, 100.f, "%.3f", 0);
 				igSliderFloat("Radius", &adj->radiusMul, 0, 10.f, "%.3f", 0);
