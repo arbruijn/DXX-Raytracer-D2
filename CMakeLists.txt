@@ -91,3 +91,13 @@ add_subdirectory ("physfs-main")
 add_subdirectory ("RT")
 add_subdirectory ("d1")
 add_subdirectory ("d2")
+
+add_custom_target(renderer_to_d2
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "$<TARGET_FILE_DIR:Renderer>/Renderer.dll"
+    ${CMAKE_BINARY_DIR}/d2
+    COMMAND ${CMAKE_COMMAND} -E copy
+    "$<TARGET_FILE_DIR:Renderer>/Renderer.pdb"
+    ${CMAKE_BINARY_DIR}/d2
+    COMMENT "Copying Renderer to output d2 folder")
+add_dependencies(descent2 renderer_to_d2)
