@@ -34,6 +34,19 @@
         "GRAPHICS_API": "DirectX12"
       },
       "environment": {
+        "CFLAGS": "",
+        "CXXFLAGS": ""
+      }
+    },
+    {
+      "name": "directx12-win-debug-sanitize",
+      "description": "Normal directx12 raytrace debug build.",
+      "inherits": "default",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "GRAPHICS_API": "DirectX12"
+      },
+      "environment": {
         "CFLAGS": "/fsanitize=address",
         "CXXFLAGS": "/fsanitize=address"
       }
