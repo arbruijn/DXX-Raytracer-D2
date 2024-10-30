@@ -474,7 +474,7 @@ namespace
 #ifdef _DEBUG
 			DXC_ARG_DEBUG,
 			DXC_ARG_SKIP_OPTIMIZATIONS,
-			L"-D", L"IS_DEBUG",
+			//L"-D", L"IS_DEBUG",
 #endif
 		};
 
