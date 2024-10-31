@@ -624,7 +624,7 @@ namespace
         // Create device
         DX_CALL(D3D12CreateDevice(g_d3d.dxgi_adapter4, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&g_d3d.device)));
         D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureOptions;
-        g_d3d.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureOptions, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS5));
+        DX_CALL(g_d3d.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &featureOptions, sizeof(D3D12_FEATURE_DATA_D3D12_OPTIONS5)););
 
         if (featureOptions.RaytracingTier < D3D12_RAYTRACING_TIER_1_0)
         {
@@ -2037,7 +2037,8 @@ namespace
 
 #define RT_CREATE_RENDER_TARGETS(name, reg, scale_x, scale_y, output_res, type, format) \
 		CreateRenderTarget(RT_PASTE(L, #name), reg, scale_x, scale_y, output_res, format, &g_d3d.render_targets[RT_PASTE(RenderTarget_, name)]); \
-		g_d3d.render_target_formats[RT_PASTE(RenderTarget_, name)] = format;
+		g_d3d.render_target_formats[RT_PASTE(RenderTarget_, name)] = format; \
+		CreateRenderTarget(RT_PASTE(L, #name) L"_blit", reg, scale_x * 4, scale_y * 4, output_res, format, &g_d3d.render_targets_blit[RT_PASTE(RenderTarget_, name)]); \
 
 		RT_RENDER_TARGETS(RT_CREATE_RENDER_TARGETS)
 
@@ -3136,8 +3137,8 @@ void RenderBackend::EndScene()
 			scene_cb->prev_proj_inv = prev_scene_cb->proj_inv;
 
 			scene_cb->taa_jitter = g_d3d.halton_samples[g_d3d.frame_index % HALTON_SAMPLE_COUNT];
-			scene_cb->output_dim = RT_Vec2iMake(g_d3d.output_width, g_d3d.output_height);
-			scene_cb->render_dim = RT_Vec2iMake(g_d3d.render_width, g_d3d.render_height);
+			scene_cb->output_dim = RT_Vec2iMake(g_d3d.output_width / (g_d3d.scene.render_blit ? 4 : 1), g_d3d.output_height / (g_d3d.scene.render_blit ? 4 : 1));
+			scene_cb->render_dim = RT_Vec2iMake(g_d3d.render_width / (g_d3d.scene.render_blit ? 4 : 1), g_d3d.render_height / (g_d3d.scene.render_blit ? 4 : 1));
 			scene_cb->frame_index = (uint32_t)g_d3d.accum_frame_index;
 			scene_cb->debug_flags = debug_flags;
 			scene_cb->lights_count = g_d3d.lights_count;
@@ -3777,7 +3778,7 @@ void RenderBackend::RaytraceRender()
 	// took the screenshot. So we don't want a screenshot of the next 
 	// frame, because it will have that text.
 	
-	if (g_d3d.queued_screenshot)
+	if (g_d3d.queued_screenshot && !g_d3d.scene.render_blit)
 	{
 		g_d3d.queued_screenshot = false;
 
@@ -3821,6 +3822,8 @@ void RenderBackend::RaytraceRender()
 	// ------------------------------------------------------------------
 
 	FrameData* frame = CurrentFrameData();
+	auto& rt = g_d3d.scene.render_blit ? g_d3d.rt_blit : g_d3d.rt;
+	auto* render_targets = g_d3d.scene.render_blit ? g_d3d.render_targets_blit : g_d3d.render_targets;
 
 	// Need to flush the ring buffer here for any pending copies
 	FlushRingBuffer(&g_d3d.resource_upload_ring_buffer);
@@ -3830,7 +3833,7 @@ void RenderBackend::RaytraceRender()
 
 	CommandList& command_list = g_d3d.command_queue_direct->GetCommandList();
 	GPUProfiler::BeginTimestampQuery(command_list, GPUProfiler::GPUTimer_FrameTime);
-	ResourceTransition(command_list, g_d3d.rt.color_final, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	ResourceTransition(command_list, rt.color_final, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	// ------------------------------------------------------------------
 
@@ -3855,13 +3858,13 @@ void RenderBackend::RaytraceRender()
 	{
 		{
 			D3D12_CPU_DESCRIPTOR_HANDLE uav = frame->descriptors.GetCPUDescriptor(descriptor);
-			CreateTextureUAV(g_d3d.render_targets[rt], uav, g_d3d.render_target_formats[rt]);
+			CreateTextureUAV(render_targets[rt], uav, g_d3d.render_target_formats[rt]);
 		}
 
 		{
 			// this is required for ClearUnorderedAccessViewFloat, only need it for clearing color right now
 			D3D12_CPU_DESCRIPTOR_HANDLE uav = frame->non_shader_descriptors.GetCPUDescriptor(descriptor);
-			CreateTextureUAV(g_d3d.render_targets[rt], uav, g_d3d.render_target_formats[rt]);
+			CreateTextureUAV(render_targets[rt], uav, g_d3d.render_target_formats[rt]);
 		}
 	};
 
@@ -3946,7 +3949,7 @@ void RenderBackend::RaytraceRender()
 	{
 		RT_ASSERT((descriptor >= D3D12GlobalDescriptors_SRV_START && descriptor < D3D12GlobalDescriptors_CBV_START) ||
 			(descriptor >= D3D12GlobalDescriptors_SRV_RT_START && descriptor < D3D12GlobalDescriptors_COUNT));
-		CreateTextureSRV(g_d3d.render_targets[rt], frame->descriptors.GetCPUDescriptor(descriptor), g_d3d.render_target_formats[rt]);
+		CreateTextureSRV(render_targets[rt], frame->descriptors.GetCPUDescriptor(descriptor), g_d3d.render_target_formats[rt]);
 	};
 
 	CreateRenderTargetSRV(rt_taa_result[a], D3D12GlobalDescriptors_SRV_taa_result);
@@ -3961,7 +3964,7 @@ void RenderBackend::RaytraceRender()
 	CreateRenderTargetSRV(RenderTarget_bloom5, D3D12GlobalDescriptors_SRV_bloom5);
 	CreateRenderTargetSRV(RenderTarget_bloom6, D3D12GlobalDescriptors_SRV_bloom6);
 	CreateRenderTargetSRV(RenderTarget_bloom7, D3D12GlobalDescriptors_SRV_bloom7);
-	ResourceTransition(command_list, g_d3d.rt.resolve, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	ResourceTransition(command_list, rt.resolve, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 	// ------------------------------------------------------------------
 	// Create unordered access view for the pixel debug buffer
@@ -4056,7 +4059,7 @@ void RenderBackend::RaytraceRender()
 		for (size_t rt_index = 0; rt_index < RenderTarget_COUNT; rt_index++)
 		{
 			D3D12GlobalDescriptors descriptor_id = (D3D12GlobalDescriptors)(D3D12GlobalDescriptors_UAV_RT_START + rt_index);
-			ClearUAV(g_d3d.render_targets[rt_index], descriptor_id, RT_Vec4Make(0, 0, 0, 0));
+			ClearUAV(render_targets[rt_index], descriptor_id, RT_Vec4Make(0, 0, 0, 0));
 		}
 	}
 
@@ -4065,16 +4068,34 @@ void RenderBackend::RaytraceRender()
 	// ------------------------------------------------------------------
 	// Determine dispatch dimensions
 
-	uint32_t rt_render_width = g_d3d.render_width_override == 0 ? g_d3d.render_width : g_d3d.render_width_override;
-	uint32_t rt_render_height = g_d3d.render_height_override == 0 ? g_d3d.render_height : g_d3d.render_height_override;
+	uint32_t render_width = g_d3d.render_width / (g_d3d.scene.render_blit ? 4 : 1);
+	uint32_t render_height = g_d3d.render_height / (g_d3d.scene.render_blit ? 4 : 1);
+
+	uint32_t output_width = g_d3d.output_width / (g_d3d.scene.render_blit ? 4 : 1);
+	uint32_t output_height = g_d3d.output_height / (g_d3d.scene.render_blit ? 4 : 1);
+
+	uint32_t rt_render_width = g_d3d.render_width_override == 0 || g_d3d.scene.render_blit ? render_width : g_d3d.render_width_override;
+	uint32_t rt_render_height = g_d3d.render_height_override == 0 || g_d3d.scene.render_blit ? render_height : g_d3d.render_height_override;
+
+	#if 0
+	if (g_d3d.scene.render_blit) {
+		rt_render_width = g_d3d.output_width / 4;
+		rt_render_height = g_d3d.output_height / 4;
+	}
+
+	render_width = rt_render_width;
+	render_height = rt_render_height;
+	output_width = rt_render_width;
+	output_height = rt_render_height;
+	#endif
 
 #if RT_INLINE_RAYTRACING
 	uint32_t rt_dispatch_w = RT_MAX((rt_render_width + GROUP_X - 1) / GROUP_X, 1);
 	uint32_t rt_dispatch_h = RT_MAX((rt_render_height + GROUP_Y - 1) / GROUP_Y, 1);
 #endif
 
-	uint32_t dispatch_w = RT_MAX((g_d3d.render_width + GROUP_X - 1) / GROUP_X, 1);
-	uint32_t dispatch_h = RT_MAX((g_d3d.render_height + GROUP_Y - 1) / GROUP_Y, 1);
+	uint32_t dispatch_w = RT_MAX((render_width + GROUP_X - 1) / GROUP_X, 1);
+	uint32_t dispatch_h = RT_MAX((render_height + GROUP_Y - 1) / GROUP_Y, 1);
 
 	// ------------------------------------------------------------------
 	// Dispatch Rays / Inline raytracing
@@ -4147,11 +4168,11 @@ void RenderBackend::RaytraceRender()
 		// Note(Justin): This is not correct since the ping-pong'd render targets are not taken into account here
 		ID3D12Resource* uav_render_targets[] =
 		{
-			g_d3d.rt.albedo, g_d3d.rt.emissive,
-			g_d3d.rt.normal, g_d3d.rt.depth,
-			g_d3d.rt.motion, g_d3d.rt.view_dir,
-			g_d3d.rt.metallic, g_d3d.rt.roughness, g_d3d.rt.material,
-			g_d3d.rt.visibility_prim, g_d3d.rt.visibility_bary
+			rt.albedo, rt.emissive,
+			rt.normal, rt.depth,
+			rt.motion, rt.view_dir,
+			rt.metallic, rt.roughness, rt.material,
+			rt.visibility_prim, rt.visibility_bary
 		};
 		UAVBarriers(command_list, RT_ARRAY_COUNT(uav_render_targets), uav_render_targets);
 
@@ -4200,7 +4221,7 @@ void RenderBackend::RaytraceRender()
 		// UAV barriers for all render targets of the direct lighting dispatch
 		ID3D12Resource* uav_render_targets[] =
 		{
-			g_d3d.rt.diff, g_d3d.rt.spec, g_d3d.rt.emissive
+			rt.diff, rt.spec, rt.emissive
 		};
 		UAVBarriers(command_list, RT_ARRAY_COUNT(uav_render_targets), uav_render_targets);
 
@@ -4210,15 +4231,15 @@ void RenderBackend::RaytraceRender()
 	{
 		GPUProfiler::BeginTimestampQuery(command_list, GPUProfiler::GPUTimer_DirectLighting);
 
-		uint32_t dispatch_w = (g_d3d.render_width + GROUP_X - 1) / GROUP_X;
-		uint32_t dispatch_h = (g_d3d.render_height + GROUP_Y - 1) / GROUP_Y;
+		uint32_t dispatch_w = (render_width + GROUP_X - 1) / GROUP_X;
+		uint32_t dispatch_h = (render_height + GROUP_Y - 1) / GROUP_Y;
 
 		command_list->SetPipelineState(g_d3d.cs.restir_gen_candidates.pso);
 		command_list->Dispatch(dispatch_w, dispatch_h, 1);
 
 		ID3D12Resource* uav_render_targets[] =
 		{
-			g_d3d.rt.diff, g_d3d.rt.spec,
+			rt.diff, rt.spec,
 		};
 		UAVBarriers(command_list, RT_ARRAY_COUNT(uav_render_targets), uav_render_targets);
 
@@ -4270,7 +4291,7 @@ void RenderBackend::RaytraceRender()
 			// UAV barriers for all render targets of the indirect lighting dispatch
 			ID3D12Resource* uav_render_targets[] =
 			{
-				g_d3d.rt.diff, g_d3d.rt.spec
+				rt.diff, rt.spec
 			};
 			UAVBarriers(command_list, RT_ARRAY_COUNT(uav_render_targets), uav_render_targets);
 
@@ -4299,8 +4320,8 @@ void RenderBackend::RaytraceRender()
 
 		ID3D12Resource* uav_render_targets[] =
 		{
-			g_d3d.rt.diff_denoise_ping, g_d3d.rt.spec_denoise_ping,
-			g_d3d.rt.moments, g_d3d.rt.history_length
+			rt.diff_denoise_ping, rt.spec_denoise_ping,
+			rt.moments, rt.history_length
 		};
 		UAVBarriers(command_list, RT_ARRAY_COUNT(uav_render_targets), uav_render_targets);
 
@@ -4322,9 +4343,9 @@ void RenderBackend::RaytraceRender()
 				{
 					ID3D12Resource* resources[] =
 					{
-						g_d3d.rt.diff_denoise_pong,
-						g_d3d.rt.spec_denoise_pong,
-						g_d3d.rt.moments_hist,
+						rt.diff_denoise_pong,
+						rt.spec_denoise_pong,
+						rt.moments_hist,
 					};
 					UAVBarriers(command_list, RT_ARRAY_COUNT(resources), resources);
 				} break;
@@ -4333,9 +4354,9 @@ void RenderBackend::RaytraceRender()
 				{
 					ID3D12Resource* resources[] =
 					{
-						g_d3d.rt.diff_hist,
-						g_d3d.rt.spec_hist,
-						g_d3d.rt.moments_denoise_pong,
+						rt.diff_hist,
+						rt.spec_hist,
+						rt.moments_denoise_pong,
 					};
 					UAVBarriers(command_list, RT_ARRAY_COUNT(resources), resources);
 				} break;
@@ -4344,9 +4365,9 @@ void RenderBackend::RaytraceRender()
 				{
 					ID3D12Resource* resources[] =
 					{
-						g_d3d.rt.diff_denoise_ping,
-						g_d3d.rt.spec_denoise_ping,
-						g_d3d.rt.moments_denoise_ping,
+						rt.diff_denoise_ping,
+						rt.spec_denoise_ping,
+						rt.moments_denoise_ping,
 					};
 					UAVBarriers(command_list, RT_ARRAY_COUNT(resources), resources);
 				} break;
@@ -4355,9 +4376,9 @@ void RenderBackend::RaytraceRender()
 				{
 					ID3D12Resource* resources[] =
 					{
-						g_d3d.rt.diff_denoise_pong,
-						g_d3d.rt.spec_denoise_pong,
-						g_d3d.rt.moments_denoise_pong,
+						rt.diff_denoise_pong,
+						rt.spec_denoise_pong,
+						rt.moments_denoise_pong,
 					};
 					UAVBarriers(command_list, RT_ARRAY_COUNT(resources), resources);
 				} break;
@@ -4366,9 +4387,9 @@ void RenderBackend::RaytraceRender()
 				{
 					ID3D12Resource* resources[] =
 					{
-						g_d3d.rt.diff_denoise_ping,
-						g_d3d.rt.spec_denoise_ping,
-						g_d3d.rt.moments_denoise_ping,
+						rt.diff_denoise_ping,
+						rt.spec_denoise_ping,
+						rt.moments_denoise_ping,
 					};
 					UAVBarriers(command_list, RT_ARRAY_COUNT(resources), resources);
 				} break;
@@ -4377,28 +4398,28 @@ void RenderBackend::RaytraceRender()
 		}
 		else
 		{
-			CopyBuffer(command_list, g_d3d.rt.diff_hist, g_d3d.rt.diff_denoise_ping);
-			CopyBuffer(command_list, g_d3d.rt.spec_hist, g_d3d.rt.spec_denoise_ping);
+			CopyBuffer(command_list, rt.diff_hist, rt.diff_denoise_ping);
+			CopyBuffer(command_list, rt.spec_hist, rt.spec_denoise_ping);
 		}
 	}
 
 	{
 		if (tweak_vars.svgf_stabilize)
 		{
-			ResourceTransition(command_list, g_d3d.render_targets[rt_diff_stable[b]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-			ResourceTransition(command_list, g_d3d.render_targets[rt_spec_stable[b]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			ResourceTransition(command_list, render_targets[rt_diff_stable[b]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			ResourceTransition(command_list, render_targets[rt_spec_stable[b]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 			command_list->SetPipelineState(g_d3d.cs.svgf_post_resample.pso);
 			command_list->Dispatch(dispatch_w, dispatch_h, 1);
 
-			ResourceTransition(command_list, g_d3d.render_targets[rt_diff_stable[b]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-			ResourceTransition(command_list, g_d3d.render_targets[rt_spec_stable[b]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			ResourceTransition(command_list, render_targets[rt_diff_stable[b]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			ResourceTransition(command_list, render_targets[rt_spec_stable[b]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
 			ID3D12Resource* resources[] =
 			{
-				g_d3d.render_targets[rt_diff_stable[a]],
-				g_d3d.render_targets[rt_spec_stable[a]],
-				g_d3d.rt.history_length,
+				render_targets[rt_diff_stable[a]],
+				render_targets[rt_spec_stable[a]],
+				rt.history_length,
 			};
 			UAVBarriers(command_list, RT_ARRAY_COUNT(resources), resources);
 		}
@@ -4414,7 +4435,7 @@ void RenderBackend::RaytraceRender()
 	command_list->SetPipelineState(g_d3d.cs.composite.pso);
 	command_list->Dispatch(dispatch_w, dispatch_h, 1);
 
-	UAVBarrier(command_list, g_d3d.rt.color);
+	UAVBarrier(command_list, rt.color);
 	GPUProfiler::EndTimestampQuery(command_list, GPUProfiler::GPUTimer_Composite);
 
 	// ------------------------------------------------------------------
@@ -4426,38 +4447,38 @@ void RenderBackend::RaytraceRender()
 	{
 		if (g_d3d.upscaling_aa_mode == UPSCALING_AA_MODE_TAA)
 		{
-			ResourceTransition(command_list, g_d3d.render_targets[rt_taa_result[b]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+			ResourceTransition(command_list, render_targets[rt_taa_result[b]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 			command_list->SetPipelineState(g_d3d.cs.taa.pso);
 			command_list->Dispatch(dispatch_w, dispatch_h, 1);
-			ResourceTransition(command_list, g_d3d.render_targets[rt_taa_result[b]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			ResourceTransition(command_list, render_targets[rt_taa_result[b]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-			UAVBarrier(command_list, g_d3d.render_targets[rt_taa_result[a]]);
+			UAVBarrier(command_list, render_targets[rt_taa_result[a]]);
 		}
 		else if (g_d3d.upscaling_aa_mode == UPSCALING_AA_MODE_AMD_FSR_2_2)
 		{
 			D3D12_RESOURCE_BARRIER fsr2_before_barriers[] = {
-				GetTransitionBarrier(g_d3d.rt.color, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-				GetTransitionBarrier(g_d3d.rt.depth, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-				GetTransitionBarrier(g_d3d.rt.motion, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-				GetTransitionBarrier(g_d3d.rt.fsr2_reactive_mask, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
-				GetTransitionBarrier(g_d3d.render_targets[rt_taa_result[a]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+				GetTransitionBarrier(rt.color, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+				GetTransitionBarrier(rt.depth, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+				GetTransitionBarrier(rt.motion, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+				GetTransitionBarrier(rt.fsr2_reactive_mask, D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE),
+				GetTransitionBarrier(render_targets[rt_taa_result[a]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
 			};
 			command_list->ResourceBarrier(RT_ARRAY_COUNT(fsr2_before_barriers), fsr2_before_barriers);
 
 			GlobalConstantBuffer* scene_cb = frame->scene_cb.As<GlobalConstantBuffer>();
 			FSR2::Dispatch(command_list,
-				g_d3d.rt.color, g_d3d.rt.depth, g_d3d.rt.motion, g_d3d.rt.fsr2_reactive_mask, g_d3d.render_targets[rt_taa_result[a]],
-				g_d3d.render_width, g_d3d.render_height, scene_cb->taa_jitter.x, scene_cb->taa_jitter.y,
+				rt.color, rt.depth, rt.motion, rt.fsr2_reactive_mask, render_targets[rt_taa_result[a]],
+				render_width, render_height, scene_cb->taa_jitter.x, scene_cb->taa_jitter.y,
 				g_d3d.scene.camera.near_plane, g_d3d.scene.camera.far_plane, RT_RadiansFromDegrees(g_d3d.scene.camera.vfov),
 				g_d3d.io.delta_time * 1000.0f, g_d3d.io.scene_transition
 			);
 
 			D3D12_RESOURCE_BARRIER fsr2_after_barriers[] = {
-				GetTransitionBarrier(g_d3d.rt.color, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
-				GetTransitionBarrier(g_d3d.rt.depth, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
-				GetTransitionBarrier(g_d3d.rt.motion, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
-				GetTransitionBarrier(g_d3d.rt.fsr2_reactive_mask, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
+				GetTransitionBarrier(rt.color, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+				GetTransitionBarrier(rt.depth, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+				GetTransitionBarrier(rt.motion, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+				GetTransitionBarrier(rt.fsr2_reactive_mask, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
 			};
 			command_list->ResourceBarrier(RT_ARRAY_COUNT(fsr2_after_barriers), fsr2_after_barriers);
 
@@ -4471,7 +4492,7 @@ void RenderBackend::RaytraceRender()
 	}
 	else
 	{
-		CopyBuffer(command_list, g_d3d.render_targets[rt_taa_result[a]], g_d3d.rt.color);
+		CopyBuffer(command_list, render_targets[rt_taa_result[a]], rt.color);
 	}
 
 	GPUProfiler::EndTimestampQuery(command_list, GPUProfiler::GPUTimer_TAA);
@@ -4479,26 +4500,26 @@ void RenderBackend::RaytraceRender()
 	// ------------------------------------------------------------------
 	// Do bloom
 
-	uint32_t output_dispatch_w = RT_MAX((g_d3d.output_width + GROUP_X - 1) / GROUP_X, 1);
-	uint32_t output_dispatch_h = RT_MAX((g_d3d.output_height + GROUP_Y - 1) / GROUP_Y, 1);
+	uint32_t output_dispatch_w = RT_MAX((output_width + GROUP_X - 1) / GROUP_X, 1);
+	uint32_t output_dispatch_h = RT_MAX((output_height + GROUP_Y - 1) / GROUP_Y, 1);
 
 	GPUProfiler::BeginTimestampQuery(command_list, GPUProfiler::GPUTimer_Bloom);
 
 	command_list->SetPipelineState(g_d3d.cs.bloom_prepass.pso);
 	command_list->Dispatch(output_dispatch_w / 2, output_dispatch_h / 2, 1);
 
-	UAVBarrier(command_list, g_d3d.rt.bloom_prepass);
+	UAVBarrier(command_list, rt.bloom_prepass);
 
 	ID3D12Resource* bloom_render_targets[]
 	{
-		g_d3d.render_targets[RenderTarget_bloom0],
-		g_d3d.render_targets[RenderTarget_bloom1],
-		g_d3d.render_targets[RenderTarget_bloom2],
-		g_d3d.render_targets[RenderTarget_bloom3],
-		g_d3d.render_targets[RenderTarget_bloom4],
-		g_d3d.render_targets[RenderTarget_bloom5],
-		g_d3d.render_targets[RenderTarget_bloom6],
-		g_d3d.render_targets[RenderTarget_bloom7],
+		render_targets[RenderTarget_bloom0],
+		render_targets[RenderTarget_bloom1],
+		render_targets[RenderTarget_bloom2],
+		render_targets[RenderTarget_bloom3],
+		render_targets[RenderTarget_bloom4],
+		render_targets[RenderTarget_bloom5],
+		render_targets[RenderTarget_bloom6],
+		render_targets[RenderTarget_bloom7],
 	};
 
 	for (int i = 0; i < 8; i++)
@@ -4508,15 +4529,15 @@ void RenderBackend::RaytraceRender()
 		int scale1 = 1 << (i + 1);
 		int scale2 = 1 << (i + 2);
 
-		int h1 = RT_MAX((g_d3d.output_height / scale1 + GROUP_Y - 1) / GROUP_Y, 1);
+		int h1 = RT_MAX((output_height / scale1 + GROUP_Y - 1) / GROUP_Y, 1);
 
-		int w2 = RT_MAX((g_d3d.output_width / scale2 + GROUP_X - 1) / GROUP_X, 1);
-		int h2 = RT_MAX((g_d3d.output_height / scale2 + GROUP_Y - 1) / GROUP_Y, 1);
+		int w2 = RT_MAX((output_width / scale2 + GROUP_X - 1) / GROUP_X, 1);
+		int h2 = RT_MAX((output_height / scale2 + GROUP_Y - 1) / GROUP_Y, 1);
 
 		command_list->SetPipelineState(g_d3d.cs.bloom_blur_horz.pso);
 		command_list->Dispatch(w2, h1, 1);
 
-		UAVBarrier(command_list, g_d3d.rt.bloom_pong);
+		UAVBarrier(command_list, rt.bloom_pong);
 
 		command_list->SetPipelineState(g_d3d.cs.bloom_blur_vert.pso);
 		command_list->Dispatch(w2, h2, 1);
@@ -4529,19 +4550,19 @@ void RenderBackend::RaytraceRender()
 	// ------------------------------------------------------------------
 	// Do tonemapping / gamma correction / other post processing effects
 
-	UAVBarrier(command_list, g_d3d.rt.debug);
+	UAVBarrier(command_list, rt.debug);
 	GPUProfiler::BeginTimestampQuery(command_list, GPUProfiler::GPUTimer_PostProcess);
 
-	ResourceTransition(command_list, g_d3d.render_targets[rt_taa_result[a]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+	ResourceTransition(command_list, render_targets[rt_taa_result[a]], D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 	ResourceTransitions(command_list, RT_ARRAY_COUNT(bloom_render_targets), bloom_render_targets, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 
 	command_list->SetPipelineState(g_d3d.cs.post_process.pso);
 	command_list->Dispatch(output_dispatch_w, output_dispatch_h, 1);
 
-	ResourceTransition(command_list, g_d3d.render_targets[rt_taa_result[a]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+	ResourceTransition(command_list, render_targets[rt_taa_result[a]], D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	ResourceTransitions(command_list, RT_ARRAY_COUNT(bloom_render_targets), bloom_render_targets, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
-	UAVBarrier(command_list, g_d3d.rt.color_final);
+	UAVBarrier(command_list, rt.color_final);
 	GPUProfiler::EndTimestampQuery(command_list, GPUProfiler::GPUTimer_PostProcess);
 
 	// ------------------------------------------------------------------
@@ -4551,11 +4572,11 @@ void RenderBackend::RaytraceRender()
 	command_list->SetPipelineState(g_d3d.cs.resolve_final_color.pso);
 	command_list->Dispatch(output_dispatch_w, output_dispatch_h, 1);
 
-	UAVBarrier(command_list, g_d3d.rt.resolve);
+	UAVBarrier(command_list, rt.resolve);
 
 	if (!g_d3d.scene.render_blit)
 	{
-		CopyResource(command_list, g_d3d.rt.color_final, g_d3d.rt.resolve);
+		CopyResource(command_list, rt.color_final, rt.resolve);
 	}
 
 	GPUProfiler::EndTimestampQuery(command_list, GPUProfiler::GPUTimer_FrameTime);
@@ -4830,7 +4851,7 @@ void RenderBackend::RasterBlitScene(const RT_Vec2* top_left, const RT_Vec2* bott
 	FlushRingBuffer(&g_d3d.resource_upload_ring_buffer);
 
 	CommandList& command_list = g_d3d.command_queue_direct->GetCommandList();
-	ResourceTransition(command_list, g_d3d.rt.resolve, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	ResourceTransition(command_list, g_d3d.rt_blit.resolve, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	ResourceTransition(command_list, g_d3d.rt.color_final, D3D12_RESOURCE_STATE_RENDER_TARGET);
 
 	FrameData* frame = CurrentFrameData();
@@ -4838,7 +4859,7 @@ void RenderBackend::RasterBlitScene(const RT_Vec2* top_left, const RT_Vec2* bott
 	{
 		RT_ASSERT((descriptor >= D3D12GlobalDescriptors_SRV_START && descriptor < D3D12GlobalDescriptors_CBV_START) ||
 			(descriptor >= D3D12GlobalDescriptors_SRV_RT_START && descriptor < D3D12GlobalDescriptors_COUNT));
-		CreateTextureSRV(g_d3d.render_targets[rt], frame->descriptors.GetCPUDescriptor(descriptor), g_d3d.render_target_formats[rt]);
+		CreateTextureSRV(g_d3d.render_targets_blit[rt], frame->descriptors.GetCPUDescriptor(descriptor), g_d3d.render_target_formats[rt]);
 	};
 	CreateRenderTargetSRV(RenderTarget_resolve, D3D12GlobalDescriptors_SRV_resolve);
 
@@ -4860,7 +4881,7 @@ void RenderBackend::RasterBlitScene(const RT_Vec2* top_left, const RT_Vec2* bott
 	command_list->SetGraphicsRoot32BitConstant(0, (UINT)top_left->y, 1);
 	command_list->SetGraphicsRoot32BitConstant(0, (UINT)viewport.Width, 2);
 	command_list->SetGraphicsRoot32BitConstant(0, (UINT)viewport.Height, 3);
-	command_list->SetGraphicsRoot32BitConstant(0, (UINT)blit_blend, 4);
+	command_list->SetGraphicsRoot32BitConstant(0, (UINT)(0*blit_blend), 4);
 	command_list->SetGraphicsRootDescriptorTable(1, frame->descriptors.GetGPUDescriptor(D3D12GlobalDescriptors_SRV_resolve));
 	command_list->DrawInstanced(6, 1, 0, 0);
 

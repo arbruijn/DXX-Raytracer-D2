@@ -1791,8 +1791,8 @@ void render_frame(fix eye_offset, int window_num)
 		scene_settings.camera = &g_free_cam;
 	}
 
-	scene_settings.render_width_override = Screen_3d_window.cv_bitmap.bm_w;
-	scene_settings.render_height_override = Screen_3d_window.cv_bitmap.bm_h;
+	scene_settings.render_width_override = Screen_3d_window.cv_bitmap.bm_w / (window_num ? 4 : 1); //grd_curcanv->cv_bitmap.bm_w; // Screen_3d_window.cv_bitmap.bm_w;
+	scene_settings.render_height_override = Screen_3d_window.cv_bitmap.bm_h / (window_num ? 4 : 1); //grd_curcanv->cv_bitmap.bm_h; //Screen_3d_window.cv_bitmap.bm_h;
 	scene_settings.render_blit = window_num != 0;
 	RT_BeginScene(&scene_settings);
 

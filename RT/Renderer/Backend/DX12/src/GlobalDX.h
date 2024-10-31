@@ -261,6 +261,14 @@ namespace RT
 		D3D12GlobalDescriptors_SRV_RT_START = D3D12GlobalDescriptors_SRV_color,
 	};
 
+	struct D3D12RenderTargets
+	{
+#define RT_RENDER_TARGETS_DECLARE_RESOURCES(name, reg, scale_x, scale_y, output_res, type, format) \
+					ID3D12Resource *name;
+
+		RT_RENDER_TARGETS(RT_RENDER_TARGETS_DECLARE_RESOURCES)
+	};
+
 	struct D3D12State
 	{
 		HWND hWnd;
@@ -420,16 +428,16 @@ namespace RT
 
 		union
 		{
-			struct
-			{
-				#define RT_RENDER_TARGETS_DECLARE_RESOURCES(name, reg, scale_x, scale_y, output_res, type, format) \
-					ID3D12Resource *name;
-
-				RT_RENDER_TARGETS(RT_RENDER_TARGETS_DECLARE_RESOURCES)
-			} rt;
-
+			struct D3D12RenderTargets rt;
 			ID3D12Resource *render_targets[RenderTarget_COUNT];
 		};
+
+		union
+		{
+			struct D3D12RenderTargets rt_blit;
+			ID3D12Resource *render_targets_blit[RenderTarget_COUNT];
+		};
+
 		DXGI_FORMAT render_target_formats[RenderTarget_COUNT];
 
 		DescriptorAllocation color_final_rtv;
