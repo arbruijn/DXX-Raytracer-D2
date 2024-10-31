@@ -24,9 +24,15 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include <assert.h>
 
 #ifdef __GNUC__
+#define __pre_noreturn
 #define __noreturn __attribute__ ((noreturn))
 #define __attribute_gcc_format(X) __attribute__ ((format X))
+#elif defined(_MSC_VER)
+#define __pre_noreturn __declspec(noreturn)
+#define __noreturn
+#define __attribute_gcc_format(X)
 #else
+#define __pre_noreturn
 #define __noreturn
 #define __attribute_gcc_format(X)
 #endif
@@ -36,7 +42,7 @@ int error_init(void (*func)(const char *));    //init error system, returns 0=ok
 void Warning(char *fmt,...);				//print out warning message to user
 void set_warn_func(void (*f)(char *s));//specifies the function to call with warning messages
 void clear_warn_func(void (*f)(char *s));//say this function no longer valid
-void Error(const char *fmt,...) __noreturn __attribute_gcc_format((printf, 1, 2));				//exit with error code=1, print message
+__pre_noreturn void Error(const char *fmt,...) __noreturn __attribute_gcc_format((printf, 1, 2));				//exit with error code=1, print message
 #define Assert assert
 #ifndef NDEBUG		//macros for debugging
 
