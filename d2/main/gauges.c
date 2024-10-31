@@ -3405,8 +3405,8 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 	if (PlayerCfg.CockpitMode[1] == CM_FULL_SCREEN)
 	{
-		w = HUD_SCALE_X_AR(HIRESMODE?106:44);
-		h = HUD_SCALE_Y_AR(HIRESMODE?106:44);
+		w = HUD_SCALE_X/*_AR*/(HIRESMODE?106:44);
+		h = HUD_SCALE_Y/*_AR*/(HIRESMODE?106:44);
 
 		dx = (win==0)?-(w+(w/10)):(w/10);
 
