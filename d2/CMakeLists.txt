@@ -282,17 +282,17 @@ install(TARGETS descent2
             INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(${GRAPHICS_API} STREQUAL "DirectX12")
-add_custom_command(TARGET descent2 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$<TARGET_FILE_DIR:descent1>/Renderer.dll"
-        $<TARGET_FILE_DIR:descent2>
-		COMMENT "copying Renderer.dll to output d2 folder")
+#add_custom_command(TARGET descent2 POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy
+#        "$<TARGET_FILE_DIR:descent1>/Renderer.dll"
+#        $<TARGET_FILE_DIR:descent2>
+#		COMMENT "copying Renderer.dll to output d2 folder")
 
-add_custom_command(TARGET descent2 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$<TARGET_FILE_DIR:descent1>/Renderer.pdb"
-        $<TARGET_FILE_DIR:descent2>
-		COMMENT "copying Renderer.pdb to output d2 folder")
+#add_custom_command(TARGET descent2 POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy
+#        "$<TARGET_FILE_DIR:descent1>/Renderer.pdb"
+#        $<TARGET_FILE_DIR:descent2>
+#		COMMENT "copying Renderer.pdb to output d2 folder")
 
 add_custom_command(TARGET descent2 POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
