@@ -58,7 +58,7 @@ SamplerState g_sampler : register(s0);
 
 float4 PixelShaderEntry(VertexShaderOutput IN) : SV_Target
 {
-	float blend_factor = 0.0;
+	float blend_factor = 1.0;
 	if (g_constants.blit_blend)
 	{
 		float2 uv = (IN.position.xy - float2(g_constants.blit_x, g_constants.blit_y)) / float2(g_constants.blit_width, g_constants.blit_height);
