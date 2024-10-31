@@ -3431,11 +3431,14 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 
 #ifdef RT_DX12
 	RT_Flush();
+	float old_ofs = RT_RaytraceGetVerticalOffset();
+	RT_RaytraceSetVerticalOffset(0);
 #endif
 
 	render_frame(0, win+1);
 
 #ifdef RT_DX12
+	RT_RaytraceSetVerticalOffset(old_ofs);
 	RT_Vec2 top_left_blit = RT_Vec2Make((float)window_canv.cv_bitmap.bm_x, (float)window_canv.cv_bitmap.bm_y);
 	RT_Vec2 bottom_right_blit = RT_Vec2Make((float)window_canv.cv_bitmap.bm_x + (float)window_canv.cv_bitmap.bm_w, (float)window_canv.cv_bitmap.bm_y + (float)window_canv.cv_bitmap.bm_h);
 	RT_RasterBlitScene(&top_left_blit, &bottom_right_blit, true);
