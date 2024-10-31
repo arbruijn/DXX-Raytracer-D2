@@ -618,7 +618,9 @@ int check_effect_blowup(segment *seg,int side,vms_vector *pnt, object *blower, i
 		  			digi_link_sound_to_pos( SOUND_LIGHT_BLOWNUP, seg-Segments, 0, pnt,  0, F1_0 );
 				}
 
+#ifdef RT_DX12
 				RT_BlowUpLight(&seg->sides[side]);
+#endif
 
 				return 1;		//blew up!
 			}
