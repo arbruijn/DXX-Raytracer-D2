@@ -1666,6 +1666,17 @@ void slide_textures(void)
 									Segments[segnum].sides[sidenum].uvls[j].v += f1_0;
 							}
 						}
+#ifdef RT_DX12
+						extern fix rt_uv_ofs[][2];
+						rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][0] += fixmul(FrameTime,TmapInfo[tmn].slide_u<<8);
+						rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][1] += fixmul(FrameTime,TmapInfo[tmn].slide_v<<8);
+						for (int j = 0; j < 2; j++) {
+							if (rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][j] > f2_0)
+								rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][j] -= f1_0;
+							if (rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][j] < -f2_0)
+								rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][j] += f1_0;
+						}
+#endif
 					}
 				}
 			}

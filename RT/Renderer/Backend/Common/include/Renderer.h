@@ -42,6 +42,7 @@ typedef struct RT_MaterialEdge
 {
 	uint16_t mat1; // equivalent to tmap_num1
 	uint16_t mat2; // equivalent to tmap_num2
+	float u, v;
 } RT_MaterialEdge;
 
 typedef struct RT_Camera

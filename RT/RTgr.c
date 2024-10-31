@@ -309,6 +309,8 @@ void gr_palette_step_up(int r, int g, int b)
 	io->screen_overlay_color = screen_flash_color;
 }
 
+fix rt_uv_ofs[MAX_SEGMENTS][2];
+extern short render_pos[MAX_SEGMENTS];
 void RT_UpdateMaterialEdges(void)
 {
 	RT_MaterialEdge* g_rt_material_edges = RT_GetMaterialEdgesArray();
@@ -324,8 +326,11 @@ void RT_UpdateMaterialEdges(void)
 			int absolute_side_index = MAX_SIDES_PER_SEGMENT * segment_index + side_index;
 
 			RT_MaterialEdge* side_edge = &g_rt_material_edges[absolute_side_index];
-			side_edge->mat1 = sd->wall_num != -1 && (Walls[sd->wall_num].type == WALL_OPEN || Walls[sd->wall_num].flags & WALL_ILLUSION_OFF) ? 0 : sd->tmap_num;
+			// use render_pos to make not-rendered sides transparent, to support overlapping geometry ('4D') such as the D2L2 blue key tunnel
+			side_edge->mat1 = render_pos[segment_index] == -1 || (sd->wall_num != -1 && (Walls[sd->wall_num].type == WALL_OPEN || Walls[sd->wall_num].flags & WALL_ILLUSION_OFF)) ? 0 : sd->tmap_num;
 			side_edge->mat2 = sd->tmap_num2;
+			side_edge->u = f2fl(rt_uv_ofs[absolute_side_index][0]);
+			side_edge->v = f2fl(rt_uv_ofs[absolute_side_index][1]);
 		}
 	}
 }

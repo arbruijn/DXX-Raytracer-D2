@@ -569,17 +569,18 @@ uint GetMaterialIndex(uint material_edge)
 	return result;
 }
 
-void GetMaterialEdges(uint material_edge_index, out uint mat1, out uint mat2, out uint orient)
+void GetMaterialEdges(uint material_edge_index, out uint mat1, out uint mat2, out uint orient, out float2 uv)
 {
-	uint byte_offset = 4 * material_edge_index; // 4 bytes per RT_MaterialEdge
+	uint byte_offset = 12 * material_edge_index; // 4 bytes per RT_MaterialEdge
 	uint material_edge = g_material_edges.Load(byte_offset);
 
 	mat1 = (material_edge >> 0) & 0xFFFF;
 	mat2 = (material_edge >> 16) & 0x3FFF;
 	orient = (material_edge >> 30) & 3;
+	uv = float2(asfloat(g_material_edges.Load(byte_offset + 4)), asfloat(g_material_edges.Load(byte_offset + 8)));
 }
 
-void GetMaterialIndicesAndOrient(uint material_edge_index, out uint material_index, out uint material_index2, out uint orient, uint material_override)
+void GetMaterialIndicesAndOrient(uint material_edge_index, out uint material_index, out uint material_index2, out uint orient, uint material_override, out float2 uvofs)
 {
 	//if (material_edge_index == RT_TRIANGLE_MATERIAL_INSTANCE_OVERRIDE)
 	if (material_override)
@@ -599,7 +600,7 @@ void GetMaterialIndicesAndOrient(uint material_edge_index, out uint material_ind
 		else
 		{
 			uint mat1, mat2;
-			GetMaterialEdges(material_edge_index, mat1, mat2, orient);
+			GetMaterialEdges(material_edge_index, mat1, mat2, orient, uvofs);
 
 			material_index = GetMaterialIndex(mat1);
 			if (mat2 != 0)
@@ -668,7 +669,8 @@ void GetHitMaterialAndUVs(InstanceData instance_data, RT_Triangle hit_triangle, 
 
 	uint orient = 0;
 	uint material_index2 = 0xFFFFFFFF;
-	GetMaterialIndicesAndOrient(material_edge_index, material_index, material_index2, orient, instance_data.material_override);
+	float2 uvofs = float2(0, 0);
+	GetMaterialIndicesAndOrient(material_edge_index, material_index, material_index2, orient, instance_data.material_override, uvofs);
 
 	// -------------------------------------------------------------------------------------
 	// Calculate UV coordinates
@@ -679,7 +681,7 @@ void GetHitMaterialAndUVs(InstanceData instance_data, RT_Triangle hit_triangle, 
 		hit_triangle.uv2,
 	};
 
-	uv = GetHitAttribute(uvs, barycentrics);
+	uv = GetHitAttribute(uvs, barycentrics) + uvofs;
 	float2 uv_rotated = GetRotatedUVs(orient, uv);
 	
 	// -------------------------------------------------------------------------------------
@@ -733,6 +735,7 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 	uint orient = 0;
 	uint material_index = 0;
 	uint material_index2 = 0xFFFFFFFF;
+	float2 uvofs = float2(0, 0);
 
 	if (instance_data.material_override)
 	{
@@ -751,7 +754,7 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 		else
 		{
 			uint mat1, mat2;
-			GetMaterialEdges(material_edge_index, mat1, mat2, orient);
+			GetMaterialEdges(material_edge_index, mat1, mat2, orient, uvofs);
 
 			if (mat1 == 0)
 			{
@@ -771,7 +774,7 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 		hit_triangle.uv1,
 		hit_triangle.uv2,
 	};
-	float2 uv = GetHitAttribute(uvs, barycentrics);
+	float2 uv = GetHitAttribute(uvs, barycentrics) + uvofs;
 	float2 uv_rotated = GetRotatedUVs(orient, uv);
 
 	// TODO(daniel): Clean this messy silly code up!
