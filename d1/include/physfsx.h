@@ -65,28 +65,24 @@ static inline size_t PHYSFSX_readString(PHYSFS_file *file, char *s)
 {
 	char *ptr = s;
 
-	if (PHYSFS_eof(file))
-		*ptr = 0;
-	else
-		do
-			PHYSFS_read(file, ptr, 1, 1);
-		while (!PHYSFS_eof(file) && *ptr++ != 0);
+	for (;; ptr++)
+		if (!PHYSFS_read(file, ptr, 1, 1) || !*ptr)
+			break;
+	*ptr = 0;
 
-	return strlen(s);
+	return ptr - s;
 }
 
 static inline size_t PHYSFSX_gets(PHYSFS_file *file, char *s)
 {
 	char *ptr = s;
 
-	if (PHYSFS_eof(file))
-		*ptr = 0;
-	else
-		do
-			PHYSFS_read(file, ptr, 1, 1);
-		while (!PHYSFS_eof(file) && *ptr++ != '\n');
+	for (;; ptr++)
+		if (!PHYSFS_read(file, ptr, 1, 1) || *ptr == '\n')
+			break;
+	*ptr = 0;
 
-	return strlen(s);
+	return ptr - s;
 }
 
 static inline int PHYSFSX_writeU8(PHYSFS_file *file, PHYSFS_uint8 val)
