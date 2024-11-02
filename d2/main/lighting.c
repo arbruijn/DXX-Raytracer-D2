@@ -465,6 +465,9 @@ g3s_lrgb compute_light_emission(int objnum)
 				case POW_CLOAK:
 				case POW_INVULNERABILITY:
 				case POW_HOARD_ORB:
+				case POW_HEADLIGHT:
+				case POW_AFTERBURNER:
+				case POW_CONVERTER:
 					compute_color = 1;
 					break;
 				default:
