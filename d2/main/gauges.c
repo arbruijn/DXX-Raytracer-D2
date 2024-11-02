@@ -267,6 +267,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define WS_FADING_IN			2
 #define FADE_SCALE			(2*i2f(GR_FADE_LEVELS)/REARM_TIME)		// fade out and back in REARM_TIME, in fade levels per seconds (int)
 
+#define GET_GAUGE(x)		((HIRESMODE)?Gauges_hires[x]:Gauges[x])
 #define GET_GAUGE_INDEX(x)		((HIRESMODE)?Gauges_hires[x].index:Gauges[x].index)
 #define COCKPIT_PRIMARY_BOX		(!HIRESMODE?0:4)
 #define COCKPIT_SECONDARY_BOX		(!HIRESMODE?1:5)
@@ -1796,25 +1797,10 @@ void draw_shield_bar(int shield)
 
 #define CLOAK_FADE_WAIT_TIME  0x400
 
-void draw_player_ship(int cloak_state,int x, int y)
+static int get_cloak_fade_value(int cloak_state)
 {
 	static fix cloak_fade_timer=0;
 	static int cloak_fade_value=GR_FADE_LEVELS-1;
-	grs_bitmap *bm = NULL;
-
-#ifdef NETWORK
-	if (Game_mode & GM_TEAM)
-	{
-		PAGE_IN_GAUGE( GAUGE_SHIPS+get_team(Player_num) );
-		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+get_team(Player_num)) ];
-	}
-	else
-#endif
-	{
-		int color = Netgame.players[Player_num].color;
-		PAGE_IN_GAUGE( GAUGE_SHIPS+color );
-		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+color) ];
-	}
 
 	if (cloak_state)
 	{
@@ -1859,10 +1845,31 @@ void draw_player_ship(int cloak_state,int x, int y)
 		cloak_fade_timer = 0;
 		cloak_fade_value = GR_FADE_LEVELS-1;
 	}
+	return cloak_fade_value;
+}
+
+void draw_player_ship(int cloak_state,int x, int y)
+{
+	grs_bitmap *bm = NULL;
+
+#ifdef NETWORK
+	if (Game_mode & GM_TEAM)
+	{
+		PAGE_IN_GAUGE( GAUGE_SHIPS+get_team(Player_num) );
+		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+get_team(Player_num)) ];
+	}
+	else
+#endif
+	{
+		int color = Netgame.players[Player_num].color;
+		PAGE_IN_GAUGE( GAUGE_SHIPS+color );
+		bm = &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_SHIPS+color) ];
+	}
+
 
 	gr_set_current_canvas(NULL);
 	hud_bitblt( HUD_SCALE_X(x), HUD_SCALE_Y(y), bm);
-	gr_settransblend(cloak_fade_value, GR_BLEND_NORMAL);
+	gr_settransblend(get_cloak_fade_value(cloak_state), GR_BLEND_NORMAL);
 	gr_rect(HUD_SCALE_X(x-3), HUD_SCALE_Y(y-3), HUD_SCALE_X(x+bm->bm_w+3), HUD_SCALE_Y(y+bm->bm_h+3));
 	gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
 	gr_set_current_canvas( NULL );
@@ -1926,6 +1933,7 @@ void draw_keys()
 
 #ifdef RT_DX12
 void render_ui_bitmap(bitmap_index bitmap, float x1, float y1, float x2, float y2) {
+	PIGGY_PAGE_IN(bitmap);
 	grs_bitmap* bm = &GameBitmaps[bitmap.index];
 	dx12_ubitmapm_cs(x1, y1, (x2 - x1), (y2 - y1), bm, -1, F1_0);
 }
@@ -1934,6 +1942,7 @@ void render_ui_bitmap(bitmap_index bitmap, float x1, float y1, float x2, float y
 void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char *name,int text_x,int text_y)
 {
 	grs_bitmap *bm;
+	bitmap_index picture;
 
 	//clear the window
 	if (PlayerCfg.CockpitMode[1] != CM_MODEL_3D) {
@@ -1944,21 +1953,20 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 	if (Piggy_hamfile_version >= 3 // !SHAREWARE
 		&& HIRESMODE)
 	{
-		PIGGY_PAGE_IN( Weapon_info[info_index].hires_picture );
-		bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
+		picture = Weapon_info[info_index].hires_picture;
 	}
 	else
 	{
-		PIGGY_PAGE_IN( Weapon_info[info_index].picture );
-		bm=&GameBitmaps[Weapon_info[info_index].picture.index];
+		picture = Weapon_info[info_index].picture;
 	}
+	PIGGY_PAGE_IN( picture );
+	bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
 
 	Assert(bm != NULL);
 
-	PIGGY_PAGE_IN( Weapon_info[info_index].picture );
 	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D) {
 #ifdef RT_DX12
-		render_ui_bitmap(Weapon_info[info_index].picture, pic_x, pic_y, pic_x + bm->bm_w * 3, pic_y + bm->bm_h * 3);
+		render_ui_bitmap(picture, pic_x, pic_y, pic_x + bm->bm_w * 3, pic_y + bm->bm_h * 3);
 #endif
 	}
 	else
@@ -3228,24 +3236,24 @@ void render_gauges()
 
 		// Render keys
 		if (Players[Player_num].flags & PLAYER_FLAGS_RED_KEY) {
-			render_ui_bitmap(Gauges[GAUGE_RED_KEY], PLACE(pos_red_key));
+			render_ui_bitmap(GET_GAUGE(GAUGE_RED_KEY), PLACE(pos_red_key));
 		} else {
-			render_ui_bitmap(Gauges[GAUGE_RED_KEY_OFF], PLACE(pos_red_key));
+			render_ui_bitmap(GET_GAUGE(GAUGE_RED_KEY_OFF), PLACE(pos_red_key));
 		}
 		if (Players[Player_num].flags & PLAYER_FLAGS_GOLD_KEY) {
-			render_ui_bitmap(Gauges[GAUGE_GOLD_KEY], PLACE(pos_gold_key));
+			render_ui_bitmap(GET_GAUGE(GAUGE_GOLD_KEY), PLACE(pos_gold_key));
 		} else {
-			render_ui_bitmap(Gauges[GAUGE_GOLD_KEY_OFF], PLACE(pos_gold_key));
+			render_ui_bitmap(GET_GAUGE(GAUGE_GOLD_KEY_OFF), PLACE(pos_gold_key));
 		}
 		if (Players[Player_num].flags & PLAYER_FLAGS_BLUE_KEY) {
-			render_ui_bitmap(Gauges[GAUGE_BLUE_KEY], PLACE(pos_blue_key));
+			render_ui_bitmap(GET_GAUGE(GAUGE_BLUE_KEY), PLACE(pos_blue_key));
 		} else {
-			render_ui_bitmap(Gauges[GAUGE_BLUE_KEY_OFF], PLACE(pos_blue_key));
+			render_ui_bitmap(GET_GAUGE(GAUGE_BLUE_KEY_OFF), PLACE(pos_blue_key));
 		}
 
 		// Render full energy bars
-		render_ui_bitmap(Gauges[GAUGE_ENERGY_LEFT], PLACE(pos_energy_left));
-		render_ui_bitmap(Gauges[GAUGE_ENERGY_RIGHT], PLACE(pos_energy_right));
+		render_ui_bitmap(GET_GAUGE(GAUGE_ENERGY_LEFT), PLACE(pos_energy_left));
+		render_ui_bitmap(GET_GAUGE(GAUGE_ENERGY_RIGHT), PLACE(pos_energy_right));
 
 		// Hide corners
 		if (energy < 100) {
@@ -3300,10 +3308,32 @@ void render_gauges()
 		gr_printf(pos_homing_text[0], pos_homing_text[1], "LOCK");
 
 		// Render player ship and shield
-        const int color = Netgame.players[Player_num].color;
-		render_ui_bitmap(Gauges[GAUGE_SHIPS + color], pos_ship_center.x - scl_ship, pos_ship_center.y - scl_ship, pos_ship_center.x + scl_ship, pos_ship_center.y + scl_ship);
-        const int bm_num = shields >= 100 ? 9 : (shields / 10);
-		render_ui_bitmap(Gauges[GAUGE_SHIELDS + 9 - bm_num], pos_ship_center.x - scl_shield, pos_ship_center.y - scl_shield, pos_ship_center.x + scl_shield, pos_ship_center.y + scl_shield);
+        const int color = Game_mode & GM_TEAM ? get_team(Player_num) : Netgame.players[Player_num].color;
+		int fade = get_cloak_fade_value(cloak);
+		gr_settransblend(fade == 0 ? 1 : fade, GR_BLEND_NORMAL);
+		render_ui_bitmap(GET_GAUGE(GAUGE_SHIPS + color), pos_ship_center.x - scl_ship, pos_ship_center.y - scl_ship, pos_ship_center.x + scl_ship, pos_ship_center.y + scl_ship);
+		//gr_rect(HUD_SCALE_X(x-3), HUD_SCALE_Y(y-3), HUD_SCALE_X(x+bm->bm_w+3), HUD_SCALE_Y(y+bm->bm_h+3));
+		gr_settransblend(GR_FADE_OFF, GR_BLEND_NORMAL);
+
+		int shield_gauge_idx;
+		if (Players[Player_num].flags & PLAYER_FLAGS_INVULNERABLE &&
+			(Players[Player_num].invulnerable_time+INVULNERABLE_TIME_MAX-GameTime64 > F1_0*4 || GameTime64 & 0x8000)) {
+			static fix time=0;
+
+			shield_gauge_idx = GAUGE_INVULNERABLE+invulnerable_frame;
+
+			time += FrameTime;
+
+			while (time > INV_FRAME_TIME) {
+				time -= INV_FRAME_TIME;
+				if (++invulnerable_frame == N_INVULNERABLE_FRAMES)
+					invulnerable_frame=0;
+			}
+		} else {
+			const int bm_num = shields >= 100 ? 9 : (shields / 10);
+			shield_gauge_idx = GAUGE_SHIELDS + 9 - bm_num;
+		}
+		render_ui_bitmap(GET_GAUGE(shield_gauge_idx), pos_ship_center.x - scl_shield, pos_ship_center.y - scl_shield, pos_ship_center.x + scl_shield, pos_ship_center.y + scl_shield);
 
 		// Draw weapons
 		gr_set_curfont(GAME_FONT);
