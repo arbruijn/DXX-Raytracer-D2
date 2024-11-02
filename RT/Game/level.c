@@ -194,10 +194,10 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 				{
 					wall *w = &Walls[s->wall_num];
 					// TODO(daniel): What about blastable wallls?
-					if (w->type != WALL_OPEN)
-					{
+					//if (w->type != WALL_OPEN) // might be opened by switch
+					//{
 						should_render = true;
-					}
+					//}
 				}
 
 				if (!should_render) { continue; }
