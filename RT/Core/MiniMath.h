@@ -24,7 +24,7 @@ static inline float RT_RadiansFromDegrees(float degrees)
     return degrees * (RT_PI32 / 180.0f);
 }
 
-static inline float RT_FloatAreEqual(float a, float b, float tolerance)
+static inline int RT_FloatAreEqual(float a, float b, float tolerance)
 {
     return fabsf(a - b) <= tolerance;
 }
