@@ -1812,9 +1812,9 @@ void render_frame(fix eye_offset, int window_num)
 		RT_Vec3  light_pos_right = RT_Vec3Add3(object_pos, RT_Vec3Muls(g_cam.right, +pos_offset_horz), RT_Vec3Muls(g_cam.up, pos_offset_vert));
 		RT_Vec3  light_dir_left = RT_Vec3Normalize(RT_Vec3Add3(g_cam.forward, RT_Vec3Muls(g_cam.right, skew_horz), RT_Vec3Muls(g_cam.up, skew_vert)));
 		RT_Vec3  light_dir_right = RT_Vec3Normalize(RT_Vec3Add3(g_cam.forward, RT_Vec3Muls(g_cam.right, -skew_horz), RT_Vec3Muls(g_cam.up, skew_vert)));
-		RT_Vec3  light_emission = RT_Vec3FromScalar(h->brightness);
+		RT_Vec3  light_emission = RT_Vec3FromScalar(Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON ? 30.0f : h->brightness);
 		float    light_radius = h->radius;
-		float    light_spot_angle = h->spot_angle;
+		float    light_spot_angle = Players[Player_num].flags & PLAYER_FLAGS_HEADLIGHT_ON ? 0.20f : h->spot_angle;
 		float    light_spot_softness = h->spot_softness;
 		RT_RaytraceSubmitLight(RT_MakeSphericalSpotlight(light_emission, light_pos_left, light_dir_left, light_radius,
 			light_spot_angle, light_spot_softness, 0.6f));

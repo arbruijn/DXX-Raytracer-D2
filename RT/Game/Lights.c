@@ -394,10 +394,10 @@ void RT_ShowLightMenu()
 		igSliderFloat("Vertical Position Offset", &h->pos_offset_vert, -5.0f, 5.0f, "%.02f", 0);
 		igSliderFloat("Horizontal Skew", &h->skew_horz, 0.0f, 0.4f, "%.02f", 0);
 		igSliderFloat("Vertical Skew", &h->skew_vert, -0.2f, 0.2f, "%.02f", 0);
-		igSliderFloat("Light Radius", &h->radius, 0.01f, 0.4f, "%.02f", 0);
-		igSliderFloat("Brightness", &h->brightness, 0.0f, 5.0f, "%.02f", 0);
-		igSliderFloat("Spot Angle", &h->spot_angle, 0.01f, 0.12f, "%.02f", 0);
-		igSliderFloat("Spot Softness", &h->spot_softness, 0.01f, 0.12f, "%.02f", 0);
+		igSliderFloat("Light Radius", &h->radius, 0.01f, 10.0f, "%.02f", 0);
+		igSliderFloat("Brightness", &h->brightness, 0.0f, 100.0f, "%.02f", 0);
+		igSliderFloat("Spot Angle", &h->spot_angle, 0.01f, 0.5f, "%.02f", 0);
+		igSliderFloat("Spot Softness", &h->spot_softness, 0.01f, 0.5f, "%.02f", 0);
 		igDummy((ImVec2){0.0f, igGetFontSize()});
 	}
 	igPopID(1);
