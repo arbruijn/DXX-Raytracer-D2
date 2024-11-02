@@ -49,6 +49,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "mouse.h"
 #include "console.h"
 #include "args.h"
+#include "gamepal.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -319,8 +320,9 @@ void show_titles(void)
 		// YES, LOADING THE TITLE SCREEN IS MISSION CRITICAL TO THE GAME, AND IF YOU
 		// DON'T DO IT OR DO IT IN THE WRONG ORDER THE GAME TEXTURES GET ALL SCREWED
 		// UP. ARE YOU MAD.
-		if (PHYSFSX_exists(filename, 1))
-			load_the_palette_of_the_title_screen_like_a_fucking_psycho(filename, 1, 0);
+		load_palette(D2_DEFAULT_PALETTE,0,1);
+		//if (PHYSFSX_exists(filename, 1))
+		//	load_the_palette_of_the_title_screen_like_a_fucking_psycho(filename, 1, 0);
 	}
 	else
 	{
@@ -1528,8 +1530,10 @@ void do_briefing_screens(char *filename, int level_num)
 	else
 		songs_stop_all();
 
+#ifndef RT_DX12
 	// set screen correctly for robot movies
 	set_screen_mode( SCREEN_MOVIE );
+#endif
 
 	gr_set_current_canvas(NULL);
 

@@ -1722,7 +1722,7 @@ void StartNewLevel(int level_num)
 		maybe_set_first_secret_visit(level_num);
 	}
 
-	//ShowLevelIntro(level_num);
+	ShowLevelIntro(level_num);
 
 	StartNewLevelSub(level_num, 1, 0 );
 

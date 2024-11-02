@@ -456,10 +456,15 @@ void gr_bm_ubitbltm(int w, int h, int dx, int dy, int sx, int sy, grs_bitmap * s
 	register int x1, y1;
 	ubyte c;
 
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	if ( (src->bm_type == BM_LINEAR) && (dest->bm_type == BM_OGL ))
 	{
+#ifdef RT_DX12
+		//dx12_ubitblt(w, h, dx, dy, w, h, sx, sy, src, dest, 0);
+		dx12_ubitmapm_cs(dx, dy, w, h, src, -1, F1_0);
+#else
 		ogl_ubitblt(w, h, dx, dy, sx, sy, src, dest);
+#endif
 		return;
 	}
 	if ( (src->bm_type == BM_OGL) && (dest->bm_type == BM_LINEAR ))

@@ -125,7 +125,7 @@ int PlayMovie(const char *filename, int must_have)
 	char name[FILENAME_LEN],*p;
 	int ret;
 
-	if (1) // GameArg.SysNoMovies) // no movies for now
+	if (GameArg.SysNoMovies) // no movies for now
 		return MOVIE_NOT_PLAYED;
 
 	strcpy(name,filename);
@@ -176,13 +176,6 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 	}
 	memcpy(old_pal,gr_palette,768);
 
-	source_bm.bm_x = source_bm.bm_y = 0;
-	source_bm.bm_w = source_bm.bm_rowsize = bufw;
-	source_bm.bm_h = bufh;
-	source_bm.bm_type = BM_LINEAR;
-	source_bm.bm_flags = 0;
-	source_bm.bm_data = buf;
-
 	if (dstx == -1 && dsty == -1) // Fullscreen movie so set scale to fit the actual screen size
 	{
 		if (((float)SWIDTH/SHEIGHT) < ((float)sw/bufh))
@@ -213,7 +206,10 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 
 	glEnable (GL_BLEND);
 #else
-	gr_bm_ubitbltm(bufw,bufh,dstx,dsty,0,0,&source_bm,&grd_curcanv->cv_bitmap);
+	gr_init_bitmap(&source_bm, BM_LINEAR, 0, 0, bufw, bufh, bufw, buf);
+	gr_bm_ubitbltm(bufw*scale,bufh*scale,dstx,dsty,0,0,&source_bm,&grd_curcanv->cv_bitmap);
+	source_bm.bm_data = NULL;
+	gr_free_bitmap_data(&source_bm);
 #endif
 }
 
@@ -321,6 +317,9 @@ int MovieHandler(window *wind, d_event *event, movie *m)
 			break;
 
 		case EVENT_WINDOW_DRAW:
+			gr_setcolor(BM_XRGB(0, 0, 0));
+			gr_urect(0, 0, SWIDTH, SHEIGHT);
+
 			if (!m->paused)
 			{
 				m->result = MVE_rmStepMovie();
@@ -360,7 +359,7 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	int track = 0;
 	int aborted = 0;
 	int reshow = 0;
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	ubyte pal_save[768];
 #endif
 
@@ -402,8 +401,8 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 	MVE_memCallbacks(MPlayAlloc, MPlayFree);
 	MVE_ioCallbacks(FileRead);
 
-#ifdef OGL
-	set_screen_mode(SCREEN_MOVIE);
+#if defined(OGL) || defined(RT_DX12)
+	//set_screen_mode(SCREEN_MOVIE);
 	gr_copy_palette(pal_save, gr_palette, 768);
 	memset(gr_palette, 0, 768);
 	gr_palette_load(gr_palette);
@@ -441,10 +440,11 @@ int RunMovie(char *filename, int hires_flag, int must_have,int dx,int dy)
 
 	// Restore old graphic state
 
-	Screen_mode=-1;  //force reset of screen mode
-#ifdef OGL
+#if defined(OGL) || defined(RT_DX12)
 	gr_copy_palette(gr_palette, pal_save, 768);
 	gr_palette_load(pal_save);
+#else
+	Screen_mode=-1;  //force reset of screen mode
 #endif
 
 	return (aborted?MOVIE_ABORTED:MOVIE_PLAYED_FULL);
