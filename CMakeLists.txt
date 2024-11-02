@@ -87,6 +87,7 @@ message(STATUS ${QUICKSTART})
 endif()
 
 add_subdirectory ("sdl-master")
+add_subdirectory ("sdl-mixer-master")
 add_subdirectory ("physfs-main")
 add_subdirectory ("RT")
 add_subdirectory ("d1")

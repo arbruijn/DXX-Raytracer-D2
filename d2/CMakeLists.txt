@@ -146,6 +146,9 @@ target_sources(descent2 PRIVATE
 	"arch/sdl/window.c"
 	"arch/sdl/digi.c"
 	"arch/sdl/digi_audio.c"
+	"arch/sdl/digi_mixer.c"
+	"arch/sdl/digi_mixer_music.c"
+	"arch/sdl/jukebox.c"
 	"arch/win32/messagebox.c"
 	"iff/iff.c"
 	"libmve/decoder8.c"
@@ -259,15 +262,19 @@ target_include_directories(descent2 PRIVATE
 "../sdl-master"
 "../sdl-master/sdl"
 "../sdl-master/sdl/include"
+"../sdl-mixer-master"
 "../physfs-main/src"
 $ENV{RT_EXT_CODE_DIR}
 )
+
+add_compile_definitions(PUBLIC USE_SDLMIXER)
 
 target_link_libraries(descent2 
 physfs-static
 #mingw32
 sdlmain
 sdl
+SDL_mixer_master
 dxguid
 Winmm
 Ws2_32
