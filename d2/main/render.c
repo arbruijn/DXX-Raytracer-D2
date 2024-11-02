@@ -1677,6 +1677,10 @@ void render_frame(fix eye_offset, int window_num)
 {
 	int start_seg_num;
 
+#ifdef RT_DX12
+	const float local_M_PI = 3.14159265f;
+	Render_zoom = fl2f(tanf(g_cam.vfov*local_M_PI/360.0f));
+#endif
 
 	if (Endlevel_sequence) {
 		render_endlevel_frame(eye_offset);
