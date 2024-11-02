@@ -812,6 +812,8 @@ void RT_SyncMaterialStates(void)
 						.name = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
 				});
 
+				material->flags |= RT_MaterialFlag_GameBitmap;
+
 #ifdef RT_DUMP_GAME_BITMAPS
 				{
 					const char* png_path = RT_ArenaPrintF(&g_thread_arena, "assets/texture_dump/%s.png", bitmap_name);
