@@ -680,6 +680,7 @@ int RT_ReloadMaterials(void)
 
 void RT_SyncMaterialStates(void) 
 {
+	int upd = 0;
 
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
@@ -728,7 +729,8 @@ void RT_SyncMaterialStates(void)
 				material->texture_load_state = RT_MaterialTextureLoadState_Unloaded;
 
 				RT_UpdateMaterial(bm_index, material);
-				
+				upd++;
+
 				// load the original low res texture (for the material viewer)
 				RT_ArenaMemoryScope(&g_thread_arena)
 				{
@@ -772,6 +774,7 @@ void RT_SyncMaterialStates(void)
 				}
 
 				RT_UpdateMaterial(bm_index, material);
+				upd++;
 			}
 		}
 
@@ -823,9 +826,13 @@ void RT_SyncMaterialStates(void)
 			}
 			
 			RT_UpdateMaterial(bm_index, material);
+			upd++;
 		}
 	}
 
-	piggy_bitmap_page_out_all();
+	if (upd)
+		RT_Flush();
+
+	//piggy_bitmap_page_out_all();
 }
 
