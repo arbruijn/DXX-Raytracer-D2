@@ -228,13 +228,10 @@ void init_cockpit()
 
     case CM_REAR_VIEW:
     {
-        int x1 = 0, y1 = 0, x2 = SWIDTH, y2 = (SHEIGHT * 2) / 3;
-        grs_bitmap* bm;
-
-        float height = ((y2 / (float)SHEIGHT) * 2.0f - 1.0f); // This will convert it to an offset relative to the center in normalized space
-        height = -remap(height / 2.0f, 0.0f, SHEIGHT, -0.5f, +0.5f);
+		float height = (SHEIGHT * 8) / 10;
+		height = -remap(height / 2.0f, 0.0f, SHEIGHT, -0.5f, +0.5f);
 		RT_RaytraceSetVerticalOffset(height); // Apply the offset
-        game_init_render_sub_buffers(0, 0, x2, SHEIGHT); // But render the entire screen still
+        game_init_render_sub_buffers(0, 0, SWIDTH, SHEIGHT); // But render the entire screen still
         break;
     }
     case CM_FULL_SCREEN:
