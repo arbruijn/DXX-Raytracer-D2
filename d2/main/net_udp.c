@@ -346,6 +346,8 @@ ssize_t dxx_sendto(int sockfd, const void *msg, int len, unsigned int flags, con
 ssize_t dxx_recvfrom(int sockfd, void *buf, int len, unsigned int flags, struct sockaddr *from, socklen_t *fromlen)
 {
 	ssize_t rv = recvfrom(sockfd, buf, len, flags, from, fromlen);
+	if (rv == -1)
+		return -1;
 
 	net_log_log(0, buf, rv, from, *fromlen);
 
@@ -473,6 +475,8 @@ int udp_open_socket(int socknum, int port)
 		return -1;
 	}
 	(void)setsockopt( UDP_Socket[socknum], SOL_SOCKET, SO_BROADCAST, (const char *) &bcast, sizeof(bcast) );
+	u_long mode = 1;  // 1 to enable non-blocking socket
+	ioctlsocket(UDP_Socket[socknum], FIONBIO, &mode);
 #else
 	struct addrinfo hints,*res,*sres;
 	int err,ai_family_;
@@ -546,6 +550,8 @@ int udp_open_socket(int socknum, int port)
 
 int udp_general_packet_ready(int socknum)
 {
+	return 1;
+/*
 	fd_set set;
 	struct timeval tv;
 
@@ -556,6 +562,7 @@ int udp_general_packet_ready(int socknum)
 		return 1;
 	else
 		return 0;
+*/
 }
 
 // Gets some text. Returns 0 if nothing on there.
