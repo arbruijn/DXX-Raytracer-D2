@@ -163,9 +163,10 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
+#include "dx12.h"
+static grs_bitmap source_bm;
 void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
-	grs_bitmap source_bm;
 	static ubyte old_pal[768];
 	float scale = 1.0;
 
@@ -206,10 +207,17 @@ void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, 
 
 	glEnable (GL_BLEND);
 #else
+	if (source_bm.bm_data) {
+#if RT_DX12
+		//RT_Flush();
+		RT_ReleaseTexture(source_bm.dxtexture->handle);
+#endif
+		source_bm.bm_data = NULL;
+		gr_free_bitmap_data(&source_bm);
+	}
+
 	gr_init_bitmap(&source_bm, BM_LINEAR, 0, 0, bufw, bufh, bufw, buf);
 	gr_bm_ubitbltm(bufw*scale,bufh*scale,dstx,dsty,0,0,&source_bm,&grd_curcanv->cv_bitmap);
-	source_bm.bm_data = NULL;
-	gr_free_bitmap_data(&source_bm);
 #endif
 }
 

@@ -3456,7 +3456,7 @@ RT_ResourceHandle RenderBackend::UploadTexture(const RT_UploadTextureParams& tex
 	uint32_t resource_mip_count = RT_MAX(1, image.mip_count);
 	uint32_t upload_mip_count   = RT_MAX(1, image.mip_count);
 
-	bool generate_mips = !is_dxt_format && upload_mip_count <= 1;
+	bool generate_mips = !is_dxt_format && upload_mip_count <= 1 && !(texture_params.flags & RT_TextureFlag_NoMips);
 
 	if (generate_mips)
 	{
@@ -3528,7 +3528,7 @@ void RenderBackend::ReleaseTexture(const RT_ResourceHandle texture_handle)
 		// Note (Justin): This is a dirty little hack to have the resources released after the current frame finished rendering
 		RT_TRACK_TEMP_OBJECT(texture_resource->texture, &g_d3d.command_queue_direct->GetCommandList());
 		g_d3d.cbv_srv_uav.Free(texture_resource->descriptors);
-		g_d3d.resource_tracker.Release(texture_resource->texture);  // JA: added this line so GPU would release texture memory
+		//g_d3d.resource_tracker.Release(texture_resource->texture);  // JA: added this line so GPU would release texture memory
 		g_texture_slotmap.Remove(texture_handle);
 	}
 }

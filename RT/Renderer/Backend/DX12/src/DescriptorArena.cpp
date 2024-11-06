@@ -129,6 +129,7 @@ DescriptorAllocation DescriptorArenaFreelist::Allocate(UINT count)
 	}
 
 	//No free blocks available.
+	RT_FATAL_ERROR("No more descriptors available.");
 	RT_ASSERT(false);
 	return result;
 }

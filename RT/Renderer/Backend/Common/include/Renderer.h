@@ -146,7 +146,7 @@ static char g_rt_texture_format_bpp[] =
 typedef enum RT_TextureFlag
 {
 	RT_TextureFlag_None,
-	RT_TextureFlag_IsGameBitmap = 2
+	RT_TextureFlag_NoMips = 1
 } RT_TextureFlag;
 
 typedef struct RT_UploadTextureParams

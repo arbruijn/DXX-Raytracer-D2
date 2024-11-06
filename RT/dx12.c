@@ -273,7 +273,8 @@ void dx12_loadbmtexture_f(grs_bitmap* bm, int texfilt)
 			.image.width = bm->dxtexture->w,
 			.image.height = bm->dxtexture->h,
 			.image.pixels = pixels,
-			.name = "UI texture"
+			.flags = RT_TextureFlag_NoMips,
+			.name = "UI texture",
 		};
 
 		bm->dxtexture->handle = RT_UploadTexture(&tex_upload_params);
