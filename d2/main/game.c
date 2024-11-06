@@ -1629,9 +1629,16 @@ void compute_slide_segs(void)
 void slide_textures(void)
 {
 	int segnum,sidenum,i;
+#ifdef RT_DX12
+	extern fix rt_uv_ofs[MAX_SEGMENTS * MAX_SIDES_PER_SEGMENT][2];
+#endif
 
-	if (!Slide_segs_computed)
+	if (!Slide_segs_computed) {
 		compute_slide_segs();
+#ifdef RT_DX12
+		memset(rt_uv_ofs, 0, MAX_SEGMENTS * MAX_SIDES_PER_SEGMENT * 2 * sizeof(float));
+#endif
+	}
 
 	for (segnum=0;segnum<=Highest_segment_index;segnum++) {
 		if (Slide_segs[segnum]) {
@@ -1664,7 +1671,6 @@ void slide_textures(void)
 							}
 						}
 #ifdef RT_DX12
-						extern fix rt_uv_ofs[][2];
 						rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][0] += fixmul(FrameTime,TmapInfo[tmn].slide_u<<8);
 						rt_uv_ofs[segnum * MAX_SIDES_PER_SEGMENT + sidenum][1] += fixmul(FrameTime,TmapInfo[tmn].slide_v<<8);
 						for (int j = 0; j < 2; j++) {

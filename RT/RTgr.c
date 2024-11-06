@@ -309,7 +309,7 @@ void gr_palette_step_up(int r, int g, int b)
 	io->screen_overlay_color = screen_flash_color;
 }
 
-fix rt_uv_ofs[MAX_SEGMENTS][2];
+fix rt_uv_ofs[MAX_SEGMENTS * MAX_SIDES_PER_SEGMENT][2];
 extern short render_pos[MAX_SEGMENTS];
 void RT_UpdateMaterialEdges(void)
 {
