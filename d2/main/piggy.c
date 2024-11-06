@@ -109,7 +109,7 @@ static int GameBitmapOffset[MAX_BITMAP_FILES];
 static ubyte GameBitmapFlags[MAX_BITMAP_FILES];
 ushort GameBitmapXlat[MAX_BITMAP_FILES];
 
-#define PIGGY_BUFFER_SIZE (2400*1024)
+#define PIGGY_BUFFER_SIZE (2500*2*1024)
 #define PIGGY_SMALL_BUFFER_SIZE (1400*1024)		// size of buffer when GameArg.SysLowMem is set
 
 int piggy_page_flushed = 0;
