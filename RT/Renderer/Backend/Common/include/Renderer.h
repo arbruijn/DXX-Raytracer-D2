@@ -20,7 +20,7 @@
 #define RT_TRIANGLES_PER_SIDE (2)
 #define RT_MAX_MATERIAL_EDGES (RT_MAX_SEGMENTS*RT_SIDES_PER_SEGMENT)
 #define RT_MAX_TRIANGLES (RT_MAX_SEGMENTS*RT_SIDES_PER_SEGMENT*RT_TRIANGLES_PER_SIDE)
-#define RT_MAX_LIGHTS (100)
+#define RT_MAX_LIGHTS (150)
 
 // OR this in for triangle->material_edge_index for poly objects and have them
 // skip the material edges array...
