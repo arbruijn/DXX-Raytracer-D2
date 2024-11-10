@@ -756,7 +756,7 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 			uint mat1, mat2;
 			GetMaterialEdges(material_edge_index, mat1, mat2, orient, uvofs);
 
-			if (mat1 == 0)
+			if (mat1 == 32767)
 			{
 				return true;
 			}
