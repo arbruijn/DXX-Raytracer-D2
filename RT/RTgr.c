@@ -1012,7 +1012,7 @@ void RT_DrawPolyModel(const int meshnumber, const int signature, ubyte object_ty
 	}
 }
 
-void RT_DrawSubPolyModel(RT_ResourceHandle submodel, const RT_Mat4* const submodel_transform, RT_RenderKey key)
+void RT_DrawSubPolyModel(RT_ResourceHandle submodel, const RT_Mat4* const submodel_transform, RT_RenderKey key, const int material_override)
 {
 	if (RT_RESOURCE_HANDLE_VALID(submodel))
 	{
@@ -1032,12 +1032,13 @@ void RT_DrawSubPolyModel(RT_ResourceHandle submodel, const RT_Mat4* const submod
 			.mesh_handle = submodel,
 			.transform = submodel_transform,
 			.color = RT_PackRGBA(color),
+			.material_override = material_override
 		};
 		RT_RaytraceMeshEx(&params);
 	}
 }
 
-void RT_DrawPolySubModelTree(const polymodel* model, const vms_angvec* const anim_angles, int submodel_index, const int signature, const RT_Mat4 submodel_transform)
+void RT_DrawPolySubModelTree(const polymodel* model, const vms_angvec* const anim_angles, int submodel_index, const int signature, const RT_Mat4 submodel_transform, const int material_override)
 {
 	RT_RenderKey key =
 	{
@@ -1046,7 +1047,7 @@ void RT_DrawPolySubModelTree(const polymodel* model, const vms_angvec* const ani
 	};
 
 	// Draw the submodel
-	RT_DrawSubPolyModel(model->submodel[submodel_index], &submodel_transform, key);
+	RT_DrawSubPolyModel(model->submodel[submodel_index], &submodel_transform, key, material_override);
 
 	// Traverse tree structure
 	for (int i = 0; i < model->model_tree[submodel_index].n_children; ++i) {
@@ -1079,11 +1080,11 @@ void RT_DrawPolySubModelTree(const polymodel* model, const vms_angvec* const ani
 		// Combine them into one big matrix
 		RT_Mat4 combined_matrix = RT_Mat4Mul(offset_mat4, rotation_mat4);
 
-		RT_DrawPolySubModelTree(model, anim_angles, child_index, signature, combined_matrix);
+		RT_DrawPolySubModelTree(model, anim_angles, child_index, signature, combined_matrix, material_override);
 	}
 }
 
-void RT_DrawPolyModelTree(const int meshnumber, const int signature, ubyte object_type, const vms_vector* pos, const vms_matrix* orient, vms_angvec* anim_angles) {
+void RT_DrawPolyModelTree(const int meshnumber, const int signature, ubyte object_type, const vms_vector* pos, const vms_matrix* orient, vms_angvec* anim_angles, const int material_override) {
 	if (!RT_RESOURCE_HANDLE_VALID(mesh_handles[meshnumber]))
 	{
 		RT_InitPolyModelAndSubModels(meshnumber);
@@ -1103,7 +1104,7 @@ void RT_DrawPolyModelTree(const int meshnumber, const int signature, ubyte objec
     // Combine them into one big matrix
     RT_Mat4 combined_matrix = RT_Mat4Mul(offset_mat4, rotation_mat4);
 
-    RT_DrawPolySubModelTree(model, anim_angles, 0, signature, combined_matrix);
+    RT_DrawPolySubModelTree(model, anim_angles, 0, signature, combined_matrix, material_override);
 }
 
 void RT_DrawGLTF(const RT_GLTFNode* node, RT_Mat4 transform, RT_Mat4 prev_transform)

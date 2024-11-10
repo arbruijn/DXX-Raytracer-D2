@@ -583,7 +583,7 @@ void draw_polygon_model(_RT_DRAW_POLY vms_vector* pos, vms_matrix* orient, vms_a
 #else
 		//RT_DrawPolyModel(model_num, objNum, object_type, pos, orient);
 
-		RT_DrawPolyModelTree(model_num, signature, object_type, pos, orient, anim_angles);
+		RT_DrawPolyModelTree(model_num, signature, object_type, pos, orient, anim_angles, alt_textures ? alt_textures[0].index : 0);
 #endif //RT_DX12
 	}
 	else {
@@ -787,7 +787,7 @@ void draw_model_picture(int mn,vms_angvec *orient_angles)
 	else
 		temp_pos.z = DEFAULT_VIEW_DIST;
 	vm_angles_2_matrix(&temp_orient, orient_angles);
-	draw_polygon_model(0, 2, &temp_pos, &temp_orient, NULL, mn, 0, lrgb, NULL, NULL, OBJ_NONE);
+	draw_polygon_model(0, 2, &temp_pos, &temp_orient, NULL, mn, 0, lrgb, NULL, NULL);
 #endif //RT_DX12
 
 	g3_end_frame();

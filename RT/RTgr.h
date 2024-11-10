@@ -103,7 +103,7 @@ void RT_InitPolyModelAndSubModels(int polymodel_index);
 
 void RT_DrawPolyModel(const int meshnumber, const int objNum, ubyte object_type, const vms_vector* pos, const vms_matrix* orient);
 void RT_DrawSubPolyModel(const RT_ResourceHandle submodel, const RT_Mat4* const submodel_transform, RT_RenderKey key);
-void RT_DrawPolyModelTree(const int meshnumber, const int objNum, ubyte object_type, const vms_vector* pos, const vms_matrix* orient, vms_angvec* anim_angles);
+void RT_DrawPolyModelTree(const int meshnumber, const int objNum, ubyte object_type, const vms_vector* pos, const vms_matrix* orient, vms_angvec* anim_angles, const int material_override);
 void RT_DrawGLTF(const RT_GLTFNode* basenode, RT_Mat4 transform, RT_Mat4 prev_transform);
 
 void RT_EnableFreeCam();
