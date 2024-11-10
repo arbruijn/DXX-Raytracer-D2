@@ -36,7 +36,7 @@ quadint;
 #define f2ir(f) (((f)+f0_5)>>16)
 
 //Convert fix to float and float to fix
-#define f2fl(f) (((float)  (f)) / 65536.0)
+#define f2fl(f) (((float)  (f)) / 65536.0f)
 #define f2db(f) (((double) (f)) / 65536.0)
 #define fl2f(f) ((fix) ((f) * 65536))
 
