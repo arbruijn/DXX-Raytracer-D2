@@ -1253,7 +1253,7 @@ void kill_and_so_forth(void)
 			for (j=0; j<Num_walls; j++) {
 				if (Walls[j].trigger == i) {
 					compute_segment_center(&ConsoleObject->pos, &Segments[Walls[j].segnum]);
-					obj_relink(ConsoleObject-Objects,Walls[j].segnum);
+					obj_relink((int)(ConsoleObject-Objects),Walls[j].segnum);
 					goto kasf_done;
 				}
 			}
@@ -1969,7 +1969,7 @@ int ReadControls(d_event *event)
 
 #ifdef RT_DX12
 		if (g_rt_free_cam_info.g_free_cam_enabled) {
-			return;
+			return 0;
 		}
 #endif
 		do_weapon_n_item_stuff();
