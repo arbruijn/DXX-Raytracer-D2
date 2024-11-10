@@ -307,6 +307,7 @@ namespace RT
 		DescriptorArena dsv;
 		DescriptorArenaFreelist cbv_srv_uav;
 		DescriptorArena cbv_srv_uav_staging;
+		DescriptorArena cbv_srv_uav_mips;
 
 		IDXGISwapChain4* dxgi_swapchain4;
 		ID3D12Resource* back_buffers[BACK_BUFFER_COUNT];

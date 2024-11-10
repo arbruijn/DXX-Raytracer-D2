@@ -747,7 +747,8 @@ namespace
 		g_d3d.dsv.Init(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
 		g_d3d.cbv_srv_uav.Init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, CBV_SRV_UAV_HEAP_SIZE, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
 		g_d3d.cbv_srv_uav_staging.Init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, D3D12GlobalDescriptors_COUNT*BACK_BUFFER_COUNT, D3D12_DESCRIPTOR_HEAP_FLAG_NONE);
-    }
+		g_d3d.cbv_srv_uav_mips.Init(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, CBV_SRV_UAV_HEAP_SIZE, D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE);
+	}
 
     void CreateRootSignatures()
     {
@@ -1930,8 +1931,8 @@ namespace
 
 		// TODO(Justin): These are temporary descriptor allocations and should ideally be freed when the mips are done
 		// However, since descriptor heaps can be quite big in size, we won't care about this.
-		DescriptorAllocation srv = g_d3d.cbv_srv_uav.Allocate(1);
-		DescriptorAllocation uavs = g_d3d.cbv_srv_uav.Allocate(resource->texture->GetDesc().MipLevels - 1);
+		DescriptorAllocation srv = g_d3d.cbv_srv_uav_mips.Allocate(1);
+		DescriptorAllocation uavs = g_d3d.cbv_srv_uav_mips.Allocate(resource->texture->GetDesc().MipLevels - 1);
 
 		command_list->SetPipelineState(g_d3d.cs.gen_mipmaps.pso);
 		command_list->SetComputeRootSignature(g_d3d.gen_mipmap_root_sig);
@@ -1984,7 +1985,7 @@ namespace
 				g_d3d.device->CreateUnorderedAccessView(uav_resource, nullptr, &uav_desc, uavs.GetCPUDescriptor(src_mip + mip));
 			}
 
-			ID3D12DescriptorHeap* heap = { g_d3d.cbv_srv_uav.GetHeap() };
+			ID3D12DescriptorHeap* heap = { g_d3d.cbv_srv_uav_mips.GetHeap() };
 			command_list->SetDescriptorHeaps(1, &heap);
 			// Set the constant buffer data for the mip map settings constant buffer
 			command_list->SetComputeRoot32BitConstants(0, sizeof(GenMipMapSettings) / 4, &gen_mipmap_settings, 0);
@@ -2763,6 +2764,7 @@ void RenderBackend::Exit()
 	g_d3d.rtv.Release();
 	g_d3d.cbv_srv_uav.Release();
 	g_d3d.cbv_srv_uav_staging.Release();
+	g_d3d.cbv_srv_uav_mips.Release();
 }
 
 void RenderBackend::Flush()
@@ -2772,6 +2774,7 @@ void RenderBackend::Flush()
 	// Note(Justin): Temp fix, will be revisited soon with the command list refactor
 	g_d3d.resource_upload_ring_buffer.commands_recorded = true;
 	FlushRingBuffer(&g_d3d.resource_upload_ring_buffer);
+	g_d3d.cbv_srv_uav_mips.Reset();
 }
 
 static void DisplayPixelDebug(RT_Vec2i pixel_location)
@@ -3313,6 +3316,7 @@ void RenderBackend::SwapBuffers()
 	// Release all stale temporary resources that have been tracked and reset the frame arena marker
 	g_d3d.resource_tracker.ReleaseStaleTempResources(frame->fence_value);
 	RT_ArenaResetToMarker(&frame->upload_buffer_arena, frame->upload_buffer_arena_reset);
+	g_d3d.cbv_srv_uav_mips.Reset();
 
 	g_d3d.frame_index++;
 	g_d3d.accum_frame_index++;
@@ -3526,7 +3530,7 @@ void RenderBackend::ReleaseTexture(const RT_ResourceHandle texture_handle)
 	if (texture_resource)
 	{
 		// Note (Justin): This is a dirty little hack to have the resources released after the current frame finished rendering
-		RT_TRACK_TEMP_OBJECT(texture_resource->texture, &g_d3d.command_queue_direct->GetCommandList());
+		RT_TRACK_TEMP_OBJECT(texture_resource->texture, nullptr); //&g_d3d.command_queue_direct->GetCommandList());
 		g_d3d.cbv_srv_uav.Free(texture_resource->descriptors);
 		//g_d3d.resource_tracker.Release(texture_resource->texture);  // JA: added this line so GPU would release texture memory
 		g_texture_slotmap.Remove(texture_handle);
