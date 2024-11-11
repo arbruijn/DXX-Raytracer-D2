@@ -822,9 +822,9 @@ int automap_handler(window *wind, d_event *event, automap *am)
 				ConsoleObject->mtype.phys_info.flags |= am->old_wiggle;		// Restore wiggle
 			event_toggle_focus(0);
 			key_toggle_repeat(1);
-#ifdef OGL
+//#ifdef OGL
 			gr_free_bitmap_data(&am->automap_background);
-#endif
+//#endif
 			d_free(am->edges);
 			d_free(am->drawingListBright);
 			d_free(am);
