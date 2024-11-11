@@ -3330,8 +3330,9 @@ void RenderBackend::SwapBuffers()
 	RECT client_rect;
 	GetClientRect(g_d3d.hWnd, &client_rect);
 
-	if ((int)g_d3d.output_width  != client_rect.right ||
-		(int)g_d3d.output_height != client_rect.bottom)
+	if (client_rect.right && client_rect.bottom &&
+		((int)g_d3d.output_width  != client_rect.right ||
+		(int)g_d3d.output_height != client_rect.bottom))
 	{
 		OnWindowResize(client_rect.right, client_rect.bottom);
 	}
