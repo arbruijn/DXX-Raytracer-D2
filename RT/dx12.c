@@ -699,7 +699,7 @@ int g3_draw_sphere(g3s_point* pnt, fix rad)
 	RT_RasterTrianglesParams raster_tri_params = { 0 };
 	raster_tri_params.texture_handle = RT_RESOURCE_HANDLE_NULL;
 	raster_tri_params.num_vertices = 63;
-	raster_tri_params.vertices = RT_ArenaAllocArray(&g_thread_arena, raster_tri_params.num_vertices, RT_RasterTriVertex);
+	raster_tri_params.vertices = RT_ArenaAllocArray(RT_ArenaGetThreadArena(), raster_tri_params.num_vertices, RT_RasterTriVertex);
 
 	circle_array_init(raster_tri_params.vertices, 20);
 

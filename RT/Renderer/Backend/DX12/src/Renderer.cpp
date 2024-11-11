@@ -7,6 +7,7 @@
 #include "Renderer.h"
 #include "RenderBackend.h"
 #include "Core/Common.h"
+#include "Core/Arena.h"
 
 //
 //
@@ -364,4 +365,9 @@ void RT_QueueScreenshot(const char *file_name)
 void RT_Flush()
 {
 	RenderBackend::Flush();
+}
+
+RT_Arena *RT_ArenaGetThreadArena()
+{
+	return &g_thread_arena;
 }

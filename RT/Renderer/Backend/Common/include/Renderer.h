@@ -6,6 +6,7 @@
 
 #include "ApiTypes.h"
 #include "Core/MiniMath.h"
+#include "Core/Arena.h"
 
 // ------------------------------------------------------------------
 
@@ -384,6 +385,8 @@ RT_API void RT_RenderImGui();
 RT_API void RT_QueueScreenshot(const char *file_name);
 
 RT_API void RT_Flush();
+
+RT_API RT_Arena *RT_ArenaGetThreadArena();
 
 // Don't forget to pop.
 #pragma pack(pop)

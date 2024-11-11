@@ -3317,6 +3317,7 @@ void RenderBackend::SwapBuffers()
 	g_d3d.resource_tracker.ReleaseStaleTempResources(frame->fence_value);
 	RT_ArenaResetToMarker(&frame->upload_buffer_arena, frame->upload_buffer_arena_reset);
 	g_d3d.cbv_srv_uav_mips.Reset();
+	RT_ArenaResetAndDecommit(RT_ArenaGetThreadArena());
 
 	g_d3d.frame_index++;
 	g_d3d.accum_frame_index++;
