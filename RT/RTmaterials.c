@@ -243,7 +243,7 @@ static int RT_LoadMaterialTexturesFromPaths(uint16_t bm_index, RT_Material *mate
 				}
 			}
 
-			if (!dds_loaded) // dds file not loaded try png
+			if (!dds_loaded && paths->textures[i][0]) // dds file not loaded try png
 			{
 				RT_ArenaMemoryScope(&g_thread_arena)
 				{
