@@ -63,7 +63,7 @@ void dx12_set_render_target(RT_ResourceHandle texture)
 
 void dx12_init_texture(grs_bitmap* bm)
 {
-	bm->dxtexture = RT_ArenaAllocStruct(&g_arena, dx_texture);
+	bm->dxtexture = malloc(sizeof(dx_texture)); //RT_ArenaAllocStruct(&g_arena, dx_texture);
 
 	bm->dxtexture->handle = RT_RESOURCE_HANDLE_NULL;
 	bm->dxtexture->lw = bm->dxtexture->w = bm->dxtexture->tw = bm->bm_w;
@@ -279,6 +279,17 @@ void dx12_loadbmtexture_f(grs_bitmap* bm, int texfilt)
 
 		bm->dxtexture->handle = RT_UploadTexture(&tex_upload_params);
 	}
+}
+
+void dx12_freebmtexture(grs_bitmap *bm)
+{
+	if (!bm->dxtexture)
+		return;
+	if (RT_RESOURCE_HANDLE_VALID(bm->dxtexture->handle))
+		RT_ReleaseTexture(bm->dxtexture->handle);
+	bm->dxtexture->handle = RT_RESOURCE_HANDLE_NULL;
+	free(bm->dxtexture);
+	bm->dxtexture = NULL;
 }
 
 int pow2ize(int x) {

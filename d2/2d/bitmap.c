@@ -125,6 +125,9 @@ void gr_free_bitmap_data (grs_bitmap *bm) // TODO: virtulize
 #ifdef OGL
 	ogl_freebmtexture(bm);
 #endif
+#ifdef DX12
+	dx12_freebmtexture(bm);
+#endif
 	if (bm->bm_data != NULL)
 		d_free (bm->bm_data);
 	bm->bm_data = NULL;
