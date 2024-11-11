@@ -286,7 +286,7 @@ int pause_handler(window *wind, d_event *event, char *msg)
 
 int do_game_pause()
 {
-	return RT_DoRealPause();
+	//return RT_DoRealPause();
 
 	char *msg;
 	char total_time[9],level_time[9];
