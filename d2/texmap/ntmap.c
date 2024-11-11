@@ -61,6 +61,7 @@ int	Max_flat_depth;
 //	They should be set only when they change, which is generally when the window bounds change.  And, even still, it's
 //	a pretty bad interface.
 int	bytes_per_row=-1;
+int ntmap_last_height=-1;
 unsigned char *write_buffer;
 int  	window_left;
 int	window_right;
@@ -125,18 +126,19 @@ void init_interface_vars_to_assembler(void)
 	Assert(bp!=NULL);
 	Assert(bp->bm_data!=NULL);
 
-	if (y_pointers != NULL)
-	{
-		d_free(y_pointers);
-		y_pointers = NULL;
-	}
-	MALLOC(y_pointers, int, bp->bm_h);
-
 	//	If bytes_per_row has changed, create new table of pointers.
-	if (bytes_per_row != (int) bp->bm_rowsize) {
+	if (bytes_per_row != (int) bp->bm_rowsize || ntmap_last_height != bp->bm_h) {
 		int	y_val, i;
 
 		bytes_per_row = (int) bp->bm_rowsize;
+		ntmap_last_height = bp->bm_h;
+
+		if (y_pointers != NULL)
+		{
+			d_free(y_pointers);
+			y_pointers = NULL;
+		}
+		MALLOC(y_pointers, int, bp->bm_h);
 
 		y_val = 0;
 		for (i=0; i<bp->bm_h; i++) {
