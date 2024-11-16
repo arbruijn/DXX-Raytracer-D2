@@ -762,9 +762,9 @@ void game_render_frame_mono(int flip)
 	if (Guided_missile[Player_num] && Guided_missile[Player_num]->type==OBJ_WEAPON && Guided_missile[Player_num]->id==GUIDEDMISS_ID && Guided_missile[Player_num]->signature==Guided_missile_sig[Player_num] && PlayerCfg.GuidedInBigWindow) {
 		object *viewer_save = Viewer;
 
-		if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_REAR_VIEW)
+		if (PlayerCfg.CockpitMode[1]==CM_FULL_COCKPIT || PlayerCfg.CockpitMode[1]==CM_REAR_VIEW || PlayerCfg.CockpitMode[1]==CM_MODEL_3D)
 		{
-			 BigWindowSwitch=1;
+			 BigWindowSwitch=PlayerCfg.CockpitMode[1]==CM_MODEL_3D ? 2 : 1;
 			 force_cockpit_redraw=1;
 			 PlayerCfg.CockpitMode[1]=CM_STATUS_BAR;
 			 return;
@@ -796,7 +796,7 @@ void game_render_frame_mono(int flip)
 		if (BigWindowSwitch)
 		{
 			force_cockpit_redraw=1;
-			PlayerCfg.CockpitMode[1]=(Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
+			PlayerCfg.CockpitMode[1]=BigWindowSwitch==2 ? CM_MODEL_3D : (Rear_view?CM_REAR_VIEW:CM_FULL_COCKPIT);
 			BigWindowSwitch=0;
 			return;
 		}

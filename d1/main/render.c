@@ -1562,7 +1562,7 @@ void render_frame(fix eye_offset)
 
 #ifdef RT_DX12
 	// Draw cockpit mesh
-	if (PlayerCfg.CockpitMode[0] == CM_MODEL_3D) {
+	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D) {
 
 		static RT_Mat4 prev_matrix = { .e = {
 			{1.f, 0.f, 0.f, 0.f},
