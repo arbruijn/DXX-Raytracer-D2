@@ -2502,6 +2502,13 @@ void RenderBackend::Init(const RT_RendererInitParams* render_init_params)
 		UpdateMaterial(RT_MATERIAL_EMISSIVE_WHITE, &default_emissive);
 	}
 
+	{
+		RT_Material black = {};
+		black.albedo_texture = g_d3d.black_texture_handle;
+		black.flags          = RT_MaterialFlag_BlackbodyRadiator;
+		UpdateMaterial(RT_MATERIAL_BLACK, &black);
+	}
+
 	// ------------------------------------------------------------------
 	// Create billboard quad
 

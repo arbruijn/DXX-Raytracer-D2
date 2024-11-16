@@ -358,6 +358,7 @@ void RT_UpdateMaterialIndices(void)
 	// use these special built in materials in other code.
 	g_rt_material_indices[RT_MATERIAL_FLAT_WHITE] = RT_MATERIAL_FLAT_WHITE;
 	g_rt_material_indices[RT_MATERIAL_EMISSIVE_WHITE] = RT_MATERIAL_EMISSIVE_WHITE;
+	g_rt_material_indices[RT_MATERIAL_BLACK] = RT_MATERIAL_BLACK;
 }
 
 void gr_flip(void)
@@ -656,10 +657,11 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 
 				// wow. good code.
 
-				bool should_be_emissive = false;
+				bool should_be_emissive = false, is_black = false;
 
 #ifdef D2
-				should_be_emissive = color > 0;
+				is_black = r == b && r == g && r < 32;
+				should_be_emissive = !is_black;
 #else
 				if (PCSharePig)
 				{
@@ -704,6 +706,10 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 				if (should_be_emissive)
 				{
 					material_index = RT_MATERIAL_EMISSIVE_WHITE|RT_TRIANGLE_HOLDS_MATERIAL_EDGE;
+				}
+				if (is_black)
+				{
+					material_index = RT_MATERIAL_BLACK|RT_TRIANGLE_HOLDS_MATERIAL_EDGE;
 				}
 
 				RT_VertexFixToFloat_Fan(buf, nv, point_list, material_index, color_packed);

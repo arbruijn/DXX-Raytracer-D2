@@ -35,6 +35,7 @@
 #define RT_MATERIAL_ENDLEVEL_TERRAIN (RT_MAX_MATERIALS - 3)
 #define RT_MATERIAL_COCKPIT_UI       (RT_MAX_MATERIALS - 4)
 #define RT_MATERIAL_SATELLITE        (RT_MAX_MATERIALS - 5)
+#define RT_MATERIAL_BLACK            (RT_MAX_MATERIALS - 6)
 
 typedef struct RT_Arena RT_Arena;
 typedef struct RT_Config RT_Config;
