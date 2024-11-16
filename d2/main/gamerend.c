@@ -128,7 +128,7 @@ void show_framerate()
 		fps_count = 0;
 		fps_time = timer_query();
 	}
-	gr_printf(SWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
+	gr_printf(GWIDTH-(GameArg.SysMaxFPS>999?FSPACX(43):FSPACX(37)),y,"FPS: %i",fps_rate);
 }
 
 

@@ -189,6 +189,7 @@ void draw_all_edges(automap *am);
 void automap_build_edge_list(automap *am);
 // extern
 void check_and_fix_matrix(vms_matrix *m);
+void show_framerate();
 
 #define	MAX_DROP_MULTI	2
 #define	MAX_DROP_SINGLE	9
@@ -542,6 +543,9 @@ void draw_automap(automap *am)
 
 	if ((PlayerCfg.MouseControlStyle == MOUSE_CONTROL_FLIGHT_SIM) && PlayerCfg.MouseFSIndicator)
 		show_mousefs_indicator(am->controls.raw_mouse_axis[0], am->controls.raw_mouse_axis[1], am->controls.raw_mouse_axis[2], GWIDTH-(GHEIGHT/8), GHEIGHT-(GHEIGHT/8), GHEIGHT/5);
+
+	if (GameCfg.FPSIndicator)
+		show_framerate();
 
 	am->t2 = timer_query();
 	while (am->t2 - am->t1 < F1_0 / (GameCfg.VSync?MAXIMUM_FPS:GameArg.SysMaxFPS)) // ogl is fast enough that the automap can read the input too fast and you start to turn really slow.  So delay a bit (and free up some cpu :)
