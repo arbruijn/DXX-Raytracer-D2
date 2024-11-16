@@ -373,6 +373,11 @@ int pause_handler(window *wind, d_event *event, char *msg)
 				case KEY_PAUSE:
 					window_close(wind);
 					return 1;
+#ifdef RT_DX12
+				case KEY_SHIFTED + KEY_ALTED + KEY_F1:
+					g_rt_enable_debug_menu = !g_rt_enable_debug_menu;
+					return 1;
+#endif
 				default:
 					break;
 			}
