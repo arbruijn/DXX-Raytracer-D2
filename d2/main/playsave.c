@@ -131,6 +131,7 @@ int new_player_config()
 	PlayerCfg.SelectAfterFire = 1;  /* SelectAfterFire */
 	PlayerCfg.VulcanAmmoWarnings = 1; 
 	PlayerCfg.ShieldWarnings = 0; 
+	PlayerCfg.UncappedTurning = 0;
 	PlayerCfg.QuietPlasma = 1; 
 	PlayerCfg.maxFps = GameArg.SysMaxFPS; 
 	PlayerCfg.ShipColor = 8;
@@ -372,6 +373,8 @@ int read_player_d2x(char *filename)
 					PlayerCfg.VulcanAmmoWarnings = atoi(line);	
 				if(!strcmp(word,"SHIELDWARNINGS"))
 					PlayerCfg.ShieldWarnings = atoi(line);	
+				if(!strcmp(word,"UNCAPPEDTURNING"))
+					PlayerCfg.UncappedTurning = atoi(line);
 				if(!strcmp(word,"SHIPCOLOR"))
 					PlayerCfg.ShipColor = atoi(line);	
 				if(!strcmp(word,"MISSILECOLOR"))
@@ -555,6 +558,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"cycleautoselectonly=%i\n",PlayerCfg.CycleAutoselectOnly);
 		PHYSFSX_printf(fout,"vulcanammowarnings=%i\n",PlayerCfg.VulcanAmmoWarnings);		
 		PHYSFSX_printf(fout,"shieldwarnings=%i\n",PlayerCfg.ShieldWarnings);			
+		PHYSFSX_printf(fout,"uncappedturning=%i\n",PlayerCfg.UncappedTurning);
 		PHYSFSX_printf(fout,"shipcolor=%i\n",PlayerCfg.ShipColor);	
 		PHYSFSX_printf(fout,"missilecolor=%i\n",PlayerCfg.MissileColor);
 		//PHYSFSX_printf(fout,"quietplasma=%i\n",PlayerCfg.QuietPlasma);	

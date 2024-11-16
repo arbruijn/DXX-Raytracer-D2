@@ -94,6 +94,7 @@ typedef struct player_config
 	ubyte ShieldWarnings; 
 	ubyte AutoDemo; 
 	ubyte ShowCustomColors; 
+	ubyte UncappedTurning;
 	ubyte QuietPlasma; 
 	int AlphaEffects;
 	int DynLightColor;

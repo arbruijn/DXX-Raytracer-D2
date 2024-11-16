@@ -111,6 +111,7 @@ int new_player_config()
 	PlayerCfg.ShieldWarnings = 0; 
 	PlayerCfg.AutoDemo = 1; 
 	PlayerCfg.ShowCustomColors = 1; 
+	PlayerCfg.UncappedTurning = 0;
 	PlayerCfg.QuietPlasma = 1; 
 	PlayerCfg.maxFps = GameArg.SysMaxFPS; 
 	PlayerCfg.ShipColor = 8;
@@ -410,6 +411,8 @@ int read_player_d1x(char *filename)
 					PlayerCfg.AutoDemo = atoi(line);	
 				if(!strcmp(word,"SHOWCUSTOMCOLORS"))
 					PlayerCfg.ShowCustomColors = atoi(line);	
+				if(!strcmp(word,"UNCAPPEDTURNING"))
+					PlayerCfg.UncappedTurning = atoi(line);
 				if(!strcmp(word,"SHIPCOLOR"))
 					PlayerCfg.ShipColor = atoi(line);	
 				if(!strcmp(word,"MISSILECOLOR"))
@@ -783,6 +786,7 @@ int write_player_d1x(char *filename)
 		PHYSFSX_printf(fout,"cycleautoselectonly=%i\n",PlayerCfg.CycleAutoselectOnly);
 		PHYSFSX_printf(fout,"vulcanammowarnings=%i\n",PlayerCfg.VulcanAmmoWarnings);		
 		PHYSFSX_printf(fout,"shieldwarnings=%i\n",PlayerCfg.ShieldWarnings);				
+		PHYSFSX_printf(fout,"uncappedturning=%i\n",PlayerCfg.UncappedTurning);
 		PHYSFSX_printf(fout,"autodemo=%i\n",PlayerCfg.AutoDemo);					
 		PHYSFSX_printf(fout,"showcustomcolors=%i\n",PlayerCfg.ShowCustomColors);	
 		PHYSFSX_printf(fout,"shipcolor=%i\n",PlayerCfg.ShipColor);	
