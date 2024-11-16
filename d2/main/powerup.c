@@ -166,7 +166,8 @@ void do_megawow_powerup(int quantity)
 
 	Players[Player_num].energy = F1_0*200;
 	Players[Player_num].shields = F1_0*200;
-	Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS;
+	Players[Player_num].flags |= PLAYER_FLAGS_QUAD_LASERS |
+		PLAYER_FLAGS_AFTERBURNER | PLAYER_FLAGS_AMMO_RACK | PLAYER_FLAGS_CONVERTER | PLAYER_FLAGS_HEADLIGHT;
 	Players[Player_num].laser_level = MAX_SUPER_LASER_LEVEL;
 
 	if (Game_mode & GM_HOARD)
