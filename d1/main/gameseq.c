@@ -637,12 +637,6 @@ void LoadLevel(int level_num,int page_in_textures)
 	if (!load_level(level_name))
 	{
 		Current_level_num=level_num;
-#ifdef RT_DX12
-		// Unload the previous level acceleration structure, if there is any
-		RT_UnloadLevel();
-		// Load the new level and create the acceleration structure
-		RT_LoadLevel();
-#endif
 	}
 
 	
@@ -672,6 +666,13 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	if ( page_in_textures )
 		piggy_load_level_data();
+
+#ifdef RT_DX12
+	// Unload the previous level acceleration structure, if there is any
+	RT_UnloadLevel();
+	// Load the new level and create the acceleration structure
+	RT_LoadLevel();
+#endif
 }
 
 //sets up Player_num & ConsoleObject

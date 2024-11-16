@@ -721,13 +721,6 @@ void LoadLevel(int level_num,int page_in_textures)
 	timer_delay(F1_0);
 #endif
 
-#ifdef RT_DX12
-		// Unload the previous level acceleration structure, if there is any
-		RT_UnloadLevel();
-		// Load the new level and create the acceleration structure
-		RT_LoadLevel();
-#endif
-
 	load_endlevel_data(level_num);
 
 	if (EMULATING_D1)
@@ -739,6 +732,13 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	if ( page_in_textures )
 		piggy_load_level_data();
+
+#ifdef RT_DX12
+	// Unload the previous level acceleration structure, if there is any
+	RT_UnloadLevel();
+	// Load the new level and create the acceleration structure
+	RT_LoadLevel();
+#endif
 
 #ifdef NETWORK
 	my_segments_checksum = netmisc_calc_checksum();

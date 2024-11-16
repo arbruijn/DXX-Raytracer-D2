@@ -3534,6 +3534,9 @@ RT_ResourceHandle RenderBackend::UploadMesh(const RT_UploadMeshParams& mesh_para
 
 void RenderBackend::ReleaseTexture(const RT_ResourceHandle texture_handle)
 {
+	if (texture_handle.value == g_d3d.black_texture_handle.value || texture_handle.value == g_d3d.white_texture_handle.value)
+		return;
+
 	TextureResource* texture_resource = g_texture_slotmap.Find(texture_handle);
 
 	if (texture_resource)

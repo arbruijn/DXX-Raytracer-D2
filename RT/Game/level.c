@@ -127,7 +127,7 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 	{
 		RT_Material* def = &g_rt_materials[bm_index];
 		if (!def->always_load_texture)
-			def->texture_load_state_next = RT_MaterialTextureLoadState_Unloaded;
+			def->texture_load_state_next = GameBitmaps[bm_index].bm_flags & BM_FLAG_PAGED_OUT ? RT_MaterialTextureLoadState_Unloaded : RT_MaterialTextureLoadState_Loaded;
 	}
 
 	RT_ArenaMemoryScope(&g_thread_arena)
@@ -220,6 +220,7 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 				
 				RT_ExtractLightsFromSide(s, &verts[vertex_offset], triangles[num_triangles - 1].normal0, seg_id);
 
+				#if 0
 				// Set tmaps next/future state to loaded so they will be loaded into memory
 				for (char topbottom = 0; topbottom < 2; topbottom++)
 				{
@@ -264,8 +265,10 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 							frame_index = piggy_find_bitmap(animation_frame_name);
 
 							RT_Material* def = &g_rt_materials[frame_index.index];
-							if (frame_index.index != 0 && !def->always_load_texture)
+							if (frame_index.index != 0 && !def->always_load_texture) {
+								assert(def->texture_load_state_next == RT_MaterialTextureLoadState_Loaded);
 								def->texture_load_state_next = RT_MaterialTextureLoadState_Loaded;
+							}
 
 							frame_num++;
 
@@ -275,11 +278,13 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 					{
 						// set this material to load
 						RT_Material* def = &g_rt_materials[bm_index];
-						if (!def->always_load_texture)
+						if (!def->always_load_texture) {
+							assert(def->texture_load_state_next == RT_MaterialTextureLoadState_Loaded);
 							def->texture_load_state_next = RT_MaterialTextureLoadState_Loaded;
+						}
 					}
 				}
-				
+				#endif
 			}
 		}
 
@@ -297,9 +302,10 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 		level_handle = RT_UploadMesh(&params);
 		con_printf(CON_DEBUG, "UPLOADING MESH OK\n");
 
-		// load and unload materials based on if they are needed for this level.
-		RT_SyncMaterialStates();
 	}
+
+	// load and unload materials based on if they are needed for this level.
+	RT_SyncMaterialStates();
 
 	return level_handle;
 }

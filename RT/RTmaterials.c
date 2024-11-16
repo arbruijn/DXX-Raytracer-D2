@@ -16,6 +16,7 @@
 
 #include "dx12.h"
 #include "rle.h"
+#include "bm.h"
 
 // ------------------------------------------------------------------
 
@@ -204,7 +205,7 @@ static int RT_LoadMaterialTexturesFromPaths(uint16_t bm_index, RT_Material *mate
 		if (load_mask & RT_BITN(i))
 		{
 			// first try loading the compressed dds version of the file if it exists
-			bool dds_loaded = false;
+			bool dds_loaded = false, png_loaded = false;
 			RT_ArenaMemoryScope(&g_thread_arena)
 			{
 				RT_TextureFormat format = g_rt_material_texture_slot_formats[i];
@@ -282,6 +283,8 @@ static int RT_LoadMaterialTexturesFromPaths(uint16_t bm_index, RT_Material *mate
 
 					if (image.pixels)
 					{
+						png_loaded = true;
+
 						material->textures[i] = RT_UploadTexture(&(RT_UploadTextureParams) {
 							.image = image,
 							.name  = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:%s (source: %s)", bm_index, g_rt_texture_slot_names[i], file),
@@ -291,6 +294,8 @@ static int RT_LoadMaterialTexturesFromPaths(uint16_t bm_index, RT_Material *mate
 					}
 				}
 			}
+			if (i == RT_MaterialTextureSlot_Albedo && (dds_loaded || png_loaded))
+				material->flags &= ~RT_MaterialFlag_GameBitmap;
 		}
 	}
 
@@ -462,7 +467,7 @@ void RT_InitAllBitmaps(void)
 			material->texture_load_state = RT_MaterialTextureLoadState_Unloaded;
 
 			material->metalness = 0.0f;
-			material->roughness = 0.8f;
+			material->roughness = strncmp(bitmap_name, "rock", 4) == 0 ? 0.95f : 0.8f;
 			material->emissive_color = RT_Vec3FromScalar(1.0f);
 			material->emissive_strength = 1.0f;
 
@@ -530,9 +535,9 @@ void RT_InitAllBitmaps(void)
 #endif
 		}
 
-		RT_SyncMaterialStates();
-
 	}
+	RT_SyncMaterialStates();
+
 	piggy_bitmap_page_out_all();
 
 	g_rt_last_texture_update_time = time(NULL);
@@ -682,6 +687,12 @@ void RT_SyncMaterialStates(void)
 {
 	int upd = 0;
 
+	ubyte is_obj[MAX_BITMAP_FILES];
+
+	memset(is_obj, 0, sizeof(is_obj));
+	for (int i = 0; i < MAX_OBJ_BITMAPS; i++)
+		is_obj[ObjBitmaps[i].index] = 1;
+
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
 		char bitmap_name[13];
@@ -712,6 +723,11 @@ void RT_SyncMaterialStates(void)
 					
 					RT_LoadMaterialTexturesFromPaths(bm_index, material, paths, ~0u);
 					
+					if (is_obj[bm_index]) {
+						material->metalness = 0.64f;
+						material->roughness = 0.64f;
+					}
+
 					material->texture_load_state = RT_MaterialTextureLoadState_Loaded;
 
 					RT_UpdateMaterial(bm_index, material);
@@ -814,6 +830,11 @@ void RT_SyncMaterialStates(void)
 						.image.format = g_rt_material_texture_slot_formats[RT_MaterialTextureSlot_Albedo],
 						.name = RT_ArenaPrintF(&g_thread_arena, "Game Texture %hu:basecolor (original)", bm_index),
 				});
+
+				if (is_obj[bm_index]) {
+					material->metalness = 0.64f;
+					material->roughness = 0.64f;
+				}
 
 				material->flags |= RT_MaterialFlag_GameBitmap;
 
