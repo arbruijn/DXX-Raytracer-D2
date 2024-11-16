@@ -159,7 +159,7 @@ void do_megawow_powerup(int quantity)
 		Players[Player_num].secondary_ammo[i] = quantity;
 
 	for (i=3; i<MAX_SECONDARY_WEAPONS; i++)
-		Players[Player_num].secondary_ammo[i] = quantity/5;
+		Players[Player_num].secondary_ammo[i] = quantity == 10 ? Secondary_ammo_max[i] : quantity/5;
 
 	if (Newdemo_state == ND_STATE_RECORDING)
 		newdemo_record_laser_level(Players[Player_num].laser_level, MAX_LASER_LEVEL);
