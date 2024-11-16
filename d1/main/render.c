@@ -1499,9 +1499,9 @@ void render_frame(fix eye_offset)
 		g_cam.position = object_pos;
 		
 		//We just take the real view matrix and not the viewer's one. Since the view matrix gets properly used and changed.
-		g_cam.up = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.uvec));
-		g_cam.forward = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.fvec));
-		g_cam.right = RT_Vec3Normalize(RT_Vec3FromVmsVector(View_matrix.rvec));
+		g_cam.up = RT_Vec3Normalize(RT_Vec3FromVmsVector(Unscaled_matrix.uvec));
+		g_cam.forward = RT_Vec3Normalize(RT_Vec3FromVmsVector(Unscaled_matrix.fvec));
+		g_cam.right = RT_Vec3Normalize(RT_Vec3FromVmsVector(Unscaled_matrix.rvec));
 		
 		//We still keep this code incase anything breaks due to the camera.
 		//g_cam.up = RT_Vec3FromVmsVector(Viewer->orient.uvec);

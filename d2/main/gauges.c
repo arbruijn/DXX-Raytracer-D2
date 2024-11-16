@@ -2948,7 +2948,7 @@ void show_HUD_names()
 					int w, h, aw, x1, y1, color_num;
 
 					x = player_point.p3_sx;
-					y = player_point.p3_sy;
+					y = player_point.p3_sy - i2f((int)(RT_RaytraceGetVerticalOffset() * SHEIGHT));
 					dy = -fixmuldiv(fixmul(Objects[objnum].size,Matrix_scale.y),i2f(grd_curcanv->cv_bitmap.bm_h)/2,player_point.p3_z);
 					dx = fixmul(dy,grd_curscreen->sc_aspect);
 					color_num = (Game_mode & GM_TEAM)?get_team(pnum):Netgame.players[pnum].color;//pnum;
