@@ -590,7 +590,7 @@ g3s_lrgb compute_light_emission(int objnum)
 				brightness = g_rt_dynamic_light_info.weaponBrightMod;
 				radius = g_rt_dynamic_light_info.weaponRadiusMod;
 
-				if (obj->id <= SDL_arraysize(rt_light_adjusts))
+				if (obj->id < SDL_arraysize(rt_light_adjusts))
 				{
 					brightness = brightness * rt_light_adjusts[obj->id - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].brightMul;
 					radius = radius * rt_light_adjusts[obj->id - RT_LIGHT_ADJUST_ARRAY_SUBTRACT_OFFSET].radiusMul;
