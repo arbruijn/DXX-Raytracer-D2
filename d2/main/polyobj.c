@@ -583,7 +583,7 @@ void draw_polygon_model(_RT_DRAW_POLY vms_vector* pos, vms_matrix* orient, vms_a
 #else
 		//RT_DrawPolyModel(model_num, objNum, object_type, pos, orient);
 
-		RT_DrawPolyModelTree(model_num, signature, object_type, pos, orient, anim_angles, alt_textures ? alt_textures[0].index : 0);
+		RT_DrawPolyModelTree(model_num, signature, object_type, pos, orient, anim_angles, object_type == OBJ_ROBOT && alt_textures ? alt_textures[0].index : 0);
 #endif //RT_DX12
 	}
 	else {
