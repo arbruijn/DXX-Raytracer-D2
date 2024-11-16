@@ -809,10 +809,10 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 	else
 	{
 		float4 color = UnpackRGBA(instance_data.material_color);
-		float4 tri_color = UnpackRGBA(hit_triangle.color);
-		float  dither = RandomSample(pixel_pos, instance_idx);
+		//float4 tri_color = UnpackRGBA(hit_triangle.color);
+		float  dither = RandomSample(pixel_pos, instance_idx) / 2 + 0.5f;
 
-		return dither > color.a * tri_color.a;
+		return dither > color.a * albedo.a; //tri_color.a;
 	}
 }
 
