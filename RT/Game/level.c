@@ -149,6 +149,15 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 		{
 			segment *seg = &Segments[seg_id];
 
+			bool has_children = false;
+			for (int side_index = 0; side_index < MAX_SIDES_PER_SEGMENT; side_index++)
+				if (seg->children[side_index] != -1) {
+					has_children = true;
+					break;
+				}
+			if (!has_children) // bogus unconnected segment, for example in front of D2L5 prison (seg 141)
+				continue;
+
 			for (int side_index = 0; side_index < MAX_SIDES_PER_SEGMENT; side_index++)
 			{
 				const int vertex_offset = num_verts;
