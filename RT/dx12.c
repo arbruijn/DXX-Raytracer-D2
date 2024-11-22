@@ -1073,3 +1073,7 @@ bool dx12_ubitblt(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy
 {
 	// One of the use-cases of this function is to render a preview of a savegame in the load menu
 }
+
+void dx12_mark_gamebitmap_obsolete(int index) {
+	RT_MarkMaterialObsolete(index);
+}

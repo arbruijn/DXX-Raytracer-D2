@@ -3552,7 +3552,7 @@ void RenderBackend::ReleaseTexture(const RT_ResourceHandle texture_handle)
 void RenderBackend::ReleaseMesh(const RT_ResourceHandle mesh_handle)
 {
 	MeshResource* mesh_resource = g_mesh_slotmap.Find(mesh_handle);
-	CommandList* cmd_list = &g_d3d.command_queue_direct->GetCommandList();
+	CommandList* cmd_list = nullptr; //&g_d3d.command_queue_direct->GetCommandList();
 	// Note (Justin): This is a dirty little hack to have the resources released after the current frame finished rendering
 	RT_TRACK_TEMP_OBJECT(mesh_resource->triangle_buffer, cmd_list);
 	RT_TRACK_TEMP_OBJECT(mesh_resource->blas, cmd_list);

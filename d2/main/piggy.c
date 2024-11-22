@@ -498,6 +498,7 @@ void piggy_init_pigfile(char *filename)
 extern int compute_average_pixel(grs_bitmap *new);
 
 ubyte *Bitmap_replacement_data = NULL;
+int Bitmap_replacement_size;
 
 //reads in a new pigfile (for new palette)
 //returns the size of all the bitmap data
@@ -517,6 +518,8 @@ void piggy_new_pigfile(char *pigname)
 	if (d_strnicmp(Current_pigfile, pigname, sizeof(Current_pigfile)) == 0 // correct pig already loaded
 	    && !Bitmap_replacement_data) // no need to reload: no bitmaps were altered
 		return;
+
+	free_bitmap_replacements();
 
 	if (!Pigfile_initialized) {                     //have we ever opened a pigfile?
 		piggy_init_pigfile(pigname);            //..no, so do initialization stuff
@@ -1238,7 +1241,7 @@ void piggy_bitmap_page_out_all()
 
 void piggy_load_level_data()
 {
-	piggy_bitmap_page_out_all();
+	//piggy_bitmap_page_out_all();
 	paging_touch_all();
 }
 
@@ -1563,6 +1566,13 @@ int piggy_is_substitutable_bitmap( char * name, char * subst_name )
 void free_bitmap_replacements()
 {
 	if (Bitmap_replacement_data) {
+		for (int i = 0; i < MAX_BITMAP_FILES; i++)
+			if (GameBitmaps[i].bm_data >= Bitmap_replacement_data && GameBitmaps[i].bm_data < Bitmap_replacement_data + Bitmap_replacement_size) {
+#ifdef RT_DX12
+				dx12_mark_gamebitmap_obsolete(i);
+#endif
+				gr_set_bitmap_data(&GameBitmaps[i], NULL);	// free ogl texture
+			}
 		d_free(Bitmap_replacement_data);
 		Bitmap_replacement_data = NULL;
 	}
@@ -1603,6 +1613,7 @@ void load_bitmap_replacements(char *level_name)
 
 		bitmap_data_size = PHYSFS_fileLength(ifile) - PHYSFS_tell(ifile) - sizeof(DiskBitmapHeader) * n_bitmaps;
 		MALLOC( Bitmap_replacement_data, ubyte, bitmap_data_size );
+		Bitmap_replacement_size = bitmap_data_size;
 
 		for (i=0;i<n_bitmaps;i++) {
 			DiskBitmapHeader bmh;
@@ -1628,6 +1639,9 @@ void load_bitmap_replacements(char *level_name)
 		{
 			grs_bitmap *bm = &GameBitmaps[indices[i]];
 			gr_set_bitmap_data(bm, Bitmap_replacement_data + (size_t) bm->bm_data);
+#ifdef RT_DX12
+			dx12_mark_gamebitmap_obsolete(indices[i]);
+#endif
 		}
 
 		d_free(indices);

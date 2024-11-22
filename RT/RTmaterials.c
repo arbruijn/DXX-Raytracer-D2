@@ -547,6 +547,7 @@ void RT_UpdateAllBitmaps(void)
 {
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
+		#if 0
 		grs_bitmap *bitmap = &GameBitmaps[bm_index];
 
 		if (bitmap->bm_w == 0 ||
@@ -554,11 +555,17 @@ void RT_UpdateAllBitmaps(void)
 		{
 			continue;
 		}
+		#endif
 
 		RT_Material *material = &g_rt_materials[bm_index];
 		if (!(material->flags & RT_MaterialFlag_GameBitmap))
 			continue;
 
+
+		//if (material->texture_load_state == RT_MaterialTextureLoadState_Loaded)
+			material->texture_load_state = RT_MaterialTextureLoadState_Obsolete;
+
+		#if 0
 		PIGGY_PAGE_IN((bitmap_index){bm_index});
 
 
@@ -584,8 +591,9 @@ void RT_UpdateAllBitmaps(void)
 		#endif
 
 		RT_UpdateMaterial(bm_index, material);
+		#endif
 	}
-	g_rt_last_texture_update_time = time(NULL);
+	//g_rt_last_texture_update_time = time(NULL);
 }
 
 static bool TextureFileIsOutdated(char *name)
@@ -693,6 +701,22 @@ void RT_SyncMaterialStates(void)
 	for (int i = 0; i < MAX_OBJ_BITMAPS; i++)
 		is_obj[ObjBitmaps[i].index] = 1;
 
+#ifdef D2
+	int have_custom = Bitmap_replacement_data != NULL;
+#else
+	int have_custom = 0;
+#endif
+
+	// disable hires materials if any custom to avoid mixed hi/lo-res
+	if (have_custom)
+	{
+		for (int bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
+			if (g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
+				g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded &&
+				!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap))
+				g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
+	}
+
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
 		char bitmap_name[13];
@@ -712,7 +736,29 @@ void RT_SyncMaterialStates(void)
 		RT_Material* material = &g_rt_materials[bm_index];
 		RT_MaterialPaths* paths = &g_rt_material_paths[bm_index];
 
-		if (material->always_load_texture || ( material->texture_load_state != material->texture_load_state_next))
+		if (material->texture_load_state_next == RT_MaterialTextureLoadState_Unloaded || material->texture_load_state == RT_MaterialTextureLoadState_Obsolete)
+		{
+			if (material->texture_load_state == RT_MaterialTextureLoadState_Obsolete ||
+				!(material->flags & RT_MaterialFlag_GameBitmap)) // unload hires to make space
+			{
+				// Unload the material
+				for (size_t i = 0; i < RT_MaterialTextureSlot_COUNT; i++)
+				{
+					if (RT_RESOURCE_HANDLE_VALID(material->textures[i]))
+						RT_ReleaseTexture(material->textures[i]);
+					material->textures[i] = RT_RESOURCE_HANDLE_NULL;
+				}
+				material->texture_load_state = RT_MaterialTextureLoadState_Unloaded;
+				material->flags &= ~RT_MaterialFlag_GameBitmap;
+
+				RT_UpdateMaterial(bm_index, material);
+				upd++;
+			}
+			if (material->texture_load_state_next == RT_MaterialTextureLoadState_Unloaded)
+				continue;
+		}
+
+		if (!have_custom && (material->always_load_texture || ( material->texture_load_state != material->texture_load_state_next)))
 		{
 			if ((material->always_load_texture && material->texture_load_state == RT_MaterialTextureLoadState_Unloaded) || (material->texture_load_state == RT_MaterialTextureLoadState_Unloaded && material->texture_load_state_next == RT_MaterialTextureLoadState_Loaded ) )
 			{
@@ -731,6 +777,9 @@ void RT_SyncMaterialStates(void)
 					material->texture_load_state = RT_MaterialTextureLoadState_Loaded;
 
 					RT_UpdateMaterial(bm_index, material);
+
+					if (RT_RESOURCE_HANDLE_VALID(material->albedo_texture))
+						material->flags &= ~RT_MaterialFlag_GameBitmap;
 				}
 			}
 			else if (!material->always_load_texture && (material->texture_load_state == RT_MaterialTextureLoadState_Loaded && material->texture_load_state_next == RT_MaterialTextureLoadState_Unloaded) )
@@ -738,15 +787,19 @@ void RT_SyncMaterialStates(void)
 				// Unload the material
 				for (size_t i = 0; i < RT_MaterialTextureSlot_COUNT; i++)
 				{
-					if (RT_RESOURCE_HANDLE_VALID(material->textures[i]))
+					if (RT_RESOURCE_HANDLE_VALID(material->textures[i])) {
 						RT_ReleaseTexture(material->textures[i]);
+						material->textures[i] = RT_RESOURCE_HANDLE_NULL;
+					}
 							
 				}
 				material->texture_load_state = RT_MaterialTextureLoadState_Unloaded;
+				material->flags &= ~RT_MaterialFlag_GameBitmap;
 
 				RT_UpdateMaterial(bm_index, material);
 				upd++;
 
+#if 0
 				// load the original low res texture (for the material viewer)
 				RT_ArenaMemoryScope(&g_thread_arena)
 				{
@@ -791,6 +844,7 @@ void RT_SyncMaterialStates(void)
 
 				RT_UpdateMaterial(bm_index, material);
 				upd++;
+#endif
 			}
 		}
 
@@ -810,11 +864,6 @@ void RT_SyncMaterialStates(void)
 
 				PIGGY_PAGE_IN((bitmap_index) { bm_index });
 
-
-				if (bitmap->bm_flags & BM_FLAG_RLE)
-				{
-					bitmap = rle_expand_texture(bitmap);
-				}
 
 				if (bitmap->bm_flags & BM_FLAG_RLE)
 				{
@@ -857,3 +906,8 @@ void RT_SyncMaterialStates(void)
 	//piggy_bitmap_page_out_all();
 }
 
+void RT_MarkMaterialObsolete(int bm_index)
+{
+	//if (g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded)
+		g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
+}

@@ -246,7 +246,8 @@ typedef enum RT_MaterialTextureSlot
 typedef enum RT_MaterialTextureLoadState
 {
 	RT_MaterialTextureLoadState_Unloaded,
-	RT_MaterialTextureLoadState_Loaded
+	RT_MaterialTextureLoadState_Loaded,
+	RT_MaterialTextureLoadState_Obsolete
 } RT_MaterialTextureLoadState;
 
 typedef struct RT_Material

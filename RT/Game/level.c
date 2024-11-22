@@ -126,7 +126,7 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
 		RT_Material* def = &g_rt_materials[bm_index];
-		if (!def->always_load_texture)
+		//if (!def->always_load_texture)
 			def->texture_load_state_next = GameBitmaps[bm_index].bm_flags & BM_FLAG_PAGED_OUT ? RT_MaterialTextureLoadState_Unloaded : RT_MaterialTextureLoadState_Loaded;
 	}
 
