@@ -682,9 +682,11 @@ void load_level_robots(int level_num)
 		int load_mission_ham();
 		free_polygon_models();
 		load_mission_ham();
+		set_previous_custom_polygon_models();
 		Robot_replacements_loaded = 0;
 	}
 	load_robot_replacements(level_name);
+	reload_previous_custom_polygon_models();
 }
 
 //load a level off disk. level numbers start at 1.  Secret levels are -1,-2,-3

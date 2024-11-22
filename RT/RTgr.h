@@ -117,4 +117,6 @@ void RT_UpdateMaterialIndices(void);
 void RT_StartImGuiFrame(void);
 void RT_EndImguiFrame(void);
 
+void RT_InitPolyModelAndSubModels(int pm_index);
+
 #endif //_RT_GR_H

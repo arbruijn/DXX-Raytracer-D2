@@ -940,6 +940,16 @@ void RT_InitPolyModelAndSubModels(int pm_index)
 {
 	polymodel *pm = &Polygon_models[pm_index];
 
+	if (RT_RESOURCE_HANDLE_VALID(mesh_handles[pm_index])) {
+		for (size_t i = 0; i < pm->n_models; i++)
+			if (RT_RESOURCE_HANDLE_VALID(pm->submodel[i])) {
+				RT_ReleaseMesh(pm->submodel[i]);
+				pm->submodel[i] = RT_RESOURCE_HANDLE_NULL;
+			}
+		RT_ReleaseMesh(mesh_handles[pm_index]);
+		mesh_handles[pm_index] = RT_RESOURCE_HANDLE_NULL;
+	}
+
 	// TODO(daniel): Figure out something better
 	jank_currently_loading_poly_model = pm_index;
 

@@ -67,6 +67,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 ubyte Sounds[MAX_SOUNDS];
 ubyte AltSounds[MAX_SOUNDS];
 
+ubyte Polygon_model_is_custom[MAX_POLYGON_MODELS];
+ubyte Polygon_model_is_custom_previous[MAX_POLYGON_MODELS];
+
 #ifdef EDITOR
 int Num_object_subtypes = 1;
 #endif
@@ -421,6 +424,10 @@ void load_robot_replacements(char *level_name)
 
 		Dying_modelnums[i] = PHYSFSX_readInt(fp);
 		Dead_modelnums[i] = PHYSFSX_readInt(fp);
+#ifdef RT_DX12
+		RT_InitPolyModelAndSubModels(i);
+#endif
+		Polygon_model_is_custom[i] = 1;
 	}
 
 	t = PHYSFSX_readInt(fp);			//read number of objbitmaps
@@ -667,4 +674,18 @@ void compute_average_rgb(grs_bitmap *bm, fix *rgb)
 		}
 	}
 	d_free(buf);
+}
+
+void set_previous_custom_polygon_models()
+{
+	memcpy(Polygon_model_is_custom_previous, Polygon_model_is_custom, sizeof(Polygon_model_is_custom_previous));
+}
+
+void reload_previous_custom_polygon_models()
+{
+#ifdef RT_DX12
+	for (int i = 0; i < N_polygon_models; i++)
+		if (Polygon_model_is_custom_previous[i])
+			RT_InitPolyModelAndSubModels(i);
+#endif
 }

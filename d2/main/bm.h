@@ -94,4 +94,7 @@ extern void bm_read_all(PHYSFS_file * fp);
 
 int load_exit_models();
 
+void set_previous_custom_polygon_models();
+void reload_previous_custom_polygon_models();
+
 #endif /* _BM_H */
