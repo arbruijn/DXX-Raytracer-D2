@@ -778,6 +778,7 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 	float2 uv_rotated = GetRotatedUVs(orient, uv);
 
 	// TODO(daniel): Clean this messy silly code up!
+	float4 albedo2 = float4(0, 0, 0, 0);
 	if (material_index2 != 0xFFFFFFFF)
 	{
 		Material material2 = g_materials[material_index2];
@@ -790,17 +791,13 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 		{
 			return true;
 		}
-
-		if (albedo2.a > 0.0)
-		{
-			material_index = material_index2;
-			uv = uv_rotated;
-		}
 	}
 
 	material = g_materials[material_index];
 	Texture2D tex_albedo = GetTextureFromIndex(material.albedo_index);
 	float4 albedo = tex_albedo.SampleLevel(g_sampler_point_wrap, uv, 0);
+
+	albedo.a += albedo2.a - albedo.a * albedo2.a;  // same as 1 - (1 - albedo.a) * (1 - albedo2.a)
 
 	if (albedo.a == 0.0)
 	{
