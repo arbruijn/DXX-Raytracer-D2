@@ -957,12 +957,26 @@ uint32_t* dx12_load_bitmap_pixel_data(RT_Arena* arena, grs_bitmap* bitmap)
 	return pixels;
 }
 
+#include "RTmaterials.h"
+
 bool dx12_ubitmapm_cs(int x, int y, int dw, int dh, grs_bitmap* bm, int c, int scale)
 {
+	struct _dx_texture tmp;
 	if (!bm->dxtexture)
 	{
-		dx12_init_texture(bm);
-		dx12_loadbmtexture_f(bm, GameCfg.TexFilt);
+		if (0 && bm >= GameBitmaps && bm < GameBitmaps + MAX_BITMAP_FILES) { //} && (g_rt_materials[bm - GameBitmaps].flags & RT_MaterialFlag_GameBitmap)) {
+			bm->dxtexture = &tmp;
+			bm->dxtexture->handle = g_rt_materials[bm - GameBitmaps].albedo_texture;
+			bm->dxtexture->lw = bm->dxtexture->w = bm->dxtexture->tw = bm->bm_w;
+			bm->dxtexture->h = bm->dxtexture->th = bm->bm_h;
+
+			//calculate u/v values that would make the resulting texture correctly sized
+			bm->dxtexture->u = 1; //(float)((double)bm->dxtexture->w / (double)bm->dxtexture->tw);
+			bm->dxtexture->v = 1; //(float)((double)bm->dxtexture->h / (double)bm->dxtexture->th);
+		} else {
+			dx12_init_texture(bm);
+			dx12_loadbmtexture_f(bm, GameCfg.TexFilt);
+		}
 	}
 
 	float xo, yo, xf, yf, u1, u2, v1, v2, color_r, color_g, color_b, color_a, h;
@@ -1050,6 +1064,9 @@ bool dx12_ubitmapm_cs(int x, int y, int dw, int dh, grs_bitmap* bm, int c, int s
 	raster_tri_params.vertices = vertices;
 
 	RT_RasterTriangles(&raster_tri_params, 1);
+
+	if (bm->dxtexture == &tmp)
+		bm->dxtexture = NULL;
 }
 
 bool dx12_ubitblt(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap* src, grs_bitmap* dst, int texfilt)
