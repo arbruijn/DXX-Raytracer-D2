@@ -54,6 +54,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #endif
 #include "args.h"
 
+#ifdef RT_DX12
+#include "dx12.h"
+#endif
+
 extern char CDROM_dir[];
 
 #define VID_PLAY 0
@@ -163,7 +167,6 @@ int PlayMovie(const char *filename, int must_have)
 	return ret;
 }
 
-#include "dx12.h"
 static grs_bitmap source_bm;
 void MovieShowFrame(ubyte *buf, int dstx, int dsty, int bufw, int bufh, int sw, int sh)
 {
