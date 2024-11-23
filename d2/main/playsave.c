@@ -122,6 +122,7 @@ int new_player_config()
 	PlayerCfg.MultiMessages = 0;
 	PlayerCfg.NoRankings = 0;
 	PlayerCfg.AutomapFreeFlight = 0;
+	PlayerCfg.AutomapXL = 0;
 	PlayerCfg.NoFireAutoselect = 0;
 	PlayerCfg.CycleAutoselectOnly = 0;
 	PlayerCfg.AlphaEffects = 0;
@@ -359,6 +360,8 @@ int read_player_d2x(char *filename)
 					PlayerCfg.NoRankings = atoi(line);
 				if(!strcmp(word,"AUTOMAPFREEFLIGHT"))
 					PlayerCfg.AutomapFreeFlight = atoi(line);
+				if(!strcmp(word,"AUTOMAPFXL"))
+					PlayerCfg.AutomapXL = atoi(line);
 				if(!strcmp(word,"DISABLECOCKPIT"))
 					PlayerCfg.DisableCockpit = atoi(line); /* DisableCockpit */ 
 				if(!strcmp(word,"STICKYREARVIEW"))
@@ -551,6 +554,7 @@ int write_player_d2x(char *filename)
 		PHYSFSX_printf(fout,"multimessages=%i\n",PlayerCfg.MultiMessages);
 		PHYSFSX_printf(fout,"norankings=%i\n",PlayerCfg.NoRankings);
 		PHYSFSX_printf(fout,"automapfreeflight=%i\n",PlayerCfg.AutomapFreeFlight);
+		PHYSFSX_printf(fout,"automapxl=%i\n",PlayerCfg.AutomapXL);
 		PHYSFSX_printf(fout,"disablecockpit=%i\n",PlayerCfg.DisableCockpit); /* DisableCockpit */ 
 		PHYSFSX_printf(fout,"stickyrearview=%i\n",PlayerCfg.StickyRearview); /* StickyRearview */ 
 		PHYSFSX_printf(fout,"selectafterfire=%i\n",PlayerCfg.SelectAfterFire); /* SelectAfterFire */ 		

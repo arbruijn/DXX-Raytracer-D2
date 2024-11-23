@@ -2316,7 +2316,7 @@ void print_missile_color(char* color_string, int color_value) {
 
 void do_misc_menu()
 {
-	newmenu_item m[17];
+	newmenu_item m[18];
 	int i = 0;
 
 	do {
@@ -2328,30 +2328,31 @@ void do_misc_menu()
 		ADD_CHECK(5, "No Rankings (Multi)",PlayerCfg.NoRankings);
 		ADD_CHECK(6, "Show D2-style Prox. Bomb Gauge",PlayerCfg.BombGauge);
 		ADD_CHECK(7, "Free Flight controls in Automap",PlayerCfg.AutomapFreeFlight);
-		ADD_CHECK(8, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);		
-		ADD_CHECK(9, "Autoselect after firing",PlayerCfg.SelectAfterFire);
-		ADD_CHECK(10, "Only Cycle Autoselect Weapons",PlayerCfg.CycleAutoselectOnly);		
-		ADD_CHECK(11, "Ammo Warnings",PlayerCfg.VulcanAmmoWarnings);
-		ADD_CHECK(12, "Shield Warnings",PlayerCfg.ShieldWarnings);
-		ADD_CHECK(13, "Automatically Start Demos",PlayerCfg.AutoDemo);
-		
+		ADD_CHECK(8, "XL style controls in Automap",PlayerCfg.AutomapXL);
+		ADD_CHECK(9, "No Weapon Autoselect when firing",PlayerCfg.NoFireAutoselect);
+		ADD_CHECK(10, "Autoselect after firing",PlayerCfg.SelectAfterFire);
+		ADD_CHECK(11, "Only Cycle Autoselect Weapons",PlayerCfg.CycleAutoselectOnly);
+		ADD_CHECK(12, "Ammo Warnings",PlayerCfg.VulcanAmmoWarnings);
+		ADD_CHECK(13, "Shield Warnings",PlayerCfg.ShieldWarnings);
+		ADD_CHECK(14, "Automatically Start Demos",PlayerCfg.AutoDemo);
+
 		char preferred_color[30];
 		print_ship_color(preferred_color, PlayerCfg.ShipColor); 
-		m[14].type = NM_TYPE_SLIDER; 
-		m[14].value= PlayerCfg.ShipColor; 
-		m[14].text= preferred_color; 
-		m[14].min_value=0; 
-		m[14].max_value=8; 
+		m[15].type = NM_TYPE_SLIDER;
+		m[15].value= PlayerCfg.ShipColor;
+		m[15].text= preferred_color;
+		m[15].min_value=0;
+		m[15].max_value=8;
 
 		char missile_color[30];
 		print_missile_color(missile_color, PlayerCfg.MissileColor); 
-		m[15].type = NM_TYPE_SLIDER; 
-		m[15].value= PlayerCfg.MissileColor; 
-		m[15].text = missile_color; 
-		m[15].min_value=0; 
-		m[15].max_value=8; 		
+		m[16].type = NM_TYPE_SLIDER;
+		m[16].value= PlayerCfg.MissileColor;
+		m[16].text = missile_color;
+		m[16].min_value=0;
+		m[16].max_value=8;
 
-		ADD_CHECK(16, "Show Custom Ship Colors", PlayerCfg.ShowCustomColors);
+		ADD_CHECK(17, "Show Custom Ship Colors", PlayerCfg.ShowCustomColors);
 
 		i = newmenu_do1( NULL, "Misc Options", sizeof(m)/sizeof(*m), m, menu_misc_options_handler, NULL, i );
 
@@ -2363,13 +2364,14 @@ void do_misc_menu()
 		PlayerCfg.NoRankings 			= m[5].value;
 		PlayerCfg.BombGauge 			= m[6].value;
 		PlayerCfg.AutomapFreeFlight		= m[7].value;
-		PlayerCfg.NoFireAutoselect		= m[8].value;
-		PlayerCfg.SelectAfterFire       = m[9].value;  if(PlayerCfg.SelectAfterFire) { PlayerCfg.NoFireAutoselect = 1; }
-		PlayerCfg.CycleAutoselectOnly		= m[10].value;
-		PlayerCfg.VulcanAmmoWarnings = m[11].value; 
-		PlayerCfg.ShieldWarnings = m[12].value; 
-		PlayerCfg.AutoDemo = m[13].value;
-		PlayerCfg.ShowCustomColors = m[16].value;
+		PlayerCfg.AutomapXL				= m[8].value;
+		PlayerCfg.NoFireAutoselect		= m[9].value;
+		PlayerCfg.SelectAfterFire       = m[10].value;  if(PlayerCfg.SelectAfterFire) { PlayerCfg.NoFireAutoselect = 1; }
+		PlayerCfg.CycleAutoselectOnly	= m[11].value;
+		PlayerCfg.VulcanAmmoWarnings	= m[12].value;
+		PlayerCfg.ShieldWarnings		= m[13].value;
+		PlayerCfg.AutoDemo				= m[14].value;
+		PlayerCfg.ShowCustomColors		= m[17].value;
 		//PlayerCfg.QuietPlasma = m[13].value; 
 
 	} while( i>-1 );
@@ -2384,12 +2386,12 @@ int menu_misc_options_handler ( newmenu *menu, d_event *event, void *userdata )
 	
 	if (event->type == EVENT_NEWMENU_CHANGED)
 	{
-		if (citem == 14) {
-			PlayerCfg.ShipColor = menus[14].value;
-			print_ship_color(menus[14].text, PlayerCfg.ShipColor);			
-		} else if (citem == 15) {
-			PlayerCfg.MissileColor = menus[15].value;
-			print_missile_color(menus[15].text, PlayerCfg.MissileColor);			
+		if (citem == 15) {
+			PlayerCfg.ShipColor = menus[15].value;
+			print_ship_color(menus[15].text, PlayerCfg.ShipColor);
+		} else if (citem == 16) {
+			PlayerCfg.MissileColor = menus[16].value;
+			print_missile_color(menus[16].text, PlayerCfg.MissileColor);
 		}		
 	}
 	

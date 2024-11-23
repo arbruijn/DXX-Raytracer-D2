@@ -518,10 +518,14 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			am->controls.fire_primary_count = 0;
 		}
 
-		am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
-		am->tangles.p += fixdiv( am->controls.pitch_time, ROT_SPEED_DIVISOR );
-		am->tangles.h  += fixdiv( am->controls.heading_time, ROT_SPEED_DIVISOR );
-		am->tangles.b  += fixdiv( am->controls.bank_time, ROT_SPEED_DIVISOR*2 );
+		float zoom_scale = PlayerCfg.AutomapXL ? f2fl(am->viewDist) / f2fl(ZOOM_DEFAULT) : 1.0f;
+		if (PlayerCfg.AutomapXL)
+			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.fvec, (fix)(am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR*zoom_scale) );
+		else
+			am->viewDist -= am->controls.forward_thrust_time*ZOOM_SPEED_FACTOR;
+		am->tangles.p += fixdiv( (fix)(am->controls.pitch_time*zoom_scale), ROT_SPEED_DIVISOR );
+		am->tangles.h  += fixdiv( (fix)(am->controls.heading_time*zoom_scale), ROT_SPEED_DIVISOR );
+		am->tangles.b  += fixdiv( (fix)(am->controls.bank_time*zoom_scale), ROT_SPEED_DIVISOR*2 );
 
 		if ( am->controls.vertical_thrust_time || am->controls.sideways_thrust_time )
 		{
@@ -532,8 +536,8 @@ int automap_process_input(window *wind, d_event *event, automap *am)
 			tangles1 = am->tangles;
 			vm_angles_2_matrix(&tempm,&tangles1);
 			vm_matrix_x_matrix(&am->viewMatrix,&Objects[Players[Player_num].objnum].orient,&tempm);
-			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, am->controls.vertical_thrust_time*SLIDE_SPEED );
-			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, am->controls.sideways_thrust_time*SLIDE_SPEED );
+			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.uvec, (fix)(am->controls.vertical_thrust_time*SLIDE_SPEED*zoom_scale) );
+			vm_vec_scale_add2( &am->view_target, &am->viewMatrix.rvec, (fix)(am->controls.sideways_thrust_time*SLIDE_SPEED*zoom_scale) );
 			if ( vm_vec_dist_quick( &am->view_target, &Objects[Players[Player_num].objnum].pos) > i2f(1000) )
 				am->view_target = old_vt;
 		}

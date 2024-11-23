@@ -88,6 +88,7 @@ typedef struct player_config
 	ubyte NoRankings;
 	ubyte BombGauge;
 	ubyte AutomapFreeFlight;
+	ubyte AutomapXL;
 	ubyte NoFireAutoselect;
 	ubyte CycleAutoselectOnly;
 	ubyte VulcanAmmoWarnings;
