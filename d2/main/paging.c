@@ -86,6 +86,10 @@ void paging_touch_wall_effects( int tmap_num )
 
 	if ( TmapInfo[tmap_num].destroyed != -1 )
 		PIGGY_PAGE_IN( Textures[TmapInfo[tmap_num].destroyed] );
+	if ( TmapInfo[tmap_num].flags & TMI_VOLATILE )
+		paging_touch_vclip( &Vclip[VCLIP_VOLATILE_WALL_HIT] );
+	if ( TmapInfo[tmap_num].flags & TMI_WATER )
+		paging_touch_vclip( &Vclip[VCLIP_WATER_HIT] );
 }
 
 void paging_touch_object_effects( int tmap_num )
