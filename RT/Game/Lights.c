@@ -201,6 +201,38 @@ RT_LightDefinition g_light_definitions[] =
 		.spot_angle = 0.3f,
 		.spot_softness = 0.2f,
 	},
+	{
+		.name = "misc082#0",
+		.kind = RT_LightKind_Area_Rect,
+		.emission = {0.5f,0.5f,2.f},
+		.radius = 0.8f,
+		.spot_angle = 0.3f,
+		.spot_softness = 0.2f,
+	},
+	{
+		.name = "misc083#0",
+		.kind = RT_LightKind_Area_Rect,
+		.emission = {2.f,2.f,0.5f},
+		.radius = 0.8f,
+		.spot_angle = 0.3f,
+		.spot_softness = 0.2f,
+	},
+	{
+		.name = "misc084#0",
+		.kind = RT_LightKind_Area_Rect,
+		.emission = {2.f,0.5f,0.5f},
+		.radius = 0.8f,
+		.spot_angle = 0.3f,
+		.spot_softness = 0.2f,
+	},
+	{
+		.name = "misc086",
+		.kind = RT_LightKind_Area_Rect,
+		.emission = {2.f,2.f,2.f},
+		.radius = 0.8f,
+		.spot_angle = 0.3f,
+		.spot_softness = 0.2f,
+	},
 	// Blue lights on metl material.
 	{
 		.name = "metl078",
