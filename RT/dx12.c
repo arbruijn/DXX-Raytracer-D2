@@ -11,6 +11,7 @@
 #include "globvars.h"
 //#include "logger.h"
 #include "console.h"
+#include "ImageReadWrite.h"
 
 // ------------------------------------------------------------------
 
@@ -64,10 +65,13 @@ void dx12_set_render_target(RT_ResourceHandle texture)
 void dx12_init_texture(grs_bitmap* bm)
 {
 	bm->dxtexture = malloc(sizeof(dx_texture)); //RT_ArenaAllocStruct(&g_arena, dx_texture);
+	if (!bm->dxtexture)
+		abort();
 
 	bm->dxtexture->handle = RT_RESOURCE_HANDLE_NULL;
 	bm->dxtexture->lw = bm->dxtexture->w = bm->dxtexture->tw = bm->bm_w;
 	bm->dxtexture->h = bm->dxtexture->th = bm->bm_h;
+	bm->dxtexture->is_png = 0;
 
 	//calculate u/v values that would make the resulting texture correctly sized
 	bm->dxtexture->u = (float)((double)bm->dxtexture->w / (double)bm->dxtexture->tw);
@@ -278,6 +282,33 @@ void dx12_loadbmtexture_f(grs_bitmap* bm, int texfilt)
 		};
 
 		bm->dxtexture->handle = RT_UploadTexture(&tex_upload_params);
+	}
+}
+
+void dx12_load_png(grs_bitmap *bm, const char *basename)
+{
+	RT_ArenaMemoryScope(&g_thread_arena)
+	{
+		char *file = RT_ArenaPrintF(&g_thread_arena, "assets/textures/%s_basecolor.png", basename);
+
+		RT_Image image = RT_LoadImageFromDisk(&g_thread_arena, file, 4, false);
+
+		if (image.pixels)
+		{
+			if (!bm->dxtexture)
+				dx12_init_texture(bm);
+			//dx_texture *dt = bm->dxtexture;
+			//dt->w = dt->lw = dt->tw = image.width;
+			//dt->h = dt->th = image.height;
+			if (RT_RESOURCE_HANDLE_VALID(bm->dxtexture->handle))
+				RT_ReleaseTexture(bm->dxtexture->handle);
+			bm->dxtexture->handle = RT_UploadTexture(&(RT_UploadTextureParams) {
+				.image = image,
+				.name  = file,
+				.flags = RT_TextureFlag_NoMips
+			});
+			bm->dxtexture->is_png = 1;
+		}
 	}
 }
 

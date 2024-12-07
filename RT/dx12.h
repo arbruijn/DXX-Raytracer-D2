@@ -11,6 +11,7 @@ typedef struct _dx_texture
 	RT_ResourceHandle handle;
 	int w, h, tw, th, lw;
 	float u, v;
+	ubyte is_png;
 } dx_texture;
 
 void dx12_start_frame();
@@ -27,5 +28,6 @@ bool dx12_ubitmapm_cs(int x, int y, int dw, int dh, grs_bitmap* bm, int c, int s
 bool dx12_ubitblt(int dw, int dh, int dx, int dy, int sw, int sh, int sx, int sy, grs_bitmap* src, grs_bitmap* dst, int texfilt);
 void dx12_freebmtexture(grs_bitmap *bm);
 void dx12_mark_gamebitmap_obsolete(int index);
+void dx12_load_png(grs_bitmap *bm, const char *basename);
 
 #endif //_DX_12_H

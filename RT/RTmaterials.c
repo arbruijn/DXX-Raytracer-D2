@@ -17,6 +17,8 @@
 #include "dx12.h"
 #include "rle.h"
 #include "bm.h"
+#include "gauges.h"
+#include "console.h"
 
 // ------------------------------------------------------------------
 
@@ -696,10 +698,21 @@ void RT_SyncMaterialStates(void)
 	int upd = 0;
 
 	ubyte is_obj[MAX_BITMAP_FILES];
+	ubyte is_gauge[MAX_BITMAP_FILES];
 
 	memset(is_obj, 0, sizeof(is_obj));
 	for (int i = 0; i < MAX_OBJ_BITMAPS; i++)
 		is_obj[ObjBitmaps[i].index] = 1;
+
+	memset(is_gauge, 0, sizeof(is_gauge));
+	for (int i = 0; i < MAX_GAUGE_BMS; i++) {
+		is_gauge[Gauges[i].index] = 1;
+#ifdef D2
+		is_gauge[Gauges_hires[i].index] = 1;
+#endif
+	}
+	for (int i = 0; i < Num_cockpits; i++)
+		is_gauge[cockpit_bitmap[i].index] = 1;
 
 #ifdef D2
 	int have_custom = Bitmap_replacement_data != NULL;
@@ -713,7 +726,8 @@ void RT_SyncMaterialStates(void)
 		for (int bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 			if (g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
 				g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded &&
-				!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap))
+				(is_gauge[bm_index] ? GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png :
+					!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap)))
 				g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
 	}
 
@@ -721,6 +735,9 @@ void RT_SyncMaterialStates(void)
 	{
 		char bitmap_name[13];
 		piggy_get_bitmap_name(bm_index, bitmap_name);
+
+		//if (strncmp(bitmap_name, "targ", 4) == 0)
+		//	con_printf(CON_NORMAL, "targ %d: %s\n", bm_index, bitmap_name);
 
 		// NOTE(daniel): Substance Designer does not like hashtags in names and
 		// turns them into underscores.
@@ -738,7 +755,13 @@ void RT_SyncMaterialStates(void)
 
 		if (material->texture_load_state_next == RT_MaterialTextureLoadState_Unloaded || material->texture_load_state == RT_MaterialTextureLoadState_Obsolete)
 		{
-			if (material->texture_load_state == RT_MaterialTextureLoadState_Obsolete ||
+			if (is_gauge[bm_index]) {
+				if (material->texture_load_state == RT_MaterialTextureLoadState_Obsolete) {
+					if (GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png)
+						dx12_freebmtexture(&GameBitmaps[bm_index]);
+					material->texture_load_state = RT_MaterialTextureLoadState_Unloaded;
+				}
+			} else if (material->texture_load_state == RT_MaterialTextureLoadState_Obsolete ||
 				!(material->flags & RT_MaterialFlag_GameBitmap)) // unload hires to make space
 			{
 				// Unload the material
@@ -753,9 +776,23 @@ void RT_SyncMaterialStates(void)
 
 				RT_UpdateMaterial(bm_index, material);
 				upd++;
+
+				if (GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->w != GameBitmaps[bm_index].bm_w)
+					dx12_freebmtexture(&GameBitmaps[bm_index]);
 			}
 			if (material->texture_load_state_next == RT_MaterialTextureLoadState_Unloaded)
 				continue;
+		}
+
+		if (is_gauge[bm_index]) {
+			if (!have_custom &&
+				(material->texture_load_state != RT_MaterialTextureLoadState_Loaded ||
+				!GameBitmaps[bm_index].dxtexture || GameBitmaps[bm_index].dxtexture->is_png)) {
+				dx12_load_png(&GameBitmaps[bm_index], bitmap_name);
+				material->texture_load_state = GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png ?
+					RT_MaterialTextureLoadState_Loaded : RT_MaterialTextureLoadState_Unloaded;
+			}
+			continue;
 		}
 
 		if (!have_custom && (material->always_load_texture || ( material->texture_load_state != material->texture_load_state_next)))
