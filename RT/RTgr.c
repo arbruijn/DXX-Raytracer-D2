@@ -1037,7 +1037,7 @@ void RT_DrawSubPolyModel(RT_ResourceHandle submodel, const RT_Mat4* const submod
 		if (grd_curcanv->cv_fade_level < GR_FADE_OFF)
 		{
 			component = 0.0f;	// cloaked ships should have black materials
-			alpha = 1.0f - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0f);
+			alpha = 1.0f - (float)grd_curcanv->cv_fade_level / ((float)GR_FADE_LEVELS - 1.0f) + 0.5f; // 0.5f hack for common.hlsl adjusted distribution
 		}
 
 		RT_Vec4 color = { component, component, component, alpha };
