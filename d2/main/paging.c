@@ -387,6 +387,7 @@ void paging_touch_all()
 	paging_touch_vclip( &Vclip[VCLIP_POWERUP_DISAPPEARANCE] );
 	paging_touch_vclip( &Vclip[VCLIP_MONITOR_STATIC] );
 
+	paging_touch_model(Marker_model_num);
 
 #ifdef PSX_BUILD_TOOLS
 
