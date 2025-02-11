@@ -101,16 +101,6 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 		gr_remap_mono_fonts();
 
 		Color_0_31_0 = -1;		//for gauges
-
-#ifdef RT_DX12
-		if (d_stricmp(last_tex_palette,name) != 0 && d_stricmp(name,MENU_PALETTE) != 0) {
-			if (last_tex_palette[0]) {
-				show_boxed_message("Updating palette...", 0);
-				RT_UpdateAllBitmaps();
-			}
-			strncpy(last_tex_palette,name,sizeof(last_tex_palette));
-		}
-#endif
 	}
 
 
@@ -124,6 +114,9 @@ int load_palette(char *name,int used_for_level,int no_change_screen)
 
 		texmerge_flush();
 		rle_cache_flush();
+#ifdef RT_DX12
+		RT_UpdateAllBitmaps();
+#endif
 	}
 
 	return 1;

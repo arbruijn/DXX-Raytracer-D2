@@ -727,7 +727,7 @@ void RT_SyncMaterialStates(void)
 			if (g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
 				g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded &&
 				(is_gauge[bm_index] ? GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png :
-					!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap)))
+					!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap) || RT_RESOURCE_HANDLE_VALID(g_rt_materials[bm_index].emissive_texture)))
 				g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
 	}
 
