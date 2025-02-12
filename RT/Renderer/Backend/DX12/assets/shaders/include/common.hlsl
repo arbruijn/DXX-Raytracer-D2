@@ -783,7 +783,7 @@ bool IsHitTransparent(uint instance_idx, uint primitive_idx, float2 barycentrics
 	{
 		Material material2 = g_materials[material_index2];
 		Texture2D tex_albedo_material2 = GetTextureFromIndex(material2.albedo_index);
-		float4 albedo2 = tex_albedo_material2.SampleLevel(g_sampler_point_wrap, uv_rotated, 0);
+		albedo2 = tex_albedo_material2.SampleLevel(g_sampler_point_wrap, uv_rotated, 0);
 
 		// Check for supertransparency pixel
 		// The reason the xyz check is 0.95 and not 1.0 like original game is to handle compressed textures slightly shifting colors 
