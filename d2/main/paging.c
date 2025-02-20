@@ -244,7 +244,8 @@ void paging_touch_side( segment * segp, int sidenum )
 {
 	int tmap1, tmap2;
 
-	if (!(WALL_IS_DOORWAY(segp,sidenum) & WID_RENDER_FLAG))
+	//if (!(WALL_IS_DOORWAY(segp,sidenum) & WID_RENDER_FLAG))
+	if (segp->children[sidenum] != -1 && segp->sides[sidenum].wall_num == -1)
 		return;
 	
 	tmap1 = segp->sides[sidenum].tmap_num;
