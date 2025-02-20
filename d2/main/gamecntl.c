@@ -1234,7 +1234,7 @@ void kill_all_robots(void)
 //	Place player just outside exit.
 //	Kill all bots in mine.
 //	Yippee!!
-void kill_and_so_forth(void)
+void kill_and_so_forth(int secret)
 {
 	int     i, j;
 
@@ -1254,7 +1254,7 @@ void kill_and_so_forth(void)
 	do_controlcen_destroyed_stuff(NULL);
 
 	for (i=0; i<Num_triggers; i++) {
-		if (Triggers[i].type == TT_EXIT) {
+		if (Triggers[i].type == (secret ? TT_SECRET_EXIT : TT_EXIT)) {
 			for (j=0; j<Num_walls; j++) {
 				if (Walls[j].trigger == i) {
 					compute_segment_center(&ConsoleObject->pos, &Segments[Walls[j].segnum]);
@@ -1496,10 +1496,11 @@ int HandleTestKey(int key)
 		}
 
 		case KEY_DEBUGGED+KEY_SHIFTED+KEY_B:
+		case KEY_DEBUGGED+KEY_SHIFTED+KEY_N:
 			if (Player_is_dead)
 				return 0;
 
-			kill_and_so_forth();
+			kill_and_so_forth(key==KEY_DEBUGGED+KEY_SHIFTED+KEY_N);
 			break;
 		case KEY_DEBUGGED+KEY_G:
 			GameTime64 = (0x7fffffffffffffffLL) - (F1_0*10);
@@ -1663,7 +1664,7 @@ int FinalCheats(int key)
 
 	if (cheat_codes[gotcha].stateptr == &cheats.killreactor)
 	{
-		kill_and_so_forth();
+		kill_and_so_forth(0);
 	}
 
 	if (cheat_codes[gotcha].stateptr == &cheats.exitpath)
