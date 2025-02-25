@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "fuelcen.h"
 #include "mission.h"
 #include "args.h"
+#include "ai.h"
 
 
 void paging_touch_vclip( vclip * vc )
@@ -177,9 +178,16 @@ void paging_touch_robot( int robot_index )
 	paging_touch_weapon( Robot_info[robot_index].weapon_type );
 
 	// A super-boss can gate in robots...
-	if ( Robot_info[robot_index].boss_flag==2 )	{
-		for (i=0; i<13; i++ )
-			paging_touch_robot(super_boss_gate_type_list[i]);
+	if ( Robot_info[robot_index].boss_flag>=2 )	{
+		int boss = Robot_info[robot_index].boss_flag - BOSS_D2;
+		extern Spew_bots[NUM_D2_BOSSES][3];
+		if (boss >= 0 && boss < NUM_D2_BOSSES) {
+			for (i=0; i<3; i++ )
+				if (Spew_bots[boss][i] != -1)
+					paging_touch_robot(Spew_bots[boss][i]);
+		} else
+			for (i=0; i<13; i++ )
+				paging_touch_robot(super_boss_gate_type_list[i]);
 
 		paging_touch_vclip( &Vclip[VCLIP_MORPHING_ROBOT] );
 	}
