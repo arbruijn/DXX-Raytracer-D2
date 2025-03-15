@@ -295,12 +295,17 @@ const float pos_shield_text[2] = { 226, 532 };
 const float pos_energy_text[2] = { 92, 40 };
 const float pos_text_weapon_primary[2] = { 549, 412 };
 const float pos_text_weapon_secondary[2] = { 701, 764 };
+const float pos_afterburner[2] = { 32, 160 };
+const float pos_bomb_count[2] = { 32, 412 };
 #endif
 
 // scaling gauges
 #define BASE_WIDTH (HIRESMODE? 640 : 320)
 #define BASE_HEIGHT	(HIRESMODE? 480 : 200)
 #if defined(OGL) || defined(RT_DX12)
+#define GET_HUD_SCALE_X()		((double)grd_curscreen->sc_w/BASE_WIDTH)
+#define GET_HUD_SCALE_Y()		((double)grd_curscreen->sc_h/BASE_HEIGHT)
+#define SCALE(scale, n)		((int) ((double) (n) * (scale) + 0.5))
 #define HUD_SCALE_X(x)		((int) ((double) (x) * ((double)grd_curscreen->sc_w/BASE_WIDTH) + 0.5))
 #define HUD_SCALE_Y(y)		((int) ((double) (y) * ((double)grd_curscreen->sc_h/BASE_HEIGHT) + 0.5))
 #define HUD_SCALE_X_1024(x)		((int) ((double) (x) * ((double)grd_curscreen->sc_w) + 0.5))
@@ -717,6 +722,17 @@ static inline void hud_bitblt (int x, int y, grs_bitmap *bm)
 	ogl_ubitmapm_cs (x,y,HUD_SCALE_X (bm->bm_w),HUD_SCALE_Y (bm->bm_h),bm,-1,F1_0);
 #elif RT_DX12
 	dx12_ubitmapm_cs(x, y, HUD_SCALE_X(bm->bm_w), HUD_SCALE_Y(bm->bm_h), bm, -1, F1_0);
+#else
+	gr_ubitmapm(x, y, bm);
+#endif
+}
+
+static inline void hud_bitblt_scale (int x, int y, grs_bitmap *bm, double sx, double sy)
+{
+#ifdef OGL
+	ogl_ubitmapm_cs (x,y,SCALE(sx, bm->bm_w),SCALE(sy, bm->bm_h),bm,-1,F1_0);
+#elif RT_DX12
+	dx12_ubitmapm_cs(x, y, SCALE(sx, bm->bm_w), SCALE(sy, bm->bm_h), bm, -1, F1_0);
 #else
 	gr_ubitmapm(x, y, bm);
 #endif
@@ -1768,23 +1784,30 @@ void draw_afterburner_bar(int afterburner)
 	ubyte afterburner_bar_table[AFTERBURNER_GAUGE_H_L*2] = { 3,11, 3,11, 3,11, 3,11, 3,11, 3,11, 2,11, 2,10, 2,10, 2,10, 2,10, 2,10, 2,10, 1,10, 1,10, 1,10, 1,9, 1,9, 1,9, 1,9, 0,9, 0,9, 0,8, 0,8, 0,8, 0,8, 1,8, 2,8, 3,8, 4,8, 5,8, 6,7 };
 	ubyte afterburner_bar_table_hires[AFTERBURNER_GAUGE_H_H*2] = { 5,20, 5,20, 5,19, 5,19, 5,19, 5,19, 4,19, 4,19, 4,19, 4,19, 4,19, 4,18, 4,18, 4,18, 4,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,18, 3,17, 3,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,17, 2,16, 2,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,16, 1,15, 1,15, 1,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,15, 0,14, 0,14, 0,14, 1,14, 2,14, 3,14, 4,14, 5,14, 6,13, 7,13, 8,13, 9,13, 10,13, 11,13, 12,13 };
 	ubyte *pabt = (HIRESMODE ? afterburner_bar_table_hires : afterburner_bar_table);
+	double sx = GET_HUD_SCALE_X(), sy = GET_HUD_SCALE_Y();
+	int ox = SCALE(sx, AFTERBURNER_GAUGE_X), oy = SCALE(sy, AFTERBURNER_GAUGE_Y);
+
+	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D) {
+		sx = sy = HIRESMODE ? 3 : 6;
+		ox = pos_afterburner[0]; oy = pos_afterburner[1];
+	}
 
 	// Draw afterburner bar
 	PAGE_IN_GAUGE( GAUGE_AFTERBURNER );
-	hud_bitblt( HUD_SCALE_X(AFTERBURNER_GAUGE_X), HUD_SCALE_Y(AFTERBURNER_GAUGE_Y), &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ]);
+	hud_bitblt_scale( ox, oy, &GameBitmaps[ GET_GAUGE_INDEX(GAUGE_AFTERBURNER) ], sx, sy);
 	gr_setcolor( BM_XRGB(0,0,0) );
 	not_afterburner = fixmul(f1_0 - afterburner,AFTERBURNER_GAUGE_H);
 
 	for (y = 0; y < not_afterburner; y++) {
-		for (i = HUD_SCALE_Y (y), j = HUD_SCALE_Y (y + 1); i < j; i++) {
+		for (i = SCALE(sy, y), j = SCALE(sy, y + 1); i < j; i++) {
 			gr_rect (
-				HUD_SCALE_X (AFTERBURNER_GAUGE_X + pabt [y * 2]),
-				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y-1) + i,
-				HUD_SCALE_X (AFTERBURNER_GAUGE_X + pabt [y * 2 + 1] + 1),
-				HUD_SCALE_Y (AFTERBURNER_GAUGE_Y) + i);
+				ox + SCALE(sx, pabt [y * 2]),
+				oy + SCALE(sy, -1) + i,
+				ox + SCALE(sx, pabt [y * 2 + 1] + 1),
+				oy + i);
 			}
 		}
-	gr_set_current_canvas( NULL );
+	//gr_set_current_canvas( NULL );
 }
 
 void draw_shield_bar(int shield)
@@ -1966,7 +1989,8 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 
 	if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D) {
 #ifdef RT_DX12
-		render_ui_bitmap(picture, pic_x, pic_y, pic_x + bm->bm_w * 3, pic_y + bm->bm_h * 3);
+		double sx = HIRESMODE ? 3 : 6, sy = HIRESMODE ? 6 / 2.4 : 6;
+		render_ui_bitmap(picture, pic_x, pic_y, pic_x + bm->bm_w * sx, pic_y + bm->bm_h * sy);
 #endif
 	}
 	else
@@ -3356,6 +3380,10 @@ void render_gauges()
 		gr_get_string_size((energy > 199) ? "200" : (energy > 99) ? "100" : (energy > 9) ? "00" : "0", &ew, &eh, &eaw);
 		gr_printf((pos_energy_text[0]) - (ew / 2),
 			(pos_energy_text[1]), "%d", energy);
+
+		draw_afterburner_bar(Afterburner_charge);
+
+		show_bomb_count(pos_bomb_count[0], pos_bomb_count[1], gr_find_closest_color(0, 0, 0), 0, 0);
 
 		// end of scuffed
 		FNTScaleX = tmp_x;
