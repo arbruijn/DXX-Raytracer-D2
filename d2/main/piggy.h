@@ -86,6 +86,7 @@ extern void piggy_bitmap_page_out_all();
 extern int piggy_page_flushed;
 
 extern ubyte *Bitmap_replacement_data;
+extern int Bitmap_replacement_size;
 
 /* Make GNUC use static inline function as #define with backslash continuations causes problems with dos linefeeds */
 # ifdef __GNUC__

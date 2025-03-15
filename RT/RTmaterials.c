@@ -720,16 +720,19 @@ void RT_SyncMaterialStates(void)
 	int have_custom = 0;
 #endif
 
+#ifdef D2
 	// disable hires materials if any custom to avoid mixed hi/lo-res
 	if (have_custom)
 	{
 		for (int bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
-			if (g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
+			if ((GameBitmaps[bm_index].bm_data >= Bitmap_replacement_data && GameBitmaps[bm_index].bm_data < Bitmap_replacement_data + Bitmap_replacement_size) &&
+				g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
 				g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded &&
 				(is_gauge[bm_index] ? GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png :
 					!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap) || RT_RESOURCE_HANDLE_VALID(g_rt_materials[bm_index].emissive_texture)))
 				g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
 	}
+#endif
 
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
