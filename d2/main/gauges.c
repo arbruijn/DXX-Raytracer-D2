@@ -1960,7 +1960,7 @@ void draw_weapon_info_sub(int info_index,gauge_box *box,int pic_x,int pic_y,char
 		picture = Weapon_info[info_index].picture;
 	}
 	PIGGY_PAGE_IN( picture );
-	bm=&GameBitmaps[Weapon_info[info_index].hires_picture.index];
+	bm=&GameBitmaps[picture.index];
 
 	Assert(bm != NULL);
 
