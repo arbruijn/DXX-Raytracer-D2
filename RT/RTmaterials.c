@@ -693,6 +693,16 @@ int RT_ReloadMaterials(void)
 	return textures_reloaded;
 }
 
+static int bitmap_is_custom(int bm_index)
+{
+#ifdef D2
+	return Bitmap_replacement_data &&
+		(GameBitmaps[bm_index].bm_data >= Bitmap_replacement_data && GameBitmaps[bm_index].bm_data < Bitmap_replacement_data + Bitmap_replacement_size);
+#else
+	return 0;
+#endif
+}
+
 void RT_SyncMaterialStates(void) 
 {
 	int upd = 0;
@@ -714,25 +724,14 @@ void RT_SyncMaterialStates(void)
 	for (int i = 0; i < Num_cockpits; i++)
 		is_gauge[cockpit_bitmap[i].index] = 1;
 
-#ifdef D2
-	int have_custom = Bitmap_replacement_data != NULL;
-#else
-	int have_custom = 0;
-#endif
-
-#ifdef D2
-	// disable hires materials if any custom to avoid mixed hi/lo-res
-	if (have_custom)
-	{
-		for (int bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
-			if ((GameBitmaps[bm_index].bm_data >= Bitmap_replacement_data && GameBitmaps[bm_index].bm_data < Bitmap_replacement_data + Bitmap_replacement_size) &&
-				g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
-				g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded &&
-				(is_gauge[bm_index] ? GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png :
-					!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap) || RT_RESOURCE_HANDLE_VALID(g_rt_materials[bm_index].emissive_texture)))
-				g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
-	}
-#endif
+	// disable hires material if it is customized
+	for (int bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
+		if (bitmap_is_custom(bm_index) &&
+			g_rt_materials[bm_index].texture_load_state_next == RT_MaterialTextureLoadState_Loaded &&
+			g_rt_materials[bm_index].texture_load_state == RT_MaterialTextureLoadState_Loaded &&
+			(is_gauge[bm_index] ? GameBitmaps[bm_index].dxtexture && GameBitmaps[bm_index].dxtexture->is_png :
+				!(g_rt_materials[bm_index].flags & RT_MaterialFlag_GameBitmap) || RT_RESOURCE_HANDLE_VALID(g_rt_materials[bm_index].emissive_texture)))
+			g_rt_materials[bm_index].texture_load_state = RT_MaterialTextureLoadState_Obsolete;
 
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
 	{
@@ -788,7 +787,7 @@ void RT_SyncMaterialStates(void)
 		}
 
 		if (is_gauge[bm_index]) {
-			if (!have_custom &&
+			if (!bitmap_is_custom(bm_index) &&
 				(material->texture_load_state != RT_MaterialTextureLoadState_Loaded ||
 				!GameBitmaps[bm_index].dxtexture || GameBitmaps[bm_index].dxtexture->is_png)) {
 				dx12_load_png(&GameBitmaps[bm_index], bitmap_name);
@@ -798,7 +797,7 @@ void RT_SyncMaterialStates(void)
 			continue;
 		}
 
-		if (!have_custom && (material->always_load_texture || ( material->texture_load_state != material->texture_load_state_next)))
+		if (!bitmap_is_custom(bm_index) && (material->always_load_texture || ( material->texture_load_state != material->texture_load_state_next)))
 		{
 			if ((material->always_load_texture && material->texture_load_state == RT_MaterialTextureLoadState_Unloaded) || (material->texture_load_state == RT_MaterialTextureLoadState_Unloaded && material->texture_load_state_next == RT_MaterialTextureLoadState_Loaded ) )
 			{
