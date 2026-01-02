@@ -432,7 +432,7 @@ void RT_ShowLightMenu()
 		igSliderFloat("Spot Softness", &h->spot_softness, 0.01f, 0.5f, "%.02f", 0);
 		igDummy((ImVec2){0.0f, igGetFontSize()});
 	}
-	igPopID(1);
+	igPopID();
 
 	igText("Level Lights");
 

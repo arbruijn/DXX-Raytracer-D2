@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "dxx-raytracer-ar",
+  "version-semver": "1.3.0",
+  "dependencies": [
+    "libflac",
+    "libmikmod",
+    "libogg",
+    "libvorbis",
+    "mpg123"
+  ],
+  "vcpkg-configuration": {
+    "default-registry": {
+      "kind": "git",
+      "baseline": "2d6a6cf3ac9a7cc93942c3d289a2f9c661a6f4a7",
+      "repository": "https://github.com/microsoft/vcpkg"
+    }
+  }
+}

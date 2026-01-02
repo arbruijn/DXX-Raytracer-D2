@@ -236,7 +236,7 @@ void show_titles(void)
 		// YES, LOADING THE TITLE SCREEN IS MISSION CRITICAL TO THE GAME, AND IF YOU
 		// DON'T DO IT OR DO IT IN THE WRONG ORDER THE GAME TEXTURES GET ALL SCREWED
 		// UP. ARE YOU MAD.
-		load_the_palette_of_the_title_screen_like_a_fucking_psycho((((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx", 1)) ? "descenth.pcx" : "descent.pcx"), 1, 0);
+		load_the_palette_of_the_title_screen_like_a_fucking_psycho((((SWIDTH>=640&&SHEIGHT>=480) && PHYSFSX_exists("descenth.pcx", 1)) ? "descenth.pcx" : "descent.pcx"));
 	}
 	else
 	{
