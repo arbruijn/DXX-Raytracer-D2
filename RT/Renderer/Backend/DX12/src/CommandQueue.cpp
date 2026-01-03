@@ -70,6 +70,10 @@ void CommandQueue::WaitForFenceValue(uint64_t fence_value)
 		HANDLE fenceEvent = ::CreateEvent(NULL, FALSE, FALSE, NULL);
 		RT_ASSERT(fenceEvent && "Failed to create fence event handle");
 
+#ifndef RELEASE
+		if (!fence_value)
+			fence_value = 1;
+#endif
 		DX_CALL(m_d3d12_fence->SetEventOnCompletion(fence_value, fenceEvent));
 		::WaitForSingleObject(fenceEvent, static_cast<DWORD>(DWORD_MAX));
 
