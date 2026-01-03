@@ -265,7 +265,7 @@ void align_polygon_model_data(polymodel *pm)
 #endif //def WORDS_NEED_ALIGNMENT
 
 //reads a binary file containing a 3d model
-polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
+polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r,char ***textures)
 {
 	PHYSFS_file *ifile;
 	short version;
@@ -274,7 +274,7 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 	ubyte	model_buf[MODEL_BUF_SIZE];
 
 	if ((ifile=PHYSFSX_openReadBuffered(filename))==NULL)
-		Error("Can't open file <%s>",filename);
+		return NULL;
 
 	Assert(PHYSFS_fileLength(ifile) <= MODEL_BUF_SIZE);
 
@@ -405,9 +405,15 @@ polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r)
 				char name_buf[128];
 
 				n = pof_read_short(model_buf);
-				while (n--) {
+				if (textures)
+					*textures = d_malloc(sizeof(char *) * (n + 1));
+				for (int i = 0; i < n; i++) {
 					pof_read_string(name_buf,128,model_buf);
+					if (textures)
+						(*textures)[i] = d_strdup(name_buf);
 				}
+				if (textures)
+					(*textures)[n] = NULL;
 
 				break;
 			}
@@ -723,7 +729,8 @@ int load_polygon_model(char *filename,int n_textures,grs_bitmap ***textures)
 	Assert(strlen(filename) <= 12);
 	strcpy(Pof_names[N_polygon_models],filename);
 
-	read_model_file(&Polygon_models[N_polygon_models],filename,r);
+	if (!read_model_file(&Polygon_models[N_polygon_models],filename,r,NULL))
+		Error("Can't open file <%s>",filename);
 
 	polyobj_find_min_max(&Polygon_models[N_polygon_models]);
 

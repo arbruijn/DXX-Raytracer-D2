@@ -79,7 +79,7 @@ void init_textures();
 
 extern int  Num_object_subtypes;     // Number of possible IDs for the current type of object to be placed
 
-#define MAX_OBJ_BITMAPS     610
+#define MAX_OBJ_BITMAPS     700
 
 extern int N_ObjBitmaps;
 extern bitmap_index ObjBitmaps[MAX_OBJ_BITMAPS];
@@ -96,5 +96,7 @@ int load_exit_models();
 
 void set_previous_custom_polygon_models();
 void reload_previous_custom_polygon_models();
+
+void load_extra_models();
 
 #endif /* _BM_H */

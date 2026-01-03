@@ -166,6 +166,33 @@ int gamedata_init()
 	return 0;
 }
 
+void load_extra_models()
+{
+	char **ship_textures;
+	if (read_model_file(&Polygon_models[N_polygon_models], "assets/ship.pof", NULL, &ship_textures)) {
+		char **pp;
+
+		Polygon_models[N_polygon_models].first_texture = N_ObjBitmaps;
+		for (pp = ship_textures; *pp; pp++) {
+			bitmap_index bmp = piggy_find_bitmap(*pp);
+			if (bmp.index == 0)
+				Error("cannot find texture %s from ship.pof", *pp);
+			ObjBitmapPtrs[N_ObjBitmaps] = N_ObjBitmaps;
+			ObjBitmaps[N_ObjBitmaps] = bmp;
+			N_ObjBitmaps++;
+			d_free(*pp);
+		}
+		Polygon_models[N_polygon_models].n_textures = N_ObjBitmaps - Polygon_models[N_polygon_models].first_texture;
+
+		d_free(ship_textures);
+
+		Dying_modelnums[N_polygon_models] = Dying_modelnums[only_player_ship.model_num];
+		Dead_modelnums[N_polygon_models] = Dead_modelnums[only_player_ship.model_num];
+		only_player_ship.model_num = N_polygon_models;
+		N_polygon_models++;
+	}
+}
+
 void rt_init()
 {
 #ifdef RT_DX12
@@ -257,6 +284,10 @@ void bm_read_all(PHYSFS_file * fp)
 	}
 	else
 		exit_modelnum = destroyed_exit_modelnum = N_polygon_models;
+
+	extern int Num_bitmap_files;
+	if (Num_bitmap_files > 1) // on startup, this is called before reading the pig
+		load_extra_models();
 }
 
 //these values are the number of each item in the release of d2

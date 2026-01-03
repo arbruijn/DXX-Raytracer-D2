@@ -12,7 +12,7 @@
 
 #define RT_MAX_TEXTURES  (3*2010)
 #define RT_MAX_BITMAP_FILES (2620) // mirrored from the game to avoid dependency on game headers 
-#define RT_MAX_OBJ_BITMAPS (210) // mirrored from the game to avoid dependency on game headers 
+#define RT_MAX_OBJ_BITMAPS (700) // mirrored from the game to avoid dependency on game headers 
 #define RT_EXTRA_BITMAP_COUNT (100) // for GLTF loading and such, some extra headroom
 #define RT_EXTRA_BITMAPS_START (RT_MAX_BITMAP_FILES + RT_MAX_OBJ_BITMAPS)
 #define RT_MAX_MATERIALS (RT_MAX_BITMAP_FILES + RT_MAX_OBJ_BITMAPS + RT_EXTRA_BITMAP_COUNT)

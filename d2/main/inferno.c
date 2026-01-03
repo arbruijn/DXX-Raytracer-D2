@@ -423,6 +423,8 @@ int main(int argc, char *argv[])
 	//piggy_init_pigfile("groupa.pig");	//get correct pigfile
 	load_palette("groupa.256", 1, 0);
 
+	load_extra_models();
+
 	void rt_init();
 	rt_init();
 
