@@ -10,7 +10,7 @@ set(CMAKE_CXX_COMPILER_ID, "MSVC")
 set(BUILD_ARGS "-w" "dupbuild=warn")
 
 #Version Control & Identification
-message("Build the Descent 1")
+#message("Build the Descent 1")
 add_compile_definitions(PUBLIC  
 
 #This enum decides if we are in the shipping build or not, this is for the future.
@@ -91,7 +91,7 @@ add_subdirectory ("sdl-master")
 add_subdirectory ("sdl-mixer-master")
 add_subdirectory ("physfs-main")
 add_subdirectory ("RT")
-add_subdirectory ("d1")
+#add_subdirectory ("d1")
 add_subdirectory ("d2")
 
 if(${GRAPHICS_API} STREQUAL "DirectX12")

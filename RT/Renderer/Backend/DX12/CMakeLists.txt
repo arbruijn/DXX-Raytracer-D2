@@ -89,7 +89,7 @@ install(FILES ${Renderer_PUBLIC_HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 #Executable-Object
 set_target_properties ( Renderer PROPERTIES
 	PUBLIC_HEADER "${Renderer_PUBLIC_HEADER}"
-	RUNTIME_OUTPUT_DIRECTORY $<TARGET_FILE_DIR:descent1>
+	RUNTIME_OUTPUT_DIRECTORY $<TARGET_FILE_DIR:descent2>
 )
 
 set_property(TARGET Renderer PROPERTY CXX_STANDARD 17)
@@ -144,6 +144,7 @@ add_custom_command(TARGET Renderer POST_BUILD
         "${CMAKE_CURRENT_SOURCE_DIR}/DXC/bin/x64/dxil.dll"
         $<TARGET_FILE_DIR:Renderer>)
 
+if (false)
 add_executable(Showcase_Renderer
 "src/main.cpp")
 
@@ -151,8 +152,9 @@ target_link_libraries(Showcase_Renderer
 Renderer)
 
 set_target_properties ( Showcase_Renderer PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY $<TARGET_FILE_DIR:descent1>
+	RUNTIME_OUTPUT_DIRECTORY $<TARGET_FILE_DIR:descent2>
 )
+endif()
 
 #copies over external assets if they are changed.
 add_subdirectory("assets")

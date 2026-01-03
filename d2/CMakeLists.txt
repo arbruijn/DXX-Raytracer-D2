@@ -301,15 +301,15 @@ if(${GRAPHICS_API} STREQUAL "DirectX12")
 #        $<TARGET_FILE_DIR:descent2>
 #		COMMENT "copying Renderer.pdb to output d2 folder")
 
-add_custom_command(TARGET descent2 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$<TARGET_FILE_DIR:descent1>/dxcompiler.dll"
-        $<TARGET_FILE_DIR:descent2>)
+#add_custom_command(TARGET descent2 POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy
+#        "$<TARGET_FILE_DIR:descent1>/dxcompiler.dll"
+#        $<TARGET_FILE_DIR:descent2>)
 
-add_custom_command(TARGET descent2 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy
-        "$<TARGET_FILE_DIR:descent1>/dxil.dll"
-        $<TARGET_FILE_DIR:descent2>)
+#add_custom_command(TARGET descent2 POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E copy
+#        "$<TARGET_FILE_DIR:descent1>/dxil.dll"
+#        $<TARGET_FILE_DIR:descent2>)
 
 #copy shaders when a change happened.
 add_custom_target(game_copy_shaders_d2 ALL

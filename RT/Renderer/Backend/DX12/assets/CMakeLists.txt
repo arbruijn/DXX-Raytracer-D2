@@ -7,4 +7,4 @@ add_custom_target(copy_shaders ALL
    $<TARGET_FILE_DIR:Renderer>/assets
     COMMENT "Change found in shaders or the asset folder, copying over Assets folder to output directory.")
 
-add_dependencies(Showcase_Renderer copy_shaders)
+#add_dependencies(Showcase_Renderer copy_shaders)
