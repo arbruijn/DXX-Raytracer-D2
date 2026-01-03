@@ -2508,27 +2508,29 @@ void multi_reset_object_texture (object *objp)
 		mid = Netgame.players[objp->id].missilecolor;
 	}
 
-	if (id == 0) {
-		if(wid == 0 && mid == 0) {
-			objp->rtype.pobj_info.alt_textures=0;
-		} else {
-			objp->rtype.pobj_info.alt_textures=8;
-			// Initialize the other textures
-			for(int i = 0; i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures; i++) {
-				multi_player_textures[7][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
-			}
-			multi_player_textures[7][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
-			multi_player_textures[7][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
-		}
-	} else {
+	if (id == 0 && (wid != 0 || mid != 0))
+		id = 8;
+	if (id) {
 		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
 			Error("Too many player ship textures!\n");
 
-		for (i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++)
-			multi_player_textures[id-1][i] = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
+		bitmap_index bmp4 = piggy_find_bitmap("ship1-4");
+		bitmap_index bmp5 = piggy_find_bitmap("ship1-5");
+		int idx4 = -1, idx5 = -1;
 
-		multi_player_textures[id-1][4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
-		multi_player_textures[id-1][5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
+		for (i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++) {
+			bitmap_index bmp = ObjBitmaps[ObjBitmapPtrs[Polygon_models[objp->rtype.pobj_info.model_num].first_texture+i]];
+			if (bmp.index == bmp4.index)
+				idx4 = i;
+			if (bmp.index == bmp5.index)
+				idx5 = i;
+			multi_player_textures[id-1][i] = bmp;
+		}
+
+		if (idx4 != -1 && mid)
+			multi_player_textures[id-1][idx4] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(mid-1)*2]];
+		if (idx5 != -1 && wid)
+			multi_player_textures[id-1][idx5] = ObjBitmaps[ObjBitmapPtrs[First_multi_bitmap_num+(wid-1)*2+1]];
 
 		objp->rtype.pobj_info.alt_textures = id;
 	}
