@@ -288,6 +288,8 @@ void bm_read_all(PHYSFS_file * fp)
 	extern int Num_bitmap_files;
 	if (Num_bitmap_files > 1) // on startup, this is called before reading the pig
 		load_extra_models();
+
+	exit_modelnum = destroyed_exit_modelnum = 0;
 }
 
 //these values are the number of each item in the release of d2
@@ -321,8 +323,14 @@ void bm_free_extra_models()
 {
 	while (N_polygon_models > N_D2_POLYGON_MODELS)
 		free_model(&Polygon_models[--N_polygon_models]);
+}
+
+void bm_free_exit_models() {
+	if (!exit_modelnum)
+		return;
 	while (N_polygon_models > exit_modelnum)
 		free_model(&Polygon_models[--N_polygon_models]);
+	exit_modelnum = destroyed_exit_modelnum = 0;
 }
 
 //type==1 means 1.1, type==2 means 1.2 (with weapons)
@@ -559,7 +567,7 @@ int load_exit_models()
 	PHYSFS_file *exit_hamfile;
 	int start_num;
 
-	bm_free_extra_models();
+	bm_free_exit_models();
 	bm_free_extra_objbitmaps();
 
 	start_num = N_ObjBitmaps;
