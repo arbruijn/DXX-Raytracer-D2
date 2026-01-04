@@ -2514,8 +2514,10 @@ void multi_reset_object_texture (object *objp)
 		if (N_PLAYER_SHIP_TEXTURES < Polygon_models[objp->rtype.pobj_info.model_num].n_textures)
 			Error("Too many player ship textures!\n");
 
-		bitmap_index bmp4 = piggy_find_bitmap("ship1-4");
-		bitmap_index bmp5 = piggy_find_bitmap("ship1-5");
+		static char name4[] = "ship1-4";
+		static char name5[] = "ship1-5";
+		bitmap_index bmp4 = piggy_find_bitmap(name4);
+		bitmap_index bmp5 = piggy_find_bitmap(name5);
 		int idx4 = -1, idx5 = -1;
 
 		for (i=0;i<Polygon_models[objp->rtype.pobj_info.model_num].n_textures;i++) {
