@@ -398,6 +398,8 @@ void paging_touch_all()
 
 	paging_touch_model(Marker_model_num);
 
+	paging_touch_model(only_player_ship.model_num);
+
 #ifdef PSX_BUILD_TOOLS
 
 	//PSX STUFF
