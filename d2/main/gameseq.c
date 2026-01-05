@@ -732,6 +732,11 @@ void LoadLevel(int level_num,int page_in_textures)
 
 	load_level_robots(level_num);
 
+	extern int endlevel_data_loaded;
+	if (endlevel_data_loaded)
+		if (!load_exit_models())
+			endlevel_data_loaded = 0;
+
 	if ( page_in_textures )
 		piggy_load_level_data();
 

@@ -487,7 +487,7 @@ void load_terrain(char *filename)
                 triangles[n_triangles].normal1 = normal1;
                 triangles[n_triangles].normal2 = normal1;
                 triangles[n_triangles].color = 0xFFFFFFFF;
-                triangles[n_triangles].material_edge_index = RT_MATERIAL_ENDLEVEL_TERRAIN;
+                triangles[n_triangles].material_edge_index = RT_MATERIAL_ENDLEVEL_TERRAIN | RT_TRIANGLE_HOLDS_MATERIAL_EDGE;
                 n_triangles++;
 
                 // Create triangle 2
@@ -501,7 +501,7 @@ void load_terrain(char *filename)
                 triangles[n_triangles].normal1 = normal2;
                 triangles[n_triangles].normal2 = normal2;
 				triangles[n_triangles].color = 0xFFFFFFFF;
-                triangles[n_triangles].material_edge_index = RT_MATERIAL_ENDLEVEL_TERRAIN;
+                triangles[n_triangles].material_edge_index = RT_MATERIAL_ENDLEVEL_TERRAIN | RT_TRIANGLE_HOLDS_MATERIAL_EDGE;
                 n_triangles++;
             }
         }

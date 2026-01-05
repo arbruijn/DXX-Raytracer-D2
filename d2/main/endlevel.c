@@ -353,7 +353,7 @@ void start_endlevel_sequence()
 			exit_models_loaded = 1; // built-in for PC shareware
 
 		else
-			exit_models_loaded = load_exit_models();
+			exit_models_loaded = 1; // load_exit_models(); // moved to gameseq
 
 		if (exit_models_loaded)
 		{

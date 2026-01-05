@@ -359,6 +359,7 @@ void RT_UpdateMaterialIndices(void)
 	g_rt_material_indices[RT_MATERIAL_FLAT_WHITE] = RT_MATERIAL_FLAT_WHITE;
 	g_rt_material_indices[RT_MATERIAL_EMISSIVE_WHITE] = RT_MATERIAL_EMISSIVE_WHITE;
 	g_rt_material_indices[RT_MATERIAL_BLACK] = RT_MATERIAL_BLACK;
+	g_rt_material_indices[RT_MATERIAL_ENDLEVEL_TERRAIN] = RT_MATERIAL_ENDLEVEL_TERRAIN;
 }
 
 void gr_flip(void)
