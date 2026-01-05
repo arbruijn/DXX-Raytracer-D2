@@ -657,11 +657,16 @@ static void RT_GetPolyData(RT_TriangleBuffer *buf,
 
 				// wow. good code.
 
-				bool should_be_emissive = false, is_black = false;
+				bool should_be_emissive = false, is_black = false, is_gray = false;
 
 #ifdef D2
 				is_black = r == b && r == g && r < 32;
-				should_be_emissive = !is_black;
+				is_gray = r == b && r == g && r < 144;
+				should_be_emissive = !is_gray;
+				if (should_be_emissive && !is_black)
+					for (int i = 0; i < N_polygon_models; i++)
+						if (jank_currently_loading_poly_model == Dead_modelnums[i])
+							should_be_emissive = false;
 #else
 				if (PCSharePig)
 				{
