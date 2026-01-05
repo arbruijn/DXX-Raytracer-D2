@@ -727,6 +727,14 @@ int briefing_process_char(briefing *br)
 			if (EMULATING_D1) {
 				init_spinning_robot(br);
 				br->robot_num = get_message_num(&br->message);
+#ifdef RT_DX12
+				if (br->robot_num >= 0 && br->robot_num < N_robot_types) {
+					paging_touch_model(Robot_info[br->robot_num].model_num);
+					void RT_UpdatePagedIn(void);
+					RT_UpdatePagedIn();
+					RT_SyncMaterialStates();
+				}
+#endif
 				while (*br->message++ != 10)
 					;
 			} else {

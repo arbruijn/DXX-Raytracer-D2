@@ -545,6 +545,17 @@ void RT_InitAllBitmaps(void)
 	g_rt_last_texture_update_time = time(NULL);
 }
 
+void RT_UpdatePagedIn(void)
+{
+	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
+	{
+		RT_Material* def = &g_rt_materials[bm_index];
+		if (!(GameBitmaps[bm_index].bm_flags & BM_FLAG_PAGED_OUT) &&
+			def->texture_load_state_next == RT_MaterialTextureLoadState_Unloaded)
+			def->texture_load_state_next = GameBitmaps[bm_index].bm_flags & BM_FLAG_PAGED_OUT ? RT_MaterialTextureLoadState_Unloaded : RT_MaterialTextureLoadState_Loaded;
+	}
+}
+
 void RT_UpdateAllBitmaps(void) 
 {
 	for (uint16_t bm_index = 1; bm_index < MAX_BITMAP_FILES; bm_index++)
