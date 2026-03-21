@@ -61,7 +61,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "Game/Lights.h"
 #include "RTmaterials.h"
 #include "RTgr.h"
+#include "material_viewer.h"
 #include "dx12.h"
+#include "polymodel_viewer.h"
 #endif
 
 #define INITIAL_LOCAL_LIGHT (F1_0/4)    // local light value in segment of occurence (of light emission)

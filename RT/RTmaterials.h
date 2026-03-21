@@ -55,4 +55,6 @@ RT_API RT_MaterialPathsExist g_rt_material_paths_exist[RT_MAX_TEXTURES];    // r
 RT_API RT_Material      g_rt_materials_default     [RT_MAX_TEXTURES];
 RT_API RT_MaterialPaths g_rt_material_paths_default[RT_MAX_TEXTURES];
 
+RT_API void RT_MarkMaterialObsolete(int bm_index);
+
 #pragma pack(pop)

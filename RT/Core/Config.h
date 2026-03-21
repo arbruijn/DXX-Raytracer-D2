@@ -40,6 +40,7 @@ RT_API void RT_DeserializeConfigFromString(RT_Config *cfg, RT_String string);
 RT_API bool RT_ConfigReadString(RT_Config *cfg, RT_String key, RT_String *value);
 RT_API bool RT_ConfigReadFloat(RT_Config *cfg, RT_String key, float *value);
 RT_API bool RT_ConfigReadInt(RT_Config *cfg, RT_String key, int *value);
+RT_API bool RT_ConfigReadBool(RT_Config *cfg, RT_String key, bool *value);
 RT_API bool RT_ConfigReadVec2(RT_Config *cfg, RT_String key, RT_Vec2 *value);
 RT_API bool RT_ConfigReadVec3(RT_Config *cfg, RT_String key, RT_Vec3 *value);
 RT_API void RT_ConfigWriteString(RT_Config *cfg, RT_String key, RT_String value);

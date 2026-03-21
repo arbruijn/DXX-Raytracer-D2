@@ -22,5 +22,6 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #define _PAGING_H
 
 void paging_touch_all();
+void paging_touch_model( int modelnum );
 
 #endif /* _PAGING_H */

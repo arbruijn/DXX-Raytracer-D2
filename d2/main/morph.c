@@ -341,7 +341,7 @@ void draw_model(object* obj, int submodel_num, g3s_lrgb light, morph_data* md)
 	polymodel* pm = &Polygon_models[obj->rtype.pobj_info.model_num];
 
 #ifdef RT_DX12
-	RT_DrawPolyModelTree(obj->rtype.pobj_info.model_num, obj->signature, obj->type, &obj->pos, &obj->orient, &obj->rtype.pobj_info.anim_angles, 0);
+	RT_DrawPolyModelTree(obj->rtype.pobj_info.model_num, obj->signature, obj->type, &obj->pos, &obj->orient, obj->rtype.pobj_info.anim_angles, 0);
 	return;
 #endif //RT_DX12
 

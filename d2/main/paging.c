@@ -180,7 +180,7 @@ void paging_touch_robot( int robot_index )
 	// A super-boss can gate in robots...
 	if ( Robot_info[robot_index].boss_flag>=2 )	{
 		int boss = Robot_info[robot_index].boss_flag - BOSS_D2;
-		extern Spew_bots[NUM_D2_BOSSES][3];
+		extern int Spew_bots[NUM_D2_BOSSES][3];
 		if (boss >= 0 && boss < NUM_D2_BOSSES) {
 			for (i=0; i<3; i++ )
 				if (Spew_bots[boss][i] != -1)

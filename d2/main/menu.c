@@ -1580,7 +1580,7 @@ void raytrace_config()
 
 int opt_gr_texfilt, opt_gr_movietexfilt, opt_gr_brightness, opt_gr_reticlemenu, opt_gr_alphafx, opt_gr_dynlightcolor, opt_gr_vsync, opt_gr_multisample, opt_gr_fpsindi, opt_gr_disablecockpit;
 #ifdef RT_DX12
-int opt_gr_raytracemenu; opt_gr_enable_pathtracing;
+int opt_gr_raytracemenu, opt_gr_enable_pathtracing;
 #endif
 
 int graphics_config_menuset(newmenu *menu, d_event *event, void *userdata)

@@ -13,6 +13,9 @@
 #include "console.h"
 #include "ImageReadWrite.h"
 
+int get_centered_x(const char *s);
+void get_char_width(ubyte c, ubyte c2, int *width, int *spacing);
+
 // ------------------------------------------------------------------
 
 static RT_Arena g_arena;
@@ -30,7 +33,9 @@ unsigned char blackpyro_tex2[8] = { 255, 168, 255, 168, 226, 168, 224, 255 };
 unsigned char whitepyro_tex1[8] = { 60, 59, 27, 27, 27, 27, 23, 60 };
 unsigned char whitepyro_tex2[8] = { 255, 144, 255, 144, 226, 144, 224, 255 };
 
-const float M_PI = 3.14159265f;
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 RT_Mat4 projection_matrix;
 
@@ -621,7 +626,7 @@ void dx12_ulinec(int left, int top, int right, int bot, int c)
 }
 
 // Use: render.c, terrain.c, automap.c, meddraw.c, draw.c
-bool g3_draw_line(g3s_point* p0, g3s_point* p1)
+bool g3_draw_line(const g3s_point* p0, const g3s_point* p1)
 {
 	int c;
 	c = grd_curcanv->cv_color;
@@ -917,7 +922,7 @@ uint32_t* dx12_load_bitmap_pixel_data(RT_Arena* arena, grs_bitmap* bitmap)
 {
 	if (bitmap->bm_type == BM_RGBA8)
 	{
-		return bitmap->bm_data;
+		return (uint32_t *)bitmap->bm_data;
 	}
 
 	if (bitmap->bm_flags & BM_FLAG_RLE)

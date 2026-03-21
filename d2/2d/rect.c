@@ -24,6 +24,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#ifdef RT_DX12
+#include "dx12.h"
+#endif
 
 
 void gr_urect(int left,int top,int right,int bot)

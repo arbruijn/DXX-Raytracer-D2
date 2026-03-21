@@ -14,6 +14,10 @@
 
 float g_light_multiplier = 1.0;
 float g_light_multiplier_default = 1.0;
+bool g_pending_light_update = false;
+bool g_light_visual_debug = false;
+int  g_active_lights = 0;
+RT_HeadlightSettings g_headlights = {0};
 const float FLT_MAX = 3.402823466e+38F;
 
 typedef struct RT_SettingsNotification
@@ -489,7 +493,7 @@ void RT_ShowLightMenu()
 
 					igText("Emission: {%f, %f, %f}", light->emission.x, light->emission.y, light->emission.z);
 
-					if (igColorEdit3("Emission", &light->emission, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR)){
+					if (igColorEdit3("Emission", light->emission.e, ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR)){
 						g_pending_light_update = true;
 					}
 
@@ -591,7 +595,9 @@ void RT_LoadLightSettings()
 			char *file_name = RT_ArenaPrintF(&g_thread_arena, "lights/%s.vars", def->name);
 			if (RT_DeserializeConfigFromFile(cfg, file_name))
 			{
-				RT_ConfigReadInt(cfg, RT_StringLiteral("kind"), &def->kind);
+				int kind;
+				RT_ConfigReadInt(cfg, RT_StringLiteral("kind"), &kind);
+				def->kind = kind;
 				RT_ConfigReadVec3(cfg, RT_StringLiteral("emission"), &def->emission);
 				RT_ConfigReadFloat(cfg, RT_StringLiteral("radius"), &def->radius);
 				RT_ConfigReadVec2(cfg, RT_StringLiteral("size"), &def->size);

@@ -40,6 +40,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "digi.h"
 #include "rbaudio.h"
 #include "text.h"
+
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif
 #include "songs.h"
 #include "menu.h"
 #include "mission.h"

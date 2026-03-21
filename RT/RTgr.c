@@ -1,3 +1,4 @@
+#include "3d.h"
 #include "gr.h"
 #include "internal.h"
 #include "RTgr.h"
@@ -65,6 +66,8 @@ CockpitSettings g_rt_cockpit_settings = {
 
 RT_GLTFNode* g_rt_cockpit_gltf;
 RT_FreeCamInfo g_rt_free_cam_info = { 0 };
+RT_Camera g_cam;
+RT_Camera g_free_cam;
 int light_culling_heuristic = 1;
 int max_rec_depth = 32;
 float max_distance = 600;
@@ -95,7 +98,7 @@ RT_Mat4 old_poly_matrix[MAX_OBJECTS];
 
 #define MAX_POINTS_PER_POLY 25
 //Some jank inherited from interp.c, might change it but likely not.
-g3s_point* point_list[MAX_POINTS_PER_POLY];
+static g3s_point* point_list[MAX_POINTS_PER_POLY];
 
 
 #define w(p)  (*((short *) (p)))
@@ -487,7 +490,7 @@ int gr_init(int mode)
 	//Init video here, sadly it's wrong but it will be resized in gr_set_mode.
 	SDL_Surface* surf = SDL_SetVideoMode(w, h, 32, SDL_DOUBLEBUF | SDL_HWSURFACE | SDL_ANYFORMAT);
 	
-	SDL_EventState(SDL_IGNORE, NULL);
+	//SDL_EventState(SDL_IGNORE, NULL);
 	RT_RendererInitParams initParams;
 	SDL_SysWMinfo info;
 	
@@ -590,9 +593,9 @@ void RT_SetPointList(g3s_point* dest, vms_vector* src, int n)
 		g3_rotate_point(dest++, src++);
 }
 
-vms_angvec zero_angles;
+static vms_angvec zero_angles;
 
-g3s_point* point_list[MAX_POINTS_PER_POLY];
+extern g3s_point* point_list[MAX_POINTS_PER_POLY];
 
 // NOTE(daniel): Here for hardcoding certain materials for flat polys
 // for different meshes. It's not the best.
@@ -1308,7 +1311,7 @@ void RT_LoadDynamicLightSettings(void)
 
 		if (RT_DeserializeConfigFromFile(cfg, "lights/dynamic_lights.vars"))
 		{
-			RT_ConfigReadInt(cfg, RT_StringLiteral("weapon_flare_lights"), &info->weaponFlareLights);
+			RT_ConfigReadBool(cfg, RT_StringLiteral("weapon_flare_lights"), &info->weaponFlareLights);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("weapon_brightness"), &info->weaponBrightMod);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("weapon_radius"), &info->weaponRadiusMod);
 
@@ -1320,12 +1323,12 @@ void RT_LoadDynamicLightSettings(void)
 				RT_ConfigReadFloat(cfg, RT_FormatString(&g_thread_arena, "%s_radius", adj->weapon_name), &adj->radiusMul);
 			}
 
-			RT_ConfigReadInt(cfg, RT_StringLiteral("explosion_lights"), &info->explosionLights);
+			RT_ConfigReadBool(cfg, RT_StringLiteral("explosion_lights"), &info->explosionLights);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("explosion_brightness"), &info->explosionBrightMod);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("explosion_radius"), &info->explosionRadiusMod);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("explosion_type_bias"), &info->explosionTypeBias);
 
-			RT_ConfigReadInt(cfg, RT_StringLiteral("muzzle_lights"), &info->muzzleLights);
+			RT_ConfigReadBool(cfg, RT_StringLiteral("muzzle_lights"), &info->muzzleLights);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("muzzle_brightness"), &info->muzzleBrightMod);
 			RT_ConfigReadFloat(cfg, RT_StringLiteral("muzzle_radius"), &info->muzzleRadiusMod);
 		}
@@ -1439,12 +1442,12 @@ void RT_StartImGuiFrame(void)
 		if (igBegin("3D Cockpit", NULL, 0)) {
 			igPushID_Str("Dynamic Lights");
 			igIndent(0);
-			value_changed |= igDragFloat3("Front View Rotation", &g_rt_cockpit_settings.front_cockpit_rotation, 0.001f, -RT_PI32, +RT_PI32, "%.3f", ImGuiTreeNodeFlags_None);
-			value_changed |= igDragFloat3("Front View Offset", &g_rt_cockpit_settings.front_cockpit_offset, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
-			value_changed |= igDragFloat3("Front View Scale", &g_rt_cockpit_settings.front_cockpit_scale, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
-			value_changed |= igDragFloat3("Rear View Rotation", &g_rt_cockpit_settings.back_cockpit_rotation, 0.001f, -RT_PI32, +RT_PI32, "%.3f", ImGuiTreeNodeFlags_None);		
-			value_changed |= igDragFloat3("Rear View Offset", &g_rt_cockpit_settings.back_cockpit_offset, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
-			value_changed |= igDragFloat3("Rear View Scale", &g_rt_cockpit_settings.back_cockpit_scale, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
+			value_changed |= igDragFloat3("Front View Rotation", g_rt_cockpit_settings.front_cockpit_rotation.e, 0.001f, -RT_PI32, +RT_PI32, "%.3f", ImGuiTreeNodeFlags_None);
+			value_changed |= igDragFloat3("Front View Offset", g_rt_cockpit_settings.front_cockpit_offset.e, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
+			value_changed |= igDragFloat3("Front View Scale", g_rt_cockpit_settings.front_cockpit_scale.e, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
+			value_changed |= igDragFloat3("Rear View Rotation", g_rt_cockpit_settings.back_cockpit_rotation.e, 0.001f, -RT_PI32, +RT_PI32, "%.3f", ImGuiTreeNodeFlags_None);		
+			value_changed |= igDragFloat3("Rear View Offset", g_rt_cockpit_settings.back_cockpit_offset.e, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
+			value_changed |= igDragFloat3("Rear View Scale", g_rt_cockpit_settings.back_cockpit_scale.e, 0.001f, -10.0, 10.0, "%.3f", ImGuiTreeNodeFlags_None);
 
 			igPopID();
 		} igEnd();

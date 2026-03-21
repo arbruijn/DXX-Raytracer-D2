@@ -30,5 +30,6 @@ void dx12_freebmtexture(grs_bitmap *bm);
 void dx12_mark_gamebitmap_obsolete(int index);
 void dx12_load_png(grs_bitmap *bm, const char *basename);
 void dx12_ulinec(int left, int top, int right, int bot, int c);
+void dx12_upixelc(int x, int y, int c);
 
 #endif //_DX_12_H

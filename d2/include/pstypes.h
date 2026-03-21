@@ -57,14 +57,13 @@ typedef unsigned int uint;
 #define PATH_MAX 4096
 #endif
 
-#ifdef __cplusplus
-#define bool psbool
- typedef ubyte bool;
-#endif
-
-#ifndef bool
+#ifndef __cplusplus
+#ifdef RT_DX12
+#include <stdbool.h>
+#elif !defined(bool) && (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 202301L)
 //define a boolean
 typedef ubyte bool;
+#endif
 #endif
 
 #ifndef NULL

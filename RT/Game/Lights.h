@@ -6,14 +6,14 @@
 #include "Core/MiniMath.h"
 #include "Renderer.h"
 
-bool g_pending_light_update;
-bool g_light_visual_debug;
-int  g_active_lights;
+extern bool g_pending_light_update;
+extern bool g_light_visual_debug;
+extern int  g_active_lights;
 // Light multiplier to tweak brightness of all the lights.
 // Because this might change in runtime (end of level sequence), the ImGui windows should make use of the g_light_multiplier_default.
-float g_light_multiplier;
+extern float g_light_multiplier;
 // Default light multiplier (not changed during runtime)
-float g_light_multiplier_default;
+extern float g_light_multiplier_default;
 
 typedef struct RT_HeadlightSettings
 {
@@ -27,7 +27,7 @@ typedef struct RT_HeadlightSettings
 	float spot_softness;
 } RT_HeadlightSettings;
 
-RT_HeadlightSettings g_headlights;
+extern RT_HeadlightSettings g_headlights;
 
 typedef struct RT_LightDefinition
 {

@@ -3243,10 +3243,10 @@ void render_gauges()
 		// note(lily): this might be the most giga scuffed code I've ever written, but don't worry about it :D
 		const float tmp_x = FNTScaleX;
 		const float tmp_y = FNTScaleY;
-		const auto tmp_bm_w = grd_curcanv->cv_bitmap.bm_w;
-		const auto tmp_bm_h = grd_curcanv->cv_bitmap.bm_h;
-		const auto tmp_last_width = last_width;
-		const auto tmp_last_height = last_height;
+		const int tmp_bm_w = grd_curcanv->cv_bitmap.bm_w;
+		const int tmp_bm_h = grd_curcanv->cv_bitmap.bm_h;
+		const int tmp_last_width = last_width;
+		const int tmp_last_height = last_height;
 		
 		grd_curcanv->cv_bitmap.bm_w = 1024;
 		grd_curcanv->cv_bitmap.bm_h = 1024;

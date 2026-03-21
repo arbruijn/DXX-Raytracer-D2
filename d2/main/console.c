@@ -19,6 +19,9 @@
 #include "key.h"
 #include "vers_id.h"
 #include "timer.h"
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif
 
 static PHYSFS_file *gamelog_fp=NULL;
 static struct console_buffer con_buffer[CON_LINES_MAX];

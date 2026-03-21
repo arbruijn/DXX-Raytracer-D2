@@ -71,6 +71,10 @@ typedef long long ssize_t;
 //	long tv_usec;
 //} timeval;
 
+#ifdef WIN32
+extern int gettimeofday(struct timeval* tp, struct timezone* tzp);
+#endif
+
 #if 0
 int gettimeofday(struct timeval* tp, struct timezone* tzp)
 {

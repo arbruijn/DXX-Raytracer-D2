@@ -165,7 +165,7 @@ RT_ResourceHandle RT_UploadLevelGeometry()
 
 				side *s = &seg->sides[side_index];
 				int vertnum_list[4];
-				get_side_verts(&vertnum_list, seg_id, side_index);
+				get_side_verts(vertnum_list, seg_id, side_index);
 
 				int vert_ids[4];
 
@@ -506,7 +506,7 @@ void RT_FindAndSubmitNearbyLights(RT_Vec3 player_pos)
 
 	// Segment based
 	else if (light_culling_heuristic == 1) {
-		const auto max_lights = RT_MAX_LIGHTS - RT_RaytraceGetCurrentLightCount(); // keep some room for dynamic lights
+		const int max_lights = RT_MAX_LIGHTS - RT_RaytraceGetCurrentLightCount(); // keep some room for dynamic lights
 		m_lights_found = 0;
 		uint8_t visit_list[MAX_SEGMENTS] = { 0 };
 		uint8_t lights_added[_countof(m_lights)] = { 0 };

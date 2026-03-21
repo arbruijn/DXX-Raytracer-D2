@@ -14,6 +14,11 @@ USE_UDP
 USE_TRACKER
 D2)
 
+if(NOT MSVC)
+add_compile_definitions(HAVE_STRUCT_TIMESPEC)
+add_compile_options(-Wno-deprecated-declarations)
+endif()
+
 # start temp copy
 add_compile_definitions(PUBLIC  
 
@@ -95,7 +100,7 @@ file(GLOB UI_SOURCES
 )
 endif()
 
-if(CMAKE_BUILD_TYPE MATCHES Release)
+if(CMAKE_BUILD_TYPE MATCHES Release OR NOT MSVC)
 #disable console on release.
 add_executable(descent2 WIN32)
 else()
@@ -269,12 +274,19 @@ $ENV{RT_EXT_CODE_DIR}
 
 add_compile_definitions(PUBLIC USE_SDLMIXER)
 
+if(MSVC)
+set(MINGWLIB "")
+else()
+set(MINGWLIB mingw32)
+endif()
+
+
 target_link_libraries(descent2 
 physfs-static
-#mingw32
+SDL_mixer_master
+${MINGWLIB}
 sdlmain
 sdl
-SDL_mixer_master
 dxguid
 Winmm
 Ws2_32

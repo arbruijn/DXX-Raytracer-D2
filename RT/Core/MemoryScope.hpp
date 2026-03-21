@@ -76,7 +76,7 @@ public:
 			m_first_cleanup = tracker;
 		}
 
-		T *result = RT_ArenaAllocStructNoZero(m_marker.arena, typename T);
+		T *result = RT_ArenaAllocStructNoZero(m_marker.arena, T);
 		result = new (result) T{ static_cast<Args &&>(args)... };
 
 		return result;

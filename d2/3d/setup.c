@@ -31,6 +31,9 @@ COPYRIGHT 1993-1998 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #else
 #include "texmap.h"  // for init_interface_vars_to_assembler()
 #endif
+#ifdef RT_DX12
+#include "dx12.h"
+#endif
 
 //start the frame
 void g3_start_frame(void)

@@ -6,7 +6,7 @@ if (MSVC)
     set (CMAKE_COMPILE_WARNING_AS_ERROR ON)
 else()
     add_compile_options(-Wno-error -fms-extensions -Wno-nontrivial-memcall
-    -Wno-missing-field-initializers -Wno-writable-strings
+    -Wno-missing-field-initializers -Wno-write-strings
     -Wno-missing-braces -Wno-switch)
 endif()
 
@@ -137,6 +137,7 @@ target_link_libraries(Renderer
 
 if(NOT MSVC)
 target_link_libraries(Renderer d3dcompiler dwmapi shlwapi)
+target_link_options(Renderer PRIVATE -Wl,--export-all-symbols)
 endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -171,7 +172,7 @@ Renderer)
 set_target_properties ( Showcase_Renderer PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY $<TARGET_FILE_DIR:descent2>
 )
-endif()
 
 #copies over external assets if they are changed.
 add_subdirectory("assets")
+endif()

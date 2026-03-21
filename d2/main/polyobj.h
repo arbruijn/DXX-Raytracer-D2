@@ -47,7 +47,7 @@ extern int Dead_modelnums[MAX_POLYGON_MODELS];
 
 #ifdef RT_DX12
  // todo(lily): HACK HACK HACK we should 100% delete this once we have raytraced briefing models
-RT_UploadMeshParams meshVerticesRawHack[MAX_POLYGON_MODELS];
+extern RT_UploadMeshParams meshVerticesRawHack[MAX_POLYGON_MODELS];
 
 typedef struct RT_ModelTree 
 { // used in submodel rendering
@@ -137,5 +137,7 @@ extern int polymodel_read_n(polymodel *pm, int n, PHYSFS_file *fp);
  */
 void polygon_model_data_read(polymodel *pm, PHYSFS_file *fp);
 void polygon_model_data_commit(polymodel* pm);
+
+polymodel *read_model_file(polymodel *pm,char *filename,robot_info *r,char ***textures);
 
 #endif /* _POLYOBJ_H */

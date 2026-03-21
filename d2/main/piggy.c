@@ -53,6 +53,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "effects.h"
 
+#ifdef RT_DX12
+#include "dx12.h"
+#endif
+
 //#define NO_DUMP_SOUNDS        1   //if set, dump bitmaps but not sounds
 
 #define DEFAULT_PIGFILE_REGISTERED      "groupa.pig"

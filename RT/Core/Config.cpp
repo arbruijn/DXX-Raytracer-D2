@@ -202,6 +202,17 @@ bool RT_ConfigReadInt(RT_Config *cfg, RT_String key, int *value)
 	return result;
 }
 
+bool RT_ConfigReadBool(RT_Config *cfg, RT_String key, bool *value)
+{
+	int result;
+	bool ret;
+
+	ret = RT_ConfigReadInt(cfg, key, &result);
+	if (ret)
+		*value = (bool)result;
+	return ret;
+}
+
 bool RT_ConfigReadVec2(RT_Config *cfg, RT_String key, RT_Vec2 *value)
 {
 	bool result = false;

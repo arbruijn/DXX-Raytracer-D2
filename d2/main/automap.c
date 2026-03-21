@@ -72,6 +72,9 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #ifdef OGL
 #include "ogl_init.h"
 #endif
+#ifdef RT_DX12
+#include "RTgr.h"
+#endif
 
 #define LEAVE_TIME 0x4000
 

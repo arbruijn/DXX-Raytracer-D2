@@ -38,7 +38,7 @@ BASE_FPS_INDICATOR=1)
 if (WIN32)
 add_compile_definitions(PUBLIC 
 _WIN32 WINDOWS_IGNORE_PACKING_MISMATCH 
-WIN32_LEAN_AND_MEAN
+WIN32_LEAN_AND_MEAN=
 NOMINMAX
 _CRT_SECURE_NO_WARNINGS
 )
@@ -96,6 +96,7 @@ add_subdirectory ("d2")
 
 if(${GRAPHICS_API} STREQUAL "DirectX12")
 
+if(false)
 add_custom_target(renderer_to_d2
     COMMAND ${CMAKE_COMMAND} -E copy
     "$<TARGET_FILE_DIR:Renderer>/Renderer.dll"
@@ -105,5 +106,6 @@ add_custom_target(renderer_to_d2
     ${CMAKE_BINARY_DIR}/d2
     COMMENT "Copying Renderer to output d2 folder")
 add_dependencies(descent2 renderer_to_d2)
+endif()
 
 endif()

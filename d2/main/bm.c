@@ -62,6 +62,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "Core/Arena.h"
 #include "dx12.h"
 #include "RTmaterials.h"
+#include "RTgr.h"
 #endif
 
 ubyte Sounds[MAX_SOUNDS];

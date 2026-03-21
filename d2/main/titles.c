@@ -50,6 +50,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "console.h"
 #include "args.h"
 #include "gamepal.h"
+#include "paging.h"
 #ifdef OGL
 #include "ogl_init.h"
 #endif
@@ -60,6 +61,7 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "Core/Arena.h"
 #include "Core/MiniMath.h"
 #include "ImageReadWrite.h"
+#include "RTmaterials.h"
 #endif
 
 extern unsigned RobSX,RobSY,RobDX,RobDY; // Robot movie coords

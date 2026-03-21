@@ -35,6 +35,10 @@ COPYRIGHT 1993-1999 PARALLAX SOFTWARE CORPORATION.  ALL RIGHTS RESERVED.
 #include "bm.h"
 #include "textures.h"
 #include "object.h"
+
+#ifdef RT_DX12
+RT_UploadMeshParams meshVerticesRawHack[MAX_POLYGON_MODELS];
+#endif
 #include "lighting.h"
 #include "piggy.h"
 #endif
@@ -628,7 +632,7 @@ void draw_polygon_model(_RT_DRAW_POLY vms_vector* pos, vms_matrix* orient, vms_a
 					.submodel_index = i,
 				};
 
-				RT_DrawSubPolyModel(po->submodel[i], &combined_matrix, key);
+				RT_DrawSubPolyModel(po->submodel[i], &combined_matrix, key, 0);
 
 				// g_rt_prev_submodel_transforms[objNum].transforms[i] = combined_matrix;
 #endif //RT_DX12

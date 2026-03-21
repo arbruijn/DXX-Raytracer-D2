@@ -26,6 +26,7 @@ extern int Endlevel_sequence;
 void do_endlevel_frame();
 void stop_endlevel_sequence();
 void start_endlevel_sequence();
+void render_external_scene(fix eye_offset);
 void render_endlevel_frame(fix eye_offset);
 
 void render_external_scene();

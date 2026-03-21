@@ -27,7 +27,11 @@
 
 #ifndef thread_local
 // MSVC does not implement _Thread_local for C even though they have __declspec(thread) which is the same thing!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#ifdef _MSC_VER
 #define thread_local __declspec(thread)
+#else
+#define thread_local __thread
+#endif
 #endif
 
 #else
@@ -70,7 +74,14 @@ typedef struct RT_Vec3i
 
 typedef struct RT_Vec3
 {
-	float x, y, z;
+	union
+	{
+		struct
+		{
+			float x, y, z;
+		};
+		float e[3];
+	};
 } RT_Vec3;
 
 typedef struct RT_Vec4
