@@ -5,6 +5,7 @@
 #include "gr.h"
 #include "key.h"
 #include "game.h"
+#include "timer.h"
 
 //Pauses the game without showing a window
 //msg must be null since it doesn't get deleted and it doesn't do anything for this handler.

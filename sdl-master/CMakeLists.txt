@@ -29,7 +29,10 @@ file(
 	${SDL}/src/cdrom/win32/*.c
 	${SDL}/src/joystick/win32/*.c
 	${SDL}/src/loadso/win32/*.c
-	${SDL}/src/thread/win32/*.c
+	#${SDL}/src/thread/win32/*.c
+	${SDL}/src/thread/win32/SDL_sysmutex.c
+	${SDL}/src/thread/win32/SDL_syssem.c
+	${SDL}/src/thread/win32/SDL_systhread.c
 	${SDL}/src/timer/win32/*.c
 	${SDL}/src/video/wincommon/*.c
 	${SDL}/src/video/windib/*.c
@@ -54,7 +57,6 @@ if (WIN32)
 	set( LIBSDL_SOURCES ${LIBSDL_SOURCES} ${SDL_WIN32_SOURCES} )
 	set( LIBSDLMAIN_SOURCES ${SDL}/src/main/win32/SDL_win32_main.c )
 	file( STRINGS ${SDL}/include/SDL_config.h.default SDL_CONFIG_HEADER )
-	message( AUTHOR_WARNING "+ Building for Windows.")
 elseif( UNIX AND APPLE )
 	set( LIBSDL_SOURCES ${LIBSDL_SOURCES} ${SDL_MACOS_SOURCES} )
 	set( LIBSDLMAIN_SOURCES ${SDL}/src/main/macosx/SDLMain.m )
@@ -64,7 +66,6 @@ elseif( UNIX AND APPLE )
 	set( CXXFLAGS "${CFLAGS} -fno-exceptions -fno-rtti" )
 
 	file( STRINGS ${CMAKE_CURRENT_SOURCE_DIR}/SDL_config.h.macOS SDL_CONFIG_HEADER )
-	message( AUTHOR_WARNING "+ Building for macOS.")
 else()
 	message( FATAL_ERROR "Unknown operating system-- aborting." )
 endif()

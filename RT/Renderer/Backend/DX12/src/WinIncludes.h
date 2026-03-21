@@ -70,5 +70,5 @@ inline void ExplainHRESULT(HRESULT hr, char *title, char *file, int line)
 	}                                     \
 	while (false)
 
-#define SafeRelease(object) ((object) ? (object)->Release(), (object) = nullptr : (void)0)
+#define SafeRelease(object) ((object) ? (object)->Release(), (object) = nullptr, (void)0 : (void)0)
 #define DeferRelease(object) defer { SafeRelease(object); };

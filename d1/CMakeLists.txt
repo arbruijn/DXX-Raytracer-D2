@@ -12,6 +12,10 @@ WINDOWS_IGNORE_PACKING_MISMATCH
 USE_UDP
 USE_TRACKER)
 
+if(NOT MSVC)
+	add_compile_options(-Wno-deprecated -Wno-switch -Wno-address-of-packed-member)
+endif()
+
 if(${GRAPHICS_API} STREQUAL "DirectX12")
 	#Raytracing interface Source code
 set(Graphic_Includes

@@ -3,10 +3,12 @@ cmake_minimum_required (VERSION 3.8)
 
 if (MSVC)
     add_compile_options(/W4 /WX /wd4201 /wd4324)
+    set (CMAKE_COMPILE_WARNING_AS_ERROR ON)
 else()
-    add_compile_options(-Wall -Wextra -pedantic -Werror /wd4201 /wd4324)
+    add_compile_options(-Wno-error -fms-extensions -Wno-nontrivial-memcall
+    -Wno-missing-field-initializers -Wno-writable-strings
+    -Wno-missing-braces -Wno-switch)
 endif()
-set (CMAKE_COMPILE_WARNING_AS_ERROR ON)
 
 #general settings
 set (IMGUI_SOURCE_FILES
@@ -47,6 +49,13 @@ set (Renderer_PUBLIC_HEADER
 "../Common/include/GLTFLoader.h"
 "../Common/include/ImageReadWrite.h") 
 
+if (MSVC)
+    set(FSR2_SOURCE "src/FSR2.cpp")
+else()
+    set(FSR2_SOURCE "src/FSR2Stub.cpp")
+endif()
+
+
 set (Renderer_SOURCE
 "src/Renderer.cpp"
 "src/RenderBackend.cpp"
@@ -62,12 +71,16 @@ set (Renderer_SOURCE
 "src/ResourceTracker.cpp"
 "src/mikktspace.c"
 "src/MeshTracker.cpp"
-"src/FSR2.cpp"
+${FSR2_SOURCE}
 ${IMGUI_SOURCE_FILES}
 ${IMPLOT_SOURCE_FILES}
 )
 
 add_subdirectory("DXC")
+
+if(NOT MSVC)
+list(APPEND Renderer_SOURCE "src/uuid.cpp")
+endif()
 
 # Export all Symbols by default (on Windows creates '.lib'+ '.dll').
 set ( CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON )
@@ -121,6 +134,10 @@ target_link_libraries(Renderer
     RT_CORE
     "${CMAKE_CURRENT_SOURCE_DIR}/DXC/lib/x64/dxcompiler.lib"
 )
+
+if(NOT MSVC)
+target_link_libraries(Renderer d3dcompiler dwmapi shlwapi)
+endif()
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
 target_link_libraries(Renderer

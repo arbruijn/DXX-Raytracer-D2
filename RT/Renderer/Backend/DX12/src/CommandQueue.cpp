@@ -1,7 +1,12 @@
+#include <new>
 #include "CommandQueue.h"
 #include "GlobalDX.h"
 #include "Core/Common.h"
 #include "CommandList.h"
+
+#ifndef DWORD_MAX
+#define DWORD_MAX 0xffffffffU
+#endif
 
 using namespace RT;
 

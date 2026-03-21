@@ -1,3 +1,5 @@
+#define _WIN32_WINNT 0xA00
+#include <new>
 #include "RenderBackend.h"
 #include "GlobalDX.h"
 #include "CommandQueue.h"
@@ -10,6 +12,8 @@
 #include "Core/MiniMath.h"
 #include "Core/MemoryScope.hpp"
 
+#include "../src/uuid.cpp"
+
 // ------------------------------------------------------------------
 // Dear ImGui backend
 
@@ -19,7 +23,7 @@
 // ------------------------------------------------------------------
 
 #include <stdio.h>
-#include <DirectXMath.h>
+#include <directxmath/DirectXMath.h>
 using namespace DirectX;
 
 #define RT_RENDER_SETTINGS_CONFIG_FILE "render_settings.vars"
@@ -318,7 +322,7 @@ namespace
 		#define TWEAK_BOOL(name, var, value) tweak_vars.var = value;
 		#define TWEAK_INT(name, var, value, min, max) tweak_vars.var = value;
 		#define TWEAK_FLOAT(name, var, value, min, max) tweak_vars.var = (float)value;
-		#define TWEAK_COLOR(name, var, value) tweak_vars.var.xyz = RT_PASTE(RT_Vec3Make, value);
+		#define TWEAK_COLOR(name, var, value) tweak_vars.var.xyz = RT_Vec3Make value;
 		#define TWEAK_OPTIONS(name, var, value, ...) tweak_vars.var = value;
 
 		#include "shared_tweakvars.hlsl.h"
@@ -407,8 +411,8 @@ namespace
 		if (NEVER(utf8_count > INT_MAX))  
 			utf8_count = INT_MAX;
 
-		if (utf8_count == 0)  
-			nullptr;
+		//if (utf8_count == 0)  
+		//	nullptr;
 
 		int      utf16_count = MultiByteToWideChar(CP_UTF8, 0, utf8, (int)utf8_count, NULL, 0);
 		wchar_t *utf16_data  = RT_ArenaAllocArray(arena, utf16_count + 1, wchar_t);

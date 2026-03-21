@@ -25,6 +25,10 @@
 #include "ShaderTable.h"
 #endif
 
+#ifndef WKPDID_D3DDebugObjectName
+#define WKPDID_D3DDebugObjectNameW WKPDID_D3DDebugObjectName
+#endif
+
 // Uncomment this to wait after each frame, effectively disabling triple buffering
 // #define RT_FORCE_HEAVY_SYNCHRONIZATION
 
