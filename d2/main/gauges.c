@@ -297,6 +297,11 @@ const float pos_text_weapon_primary[2] = { 549, 412 };
 const float pos_text_weapon_secondary[2] = { 701, 764 };
 const float pos_afterburner[2] = { 32, 160 };
 const float pos_bomb_count[2] = { 32, 412 };
+// Window view areas for 3D cockpit (on 1024x1024 cockpit_hud_texture)
+// Primary window: where primary weapon info goes
+const float pos_cockpit_window_primary[4] = { 404, 405, 530, 512 };
+// Secondary window: where secondary weapon info / missile-rear view goes
+const float pos_cockpit_window_secondary[4] = { 700, 740, 950, 908 };
 #endif
 
 // scaling gauges
@@ -3478,6 +3483,57 @@ void do_cockpit_window_view(int win,object *viewer,int rear_view_flag,int user,c
 		gr_init_sub_canvas(&window_canv,&grd_curscreen->sc_canvas,window_x,window_y,w,h);
 	}
 	else {
+#ifdef RT_DX12
+		if (PlayerCfg.CockpitMode[1] == CM_MODEL_3D) {
+			// Render to cockpit_hud_texture at the weapon info area
+			const float *pos = (win == 0) ? pos_cockpit_window_primary : pos_cockpit_window_secondary;
+			const int tmp_bm_w = grd_curcanv->cv_bitmap.bm_w;
+			const int tmp_bm_h = grd_curcanv->cv_bitmap.bm_h;
+			const int tmp_last_width = last_width;
+			const int tmp_last_height = last_height;
+			const float tmp_x = FNTScaleX;
+			const float tmp_y = FNTScaleY;
+
+			grd_curcanv->cv_bitmap.bm_w = 1024;
+			grd_curcanv->cv_bitmap.bm_h = 1024;
+			last_width = 1024;
+			last_height = 1024;
+			int fnt_scale_mult = grd_curcanv->cv_font->ft_h >= 10 ? 1 : 2;
+			FNTScaleX = 3 * fnt_scale_mult;
+			FNTScaleY = 3 * fnt_scale_mult;
+
+			gr_init_sub_canvas(&window_canv, &grd_curscreen->sc_canvas,
+				(int)pos[0], (int)pos[1],
+				(int)(pos[2] - pos[0]), (int)(pos[3] - pos[1]));
+			gr_set_current_canvas(&window_canv);
+
+			dx12_set_render_target(g_rt_cockpit_settings.cockpit_hud_texture);
+			RT_RasterSetViewport(0, 0, 1024, 1024);
+
+			RT_Flush();
+			float old_ofs = RT_RaytraceGetVerticalOffset();
+			RT_RaytraceSetVerticalOffset(0);
+
+			render_frame(0, win+1);
+
+			RT_RaytraceSetVerticalOffset(old_ofs);
+
+			// Restore state
+			FNTScaleX = tmp_x;
+			FNTScaleY = tmp_y;
+			grd_curcanv->cv_bitmap.bm_w = tmp_bm_w;
+			grd_curcanv->cv_bitmap.bm_h = tmp_bm_h;
+			last_width = tmp_last_width;
+			last_height = tmp_last_height;
+			dx12_set_render_target(RT_RESOURCE_HANDLE_NULL);
+			RT_RasterSetViewport(grd_curcanv->cv_bitmap.bm_x, grd_curcanv->cv_bitmap.bm_y, Canvas_width, Canvas_height);
+
+			gr_set_current_canvas(NULL);
+
+			old_weapon[win] = -1;
+			goto abort;
+		}
+#endif
 		if (PlayerCfg.CockpitMode[1] == CM_FULL_COCKPIT)
 			boxnum = (COCKPIT_PRIMARY_BOX)+win;
 		else if (PlayerCfg.CockpitMode[1] == CM_STATUS_BAR)
